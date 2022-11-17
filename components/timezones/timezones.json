@@ -1,0 +1,105 @@
+[
+    {
+        "label": "Greenwich Mean (GMT)",
+        "value": 0
+    },
+    {
+        "label":  "Central European (CET)",
+        "value": 1
+    },
+    {
+        "label": "Kaliningrad (EET)",
+        "value": 2
+    },
+    {
+        "label": "Moscow Time (MSK)",
+        "value": 3
+    },
+    {
+        "label": "Samara (SAM)",
+        "value": 4
+    },
+    {
+        "label": "Ekaterinburg (EKT)",
+        "value": 5
+    },
+    {
+        "label": "Omsk (OMSK)",
+        "value": 6
+    },
+    {
+        "label": "Kranoyask (KRAT)",
+        "value": 7
+    },
+    {
+        "label": "Irkutsk (IST)",
+        "value": 8
+    },
+    {
+        "label": "Yakutsk (JST)",
+        "value": 9
+    },
+    {
+        "label": "Vladivostok (VST)",
+        "value": 10
+    },
+    {
+        "label": "Magadan (SAKT",
+        "value": 11
+    },
+    {
+        "label": "Komchatka (NZST)",
+        "value": 12
+    },
+    {
+        "label": "West Africa (WAT)",
+        "value": -1
+    },
+    {
+        "label": "Azores (AT)",
+        "value": -2
+    },
+    {
+        "label":  "Argentina (ART)",
+        "value": -3
+    },
+    {
+        "label": "Atlantic Standard (AST)",
+        "value": -4
+    },
+    {
+        "label": "Eastern Standard (EST)",
+        "value": -5
+    },
+    {
+        "label": "Central Standard (CST)",
+        "value": -6
+
+    },
+    {
+        "label": "Mountain Standard (MST)",
+        "value": -7
+    },
+    {
+        "label": "Pacific Standard (PST)",
+        "value": -8
+    },
+    {
+        "label":  "Alaska Standard (AKST)",
+        "value": -9
+    },
+    {
+        "label": "Hawaii Standard (HST)",
+        "value": -10
+    },
+    {
+        "label": "Nome (NT)",
+        "value": -11
+    },
+    {
+        "label": "International Date Line West (IDLW)",
+        "value": -12
+    }
+
+
+]
