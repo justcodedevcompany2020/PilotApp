@@ -124,39 +124,36 @@ export default class App extends Component {
 
     redirectToDeviceSetup = () => {
         this.props.navigation.navigate("DeviceSetup");
-
     }
 
     redirectToSettings = () => {
         this.props.navigation.navigate("Settings");
-
     }
 
     redirectToAllDevices = () => {
         this.props.navigation.navigate("AllDevices");
-
     }
-
 
     redirectToRegistration = () => {
         this.props.navigation.navigate("Registration");
-
     }
 
     turnOffTheLoadToggleSwitch = (value) => {
         this.setState({ turnOffTheLoadSwitchValue: value, turnOffTheLoadSwitchValuePopup: true });
     };
+
     settingNameToggleSwitch = (value) => {
         this.setState({ settingNameSwitchValue: value });
     };
 
     redirectToDetailsGeneralPage = () => {
         this.props.navigation.navigate("DetailsGeneralPage");
-
     }
-    redirectToTestMode = () => {
-        this.props.navigation.navigate("TestMode");
 
+    redirectToTestMode = () => {
+        this.props.navigation.navigate("TestMode", {
+            params: this.props.id
+        });
     }
 
     dateBirth = (date) => {
@@ -165,17 +162,15 @@ export default class App extends Component {
             edit_birth_error: false,
             edit_birth_valid: true,
         })
-
     }
+
     dateBirth2 = (date) => {
         this.setState({
             edit_birth2: date,
             edit_birth_error2: false,
             edit_birth_valid2: true,
         })
-
     }
-
 
     redirectToTestReport = async () => {
 
@@ -697,8 +692,6 @@ export default class App extends Component {
 
 
     }
-
-
     onChangeTime = async (event, timeOriginValue) => {
 
 
@@ -761,32 +754,12 @@ export default class App extends Component {
 
     render() {
 
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
 
 
         // turnOffTheLoadSwitchValuePopup
         if (this.state.turnOffTheLoadSwitchValuePopup) {
             return (
                 <View style={styles.turn_off_the_load_switch_value_popup}>
-                    {/*<TouchableOpacity style={styles.turn_off_the_load_switch_value_popup_close_btn} onPress={() => {this.setState({turnOffTheLoadSwitchValuePopup: false})}}>*/}
-                    {/*    <Svg*/}
-                    {/*        width={30}*/}
-                    {/*        height={30}*/}
-                    {/*        viewBox="0 0 30 30"*/}
-                    {/*        fill="none"*/}
-                    {/*        xmlns="http://www.w3.org/2000/svg"*/}
-                    {/*    >*/}
-                    {/*        <Path*/}
-                    {/*            d="M4.024 5.351a.938.938 0 111.327-1.327l9.65 9.65 9.648-9.65a.938.938 0 111.328 1.327L16.326 15l9.65 9.649a.94.94 0 01-1.327 1.327L15 16.326l-9.649 9.65a.939.939 0 11-1.327-1.327L13.674 15l-9.65-9.649z"*/}
-                    {/*            fill="#004B84"*/}
-                    {/*        />*/}
-                    {/*    </Svg>*/}
-                    {/*</TouchableOpacity>*/}
                     <View style={styles.turn_off_the_load_switch_value_popup_wrapper}>
                           <Text style={styles.turn_off_the_load_switch_value_popup_title}>Внимание!</Text>
                           <Text style={styles.turn_off_the_load_switch_value_popup_info}>
@@ -806,53 +779,49 @@ export default class App extends Component {
 
         return (
             <SafeAreaView style={styles.container} >
-                <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestMode()}}>
-                            <View style={styles.back_btn}>
+                {this.state.headerMenuPopup &&
+                 <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+
+                    <StatusBar style="dark" />
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestMode()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                                <Text style={styles.all_devices_general_page_header_title}>New test</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
                                 <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
+                                    width={28}
+                                    height={25}
+                                    viewBox="0 0 28 25"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
                                 >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
+                                    <Path fill="#004B84" d="M0 0H28V3H0z" />
+                                    <Path fill="#004B84" d="M0 11H28V14H0z" />
+                                    <Path fill="#004B84" d="M0 22H28V25H0z" />
                                 </Svg>
-                            </View>
-                            <Text style={styles.all_devices_general_page_header_title}>New test</Text>
-                        </TouchableOpacity>
+                            </TouchableOpacity>
+                        </View>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg
-                                width={28}
-                                height={25}
-                                viewBox="0 0 28 25"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <Path fill="#004B84" d="M0 0H28V3H0z" />
-                                <Path fill="#004B84" d="M0 11H28V14H0z" />
-                                <Path fill="#004B84" d="M0 22H28V25H0z" />
-                            </Svg>
-                        </TouchableOpacity>
+
                     </View>
-
-
-                </View>
-                <KeyboardAwareScrollView
-                    style={styles.all_devices_general_page_main_wrapper}
-                    enableOnAndroid='true'
-                    enableAutoAutomaticScrol='true'
-                    keyboardOpeningTime={0}>
-                    <View style={styles.new_test_items_wrapper}>
-                        {this.state.date_error &&
+                    <KeyboardAwareScrollView
+                        style={styles.all_devices_general_page_main_wrapper}
+                        enableOnAndroid={true}
+                        // enableAutoAutomaticScrol='true'
+                        keyboardOpeningTime={0}>
+                        <View style={styles.new_test_items_wrapper}>
+                            {this.state.date_error &&
                             <Text style={styles.error_text}>{this.state.date_error_text}</Text>
-                        }
+                            }
                             <View style={styles.new_test_item}>
                                 <Text style={styles.new_test_item_title}>Start</Text>
                                 <TouchableOpacity onPress={() => {
@@ -1090,57 +1059,47 @@ export default class App extends Component {
                             </View>
 
                         </View>
-                </KeyboardAwareScrollView>
+                    </KeyboardAwareScrollView>
 
 
-                <View style={styles.new_test_footer}>
-                    <TouchableOpacity style={styles.new_test_schedule_btn} onPress={() => {this.redirectToTestReport()}}>
-                        <Text style={styles.new_test_schedule_btn_text}>Schedule</Text>
-                    </TouchableOpacity>
-                </View>
-
-
-                {this.state.isOpenDatePicker &&
-                    <View style={styles.timepicker_popup}>
-                    <View style={styles.timepicker_popup_wrapper}>
-                        <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
+                    <View style={styles.new_test_footer}>
+                        <TouchableOpacity style={styles.new_test_schedule_btn} onPress={() => {this.redirectToTestReport()}}>
+                            <Text style={styles.new_test_schedule_btn_text}>Schedule</Text>
                         </TouchableOpacity>
-                        <DateTimePicker
-                            style={{width: '100%', height: 500, marginBottom: 50, justifyContent: 'center', alignItems: 'center', alignSelf: 'center',}}
-                            testID="dateTimePicker"
-                            value={this.state.dateOriginValue}
-                            mode={'datetime'}
-                            is24Hour={true}
-                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                            onChange={(event, timeOriginValue) => {this.onChangeTime(event, timeOriginValue)}}
-                        />
-
-                        {/*<TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOn()}>*/}
-                        {/*    <Text style={styles.save_btn_text}>Save</Text>*/}
-                        {/*</TouchableOpacity>*/}
-
                     </View>
 
-                </View>
 
-                }
+                    {this.state.isOpenDatePicker &&
+                    <View style={styles.timepicker_popup}>
+                        <View style={styles.timepicker_popup_wrapper}>
+                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker: false})}}>
+                                <View>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
+                            <DateTimePicker
+                                style={{width: '100%', height: 500, marginBottom: 50, justifyContent: 'center', alignItems: 'center', alignSelf: 'center',}}
+                                testID="dateTimePicker"
+                                value={this.state.dateOriginValue}
+                                mode={'datetime'}
+                                is24Hour={true}
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={(event, timeOriginValue) => {this.onChangeTime(event, timeOriginValue)}}
+                            />
+
+                            {/*<TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOn()}>*/}
+                            {/*    <Text style={styles.save_btn_text}>Save</Text>*/}
+                            {/*</TouchableOpacity>*/}
+
+                        </View>
+                    </View>
+
+                    }
 
 
-                {this.state.isOpenDatePicker2 &&
+                    {this.state.isOpenDatePicker2 &&
                     <View style={styles.timepicker_popup}>
                         <View style={styles.timepicker_popup_wrapper}>
                             <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker2: false})}}>
@@ -1176,239 +1135,240 @@ export default class App extends Component {
                         </View>
 
                     </View>
+                    }
 
-                }
 
-
-                {this.state.upper_voltage_delay_popup  &&
+                    {this.state.upper_voltage_delay_popup  &&
                     <View style={styles.turn_off_the_load_switch_value_popup}>
-                    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
-                        <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                        </TouchableOpacity>
+                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
+                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
+                                <View>
+                                    <Svg
+                                        width={12}
+                                        height={20}
+                                        viewBox="0 0 12 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <Path
+                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                            fill="#004B84"
+                                        />
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
 
-                        <DropDownPicker
-                            items={
-                                [
-                                    {label: '0', value: '0'},
-                                    {label: '0.5', value: '0.5'},
-                                    {label: '1', value: '1'},
-                                    {label: '1.5', value: '1.5'},
-                                    {label: '2', value: '2'},
-                                    {label: '2.5', value: '2.5'},
-                                    {label: '3', value: '3'},
-                                    {label: '3.5', value: '3.5'},
-                                    {label: '4', value: '4'},
-                                    {label: '4.5', value: '4.5'},
-                                    {label: '5', value: '5'},
-                                    {label: '5.5', value: '5.5'},
-                                    {label: '6', value: '6'},
-                                    {label: '6.5', value: '6.5'},
-                                    {label: '7', value: '7'},
-                                    {label: '7.5', value: '7.5'},
-                                    {label: '8', value: '8'},
-                                    {label: '8.5', value: '8.5'},
-                                    {label: '9', value: '9'},
-                                    {label: '9.5', value: '9.5'},
-                                    {label: '10', value: '10'},
-                                    {label: '10.5', value: '10.5'},
-                                    {label: '11', value: '11'},
-                                    {label: '11.5', value: '11.5'},
-                                    {label: '12', value: '12'},
-                                    {label: '12.5', value: '12.5'},
-                                    {label: '13', value: '13'},
-                                    {label: '13.5', value: '13.5'},
-                                    {label: '14', value: '14'},
-                                    {label: '14.5', value: '14.5'},
-                                    {label: '15', value: '15'},
-                                    {label: '15.5', value: '15.5'},
-                                    {label: '16', value: '16'},
-                                    {label: '16.5', value: '16.5'},
-                                    {label: '17', value: '17'},
-                                    {label: '17.5', value: '17.5'},
-                                    {label: '18', value: '18'},
-                                    {label: '18.5', value: '18.5'},
-                                    {label: '19', value: '19'},
-                                    {label: '19.5', value: '19.5'},
-                                    {label: '20', value: '20'},
-                                    // {label: '20.5', value: '20.5'},
-                                ]
+                            <DropDownPicker
+                                items={
+                                    [
+                                        {label: '0', value: '0'},
+                                        {label: '0.5', value: '0.5'},
+                                        {label: '1', value: '1'},
+                                        {label: '1.5', value: '1.5'},
+                                        {label: '2', value: '2'},
+                                        {label: '2.5', value: '2.5'},
+                                        {label: '3', value: '3'},
+                                        {label: '3.5', value: '3.5'},
+                                        {label: '4', value: '4'},
+                                        {label: '4.5', value: '4.5'},
+                                        {label: '5', value: '5'},
+                                        {label: '5.5', value: '5.5'},
+                                        {label: '6', value: '6'},
+                                        {label: '6.5', value: '6.5'},
+                                        {label: '7', value: '7'},
+                                        {label: '7.5', value: '7.5'},
+                                        {label: '8', value: '8'},
+                                        {label: '8.5', value: '8.5'},
+                                        {label: '9', value: '9'},
+                                        {label: '9.5', value: '9.5'},
+                                        {label: '10', value: '10'},
+                                        {label: '10.5', value: '10.5'},
+                                        {label: '11', value: '11'},
+                                        {label: '11.5', value: '11.5'},
+                                        {label: '12', value: '12'},
+                                        {label: '12.5', value: '12.5'},
+                                        {label: '13', value: '13'},
+                                        {label: '13.5', value: '13.5'},
+                                        {label: '14', value: '14'},
+                                        {label: '14.5', value: '14.5'},
+                                        {label: '15', value: '15'},
+                                        {label: '15.5', value: '15.5'},
+                                        {label: '16', value: '16'},
+                                        {label: '16.5', value: '16.5'},
+                                        {label: '17', value: '17'},
+                                        {label: '17.5', value: '17.5'},
+                                        {label: '18', value: '18'},
+                                        {label: '18.5', value: '18.5'},
+                                        {label: '19', value: '19'},
+                                        {label: '19.5', value: '19.5'},
+                                        {label: '20', value: '20'},
+                                        // {label: '20.5', value: '20.5'},
+                                    ]
 
-                            }
-                            placeholder='Protection upper voltage (V)'
-                            containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                            style={[styles.phone_code_dropdown,
-                                {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                            ]}
-                            itemStyle={{
-                                justifyContent: 'flex-start',
-                                width: 50,
-                                zIndex: 15
-                            }}
-                            selectedLabelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
+                                }
+                                placeholder='Protection upper voltage (V)'
+                                containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
+                                style={[styles.phone_code_dropdown,
+                                    {backgroundColor: '#004B84', height: 45, borderRadius: 0}
+                                ]}
+                                itemStyle={{
+                                    justifyContent: 'flex-start',
+                                    width: 50,
+                                    zIndex: 15
+                                }}
+                                selectedLabelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+                                labelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
 
-                            }}
-                            placeholderStyle={{
-                                fontSize: 14,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-
-
-                            dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                            value={this.state.selectedUpperVoltageDelay}
-                            defaultValue={this.state.selectedUpperVoltageDelay}
+                                }}
+                                placeholderStyle={{
+                                    fontSize: 14,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
 
 
-                            // selectedLabel='English'
-                            arrowColor={'white'}
-                            // onChangeItem={this.onChangeDropDownItem}
-                            onChangeItem={item => {
-                                this.chooseUpperVoltageDelay(item);
-                            }}
+                                dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
+                                value={this.state.selectedUpperVoltageDelay}
+                                defaultValue={this.state.selectedUpperVoltageDelay}
 
 
-                        />
+                                // selectedLabel='English'
+                                arrowColor={'white'}
+                                // onChangeItem={this.onChangeDropDownItem}
+                                onChangeItem={item => {
+                                    this.chooseUpperVoltageDelay(item);
+                                }}
+
+
+                            />
+                        </View>
                     </View>
+                    }
+
+                    {this.state.lower_voltage_delay_popup  &&
+                    <View style={styles.turn_off_the_load_switch_value_popup}>
+                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
+                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
+                                <View>
+                                    <Svg
+                                        width={12}
+                                        height={20}
+                                        viewBox="0 0 12 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <Path
+                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                            fill="#004B84"
+                                        />
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
+
+                            <DropDownPicker
+                                items={
+                                    [
+                                        {label: '0', value: '0'},
+                                        {label: '0.5', value: '0.5'},
+                                        {label: '1', value: '1'},
+                                        {label: '1.5', value: '1.5'},
+                                        {label: '2', value: '2'},
+                                        {label: '2.5', value: '2.5'},
+                                        {label: '3', value: '3'},
+                                        {label: '3.5', value: '3.5'},
+                                        {label: '4', value: '4'},
+                                        {label: '4.5', value: '4.5'},
+                                        {label: '5', value: '5'},
+                                        {label: '5.5', value: '5.5'},
+                                        {label: '6', value: '6'},
+                                        {label: '6.5', value: '6.5'},
+                                        {label: '7', value: '7'},
+                                        {label: '7.5', value: '7.5'},
+                                        {label: '8', value: '8'},
+                                        {label: '8.5', value: '8.5'},
+                                        {label: '9', value: '9'},
+                                        {label: '9.5', value: '9.5'},
+                                        {label: '10', value: '10'},
+                                        {label: '10.5', value: '10.5'},
+                                        {label: '11', value: '11'},
+                                        {label: '11.5', value: '11.5'},
+                                        {label: '12', value: '12'},
+                                        {label: '12.5', value: '12.5'},
+                                        {label: '13', value: '13'},
+                                        {label: '13.5', value: '13.5'},
+                                        {label: '14', value: '14'},
+                                        {label: '14.5', value: '14.5'},
+                                        {label: '15', value: '15'},
+                                        {label: '15.5', value: '15.5'},
+                                        {label: '16', value: '16'},
+                                        {label: '16.5', value: '16.5'},
+                                        {label: '17', value: '17'},
+                                        {label: '17.5', value: '17.5'},
+                                        {label: '18', value: '18'},
+                                        {label: '18.5', value: '18.5'},
+                                        {label: '19', value: '19'},
+                                        {label: '19.5', value: '19.5'},
+                                        {label: '20', value: '20'},
+                                        // {label: '20.5', value: '20.5'},
+                                    ]
+
+                                }
+                                placeholder='Lower voltage delay (sec) '
+                                containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
+                                style={[styles.phone_code_dropdown,
+                                    {backgroundColor: '#004B84', height: 45, borderRadius: 0}
+                                ]}
+                                itemStyle={{
+                                    justifyContent: 'flex-start',
+                                    width: 50,
+                                    zIndex: 15
+                                }}
+                                selectedLabelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+                                labelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+
+                                }}
+                                placeholderStyle={{
+                                    fontSize: 14,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+
+
+                                dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
+                                value={this.state.selectedLowerVoltageDelay}
+                                defaultValue={this.state.selectedLowerVoltageDelay}
+
+
+                                // selectedLabel='English'
+                                arrowColor={'white'}
+                                // onChangeItem={this.onChangeDropDownItem}
+                                onChangeItem={item => {
+                                    this.chooseLowerVoltageDelay(item);
+                                }}
+
+
+                            />
+                        </View>
+                    </View>
+                    }
+
+
                 </View>
 
-                }
-
-                {this.state.lower_voltage_delay_popup  &&
-                    <View style={styles.turn_off_the_load_switch_value_popup}>
-                    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
-                        <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                        </TouchableOpacity>
-
-                        <DropDownPicker
-                            items={
-                                [
-                                    {label: '0', value: '0'},
-                                    {label: '0.5', value: '0.5'},
-                                    {label: '1', value: '1'},
-                                    {label: '1.5', value: '1.5'},
-                                    {label: '2', value: '2'},
-                                    {label: '2.5', value: '2.5'},
-                                    {label: '3', value: '3'},
-                                    {label: '3.5', value: '3.5'},
-                                    {label: '4', value: '4'},
-                                    {label: '4.5', value: '4.5'},
-                                    {label: '5', value: '5'},
-                                    {label: '5.5', value: '5.5'},
-                                    {label: '6', value: '6'},
-                                    {label: '6.5', value: '6.5'},
-                                    {label: '7', value: '7'},
-                                    {label: '7.5', value: '7.5'},
-                                    {label: '8', value: '8'},
-                                    {label: '8.5', value: '8.5'},
-                                    {label: '9', value: '9'},
-                                    {label: '9.5', value: '9.5'},
-                                    {label: '10', value: '10'},
-                                    {label: '10.5', value: '10.5'},
-                                    {label: '11', value: '11'},
-                                    {label: '11.5', value: '11.5'},
-                                    {label: '12', value: '12'},
-                                    {label: '12.5', value: '12.5'},
-                                    {label: '13', value: '13'},
-                                    {label: '13.5', value: '13.5'},
-                                    {label: '14', value: '14'},
-                                    {label: '14.5', value: '14.5'},
-                                    {label: '15', value: '15'},
-                                    {label: '15.5', value: '15.5'},
-                                    {label: '16', value: '16'},
-                                    {label: '16.5', value: '16.5'},
-                                    {label: '17', value: '17'},
-                                    {label: '17.5', value: '17.5'},
-                                    {label: '18', value: '18'},
-                                    {label: '18.5', value: '18.5'},
-                                    {label: '19', value: '19'},
-                                    {label: '19.5', value: '19.5'},
-                                    {label: '20', value: '20'},
-                                    // {label: '20.5', value: '20.5'},
-                                ]
-
-                            }
-                            placeholder='Lower voltage delay (sec) '
-                            containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                            style={[styles.phone_code_dropdown,
-                                {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                            ]}
-                            itemStyle={{
-                                justifyContent: 'flex-start',
-                                width: 50,
-                                zIndex: 15
-                            }}
-                            selectedLabelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-
-                            }}
-                            placeholderStyle={{
-                                fontSize: 14,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-
-
-                            dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                            value={this.state.selectedLowerVoltageDelay}
-                            defaultValue={this.state.selectedLowerVoltageDelay}
-
-
-                            // selectedLabel='English'
-                            arrowColor={'white'}
-                            // onChangeItem={this.onChangeDropDownItem}
-                            onChangeItem={item => {
-                                this.chooseLowerVoltageDelay(item);
-                            }}
-
-
-                        />
-                    </View>
-                </View>
-
-                }
 
 
 
@@ -1426,10 +1386,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {

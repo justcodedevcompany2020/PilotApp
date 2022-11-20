@@ -1,13 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View , Image} from 'react-native';
 
 import * as React from 'react';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();
-
-
 
 import {AuthContext} from "./components/AuthContext/context";
 import {StackActions} from '@react-navigation/native';
@@ -32,14 +30,12 @@ import ImpulseSurgesComponent from './components/impulse_ surges/impulse_ surges
 import UndervoltageComponent from './components/undervoltage/undervoltage';
 import PowerOutagesComponent from './components/power_outages/power_outages';
 import VoltageComponent from './components/voltage/voltage';
+import AmperageComponent from './components/voltage/amperage';
 import ConsumptionComponent from './components/consumption/consumption';
+import PowerComponent from './components/voltage/power';
 import OsciloscopeComponent from './components/osciloscope/osciloscope';
 import SetNewPasswordComponent from './components/set_new_password/set_new_password';
 import ManualComponent from './components/manual/manual';
-
-
-
-
 
 function LoginScreen({ navigation }) {
   return (
@@ -107,6 +103,7 @@ function PreConfigurationScreen({ navigation }) {
         <PreConfigurationComponent navigation={navigation}  />
     );
 }
+
 function SharedAccessScreen({ navigation }) {
     return (
         <SharedAccessComponent navigation={navigation}  />
@@ -114,15 +111,19 @@ function SharedAccessScreen({ navigation }) {
 }
 
 function TestReportScreen({route, navigation }) {
-    const {params} = route.params
+
+    const {params, params2} = route.params
     return (
-        <TestReportComponent id={params} navigation={navigation}  />
+        <TestReportComponent id={params} device_id={params2} navigation={navigation}  />
     );
+
 }
 
-function ImpulseSurgesScreen({ navigation }) {
+function ImpulseSurgesScreen({ route, navigation }) {
+
+    const {params, params2} = route.params
     return (
-        <ImpulseSurgesComponent navigation={navigation}  />
+        <ImpulseSurgesComponent id={params} device_id={params2} navigation={navigation}  />
     );
 }
 function UndervoltageScreen({ navigation }) {
@@ -135,15 +136,32 @@ function PowerOutagesScreen({ navigation }) {
         <PowerOutagesComponent navigation={navigation}  />
     );
 }
-function VoltageScreen({ navigation }) {
+function VoltageScreen({route, navigation }) {
+    const {params, params2, params3} = route.params
+
     return (
-        <VoltageComponent navigation={navigation}  />
+        <VoltageComponent id={params} device_id={params2} voltage={params3} navigation={navigation}  />
+    );
+}
+function AmperageScreen({route, navigation }) {
+    const {params, params2} = route.params
+
+    return (
+        <AmperageComponent id={params} device_id={params2} navigation={navigation}  />
     );
 }
 
-function ConsumptionScreen({ navigation }) {
+function ConsumptionScreen({ route, navigation }) {
+    const {params, params2, params3} = route.params
     return (
-        <ConsumptionComponent navigation={navigation}  />
+        <ConsumptionComponent id={params} device_id={params2} kwh={params3} navigation={navigation}  />
+    );
+}
+
+function PowerScreen({ route, navigation }) {
+    const {params, params2} = route.params
+    return (
+        <PowerComponent id={params} device_id={params2} navigation={navigation}  />
     );
 }
 
@@ -164,10 +182,6 @@ function SetNewPasswordScreen({route, navigation }) {
         <SetNewPasswordComponent  email={params} navigation={navigation}  />
     );
 }
-
-
-
-
 
 
 export default function App() {
@@ -216,7 +230,7 @@ export default function App() {
 
     const authContext = React.useMemo(() => ({
         signIn: async (foundUser, callback) => {
-            // setIsLoading(true);
+            setIsLoading(true);
             const userToken = String(foundUser.token);
             // const userEmail = foundUser.email;
             // const userId = String(foundUser.user_id);
@@ -230,6 +244,7 @@ export default function App() {
                 console.log(e);
             }
             dispatch({type: 'LOGIN',  token: userToken});
+            setIsLoading(false);
             callback();
         },
         signOut: async (callback) => {
@@ -249,26 +264,36 @@ export default function App() {
     }), []);
 
 
-    // Проверка при входе в приложение.
 
+    // Проверка при входе в приложение.
     React.useEffect(() => {
+
         setTimeout(async () => {
             // await AsyncStorage.removeItem('userToken', userToken);
-
             let userToken;
             userToken = null;
             try {
                 userToken = await AsyncStorage.getItem('userToken');
                 setIsLoading(false);
-
             } catch (e) {
                 console.log(e);
             }
             dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-        }, 1000);
+        }, 2000);
     }, []);
-    return (
 
+
+
+    if (isLoading) {
+        return (
+            <View style={{flex:1, width: '100%'}}>
+                <Image source={require('./assets/images/splashscreen.png')} style={{flex:1, width: '100%', height: '100%', resizeMode: 'cover'}}/>
+            </View>
+        )
+    }
+
+
+    return (
 
         <AuthContext.Provider value={authContext}>
             <NavigationContainer>
@@ -279,148 +304,152 @@ export default function App() {
                             screenOptions={{
                                 headerShown: false
                             }}
-
                         >
 
-
                             <Stack.Screen name="AllDevices" component={AllDevicesScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
-
 
                             <Stack.Screen name="AddingNew" component={AddingNewScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
-
 
 
                             <Stack.Screen name="DeviceSetup" component={DeviceSetupScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
-
                             <Stack.Screen name="DetailsGeneralPage" component={DetailsGeneralPageScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Settings" component={SettingsScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="TestMode" component={TestModeScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
-
                             <Stack.Screen name="NewTest" component={NewTestScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Preferences" component={PreferencesScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="PreConfiguration" component={PreConfigurationScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="SharedAccess" component={SharedAccessScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="TestReport" component={TestReportScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="ImpulseSurges" component={ImpulseSurgesScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Undervoltage" component={UndervoltageScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="PowerOutages" component={PowerOutagesScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Voltage" component={VoltageScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
+                            />
+
+                            <Stack.Screen name="Amperage" component={AmperageScreen}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
+                            />
+                            <Stack.Screen name="Power" component={PowerScreen}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Consumption" component={ConsumptionScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Osciloscope" component={OsciloscopeScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
                             <Stack.Screen name="Manual" component={ManualScreen}
-                                          options={({route}) => ({
-                                              tabBarButton: () => null,
-                                              tabBarStyle: {display: 'none'},
-                                          })}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
                             />
 
-
-
-
-
-
                         </Stack.Navigator>
+
                     )
+
                     :
 
 
@@ -429,39 +458,36 @@ export default function App() {
                         screenOptions={{
                             headerShown: false
                         }}
-
                     >
 
 
-
                         <Stack.Screen name="Login" component={LoginScreen}
-                                      options={({route}) => ({
-                                          tabBarButton: () => null,
-                                          tabBarStyle: {display: 'none'},
-                                      })}
+                              options={({route}) => ({
+                                  tabBarButton: () => null,
+                                  tabBarStyle: {display: 'none'},
+                              })}
                         />
 
-
                         <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen}
-                                      options={({route}) => ({
-                                          tabBarButton: () => null,
-                                          tabBarStyle: {display: 'none'},
-                                      })}
+                              options={({route}) => ({
+                                  tabBarButton: () => null,
+                                  tabBarStyle: {display: 'none'},
+                              })}
                         />
 
                         <Stack.Screen name="Registration" component={RegistrationScreen}
-                                      options={({route}) => ({
-                                          tabBarButton: () => null,
-                                          tabBarStyle: {display: 'none'},
-                                      })}
+                              options={({route}) => ({
+                                  tabBarButton: () => null,
+                                  tabBarStyle: {display: 'none'},
+                              })}
                         />
 
 
                         <Stack.Screen name="SetNewPassword" component={SetNewPasswordScreen}
-                                      options={({route}) => ({
-                                          tabBarButton: () => null,
-                                          tabBarStyle: {display: 'none'},
-                                      })}
+                              options={({route}) => ({
+                                  tabBarButton: () => null,
+                                  tabBarStyle: {display: 'none'},
+                              })}
                         />
 
 

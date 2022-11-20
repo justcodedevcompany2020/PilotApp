@@ -84,7 +84,7 @@ const ru = {
     confirm: 'Подтверждать',
     settings: 'Настройки',
     my_devices: 'Мои девайсы',
-    add_a_new_device: 'Добавить новое девайса',
+    add_a_new_device: 'Добавить новый девайс',
     manual: 'Руководство',
     offline_setup: 'Автономная настройка',
     save: 'Сохранять',

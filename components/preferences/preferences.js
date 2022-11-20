@@ -1328,15 +1328,6 @@ export default class App extends Component {
     }
 
     render() {
-
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
-
-
         // SharedAccessPopup
         if (this.state.SharedAccessPopup) {
             return (
@@ -1386,904 +1377,532 @@ export default class App extends Component {
             )
         }
 
-
-
-
         return (
             <SafeAreaView style={styles.container} >
-                <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToDetailsGeneralPage()}}>
-                            <View style={styles.back_btn}>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
+
+                {this.state.headerMenuPopup &&
+                    <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
+
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+                    <StatusBar style="dark" />
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToDetailsGeneralPage()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.preferences}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path fill="#004B84" d="M0 0H28V3H0z" />
+                                    <Path fill="#004B84" d="M0 11H28V14H0z" />
+                                    <Path fill="#004B84" d="M0 22H28V25H0z" />
                                 </Svg>
-                            </View>
-                            <Text style={styles.all_devices_general_page_header_title}>{this.state.language.preferences}</Text>
-                        </TouchableOpacity>
+                            </TouchableOpacity>
+                        </View>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg
-                                width={28}
-                                height={25}
-                                viewBox="0 0 28 25"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <Path fill="#004B84" d="M0 0H28V3H0z" />
-                                <Path fill="#004B84" d="M0 11H28V14H0z" />
-                                <Path fill="#004B84" d="M0 22H28V25H0z" />
-                            </Svg>
-                        </TouchableOpacity>
                     </View>
 
+                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
 
-                </View>
-                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                        <View style={styles.new_test_items_wrapper}>
+                            <View style={styles.new_test_item}>
+                                <Text style={styles.new_test_item_title}>Power Protection</Text>
+                                <Switch
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.powerProtectionToggleSwitch}
+                                    value={this.state.powerProtectionSwitchValue}
+                                />
+                            </View>
+                            <View style={styles.new_test_item}>
+                                <Text style={styles.new_test_item_title}>Pre-configuration</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({pre_configuration_popup: true})}}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.protection_preset}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg
+                                            width={12}
+                                            height={20}
+                                            viewBox="0 0 12 20"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <Path
+                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
+                                                fill="#004B84"
+                                            />
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={[styles.new_test_item]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>
+                                    Protection upper voltage (V)
+                                </Text>
+                                <View style={styles.new_test_item_input_field_box}>
+                                    <TextInput
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE',  }]}
+                                        onChangeText={(val) => {
+                                            this.chooseProtectionUpperVoltage(val)
+                                        }}
+                                        value={this.state.protection_upper_voltage_input}
+                                        // placeholder='3.43'
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                        // keyboardType = 'numeric'
+                                        // keyboardType="numeric"
 
-                    <View style={styles.new_test_items_wrapper}>
-                        <View style={styles.new_test_item}>
-                            <Text style={styles.new_test_item_title}>Power Protection</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.powerProtectionToggleSwitch}
-                                value={this.state.powerProtectionSwitchValue}
-                            />
-                        </View>
-                        <View style={styles.new_test_item}>
-                            <Text style={styles.new_test_item_title}>Pre-configuration</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({pre_configuration_popup: true})}}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.protection_preset}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg
-                                        width={12}
-                                        height={20}
-                                        viewBox="0 0 12 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                            fill="#004B84"
-                                        />
-                                    </Svg>
+                                    />
                                 </View>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={[styles.new_test_item]}>
-                            <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>
-                                Protection upper voltage (V)
-                            </Text>
-                            <View style={styles.new_test_item_input_field_box}>
-                                <TextInput
-                                    style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE',  }]}
-                                    onChangeText={(val) => {
-                                        this.chooseProtectionUpperVoltage(val)
-                                    }}
-                                    value={this.state.protection_upper_voltage_input}
-                                    // placeholder='3.43'
-                                    placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
-                                    editable={this.state.protection_preset != 'Manual setup' ? false : true}
-                                    // keyboardType = 'numeric'
-                                    // keyboardType="numeric"
 
+                            </View>
+                            <View style={[styles.new_test_item]}>
+                                <Text style={styles.new_test_item_title}>Upper voltage delay (sec) </Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
+                                    if (this.state.protection_preset != 'Manual setup') {
+                                        return false
+                                    } else  {
+                                        this.setState({
+                                            upper_voltage_delay_popup: true
+                                        })
+                                    }
+                                }}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.upper_voltage_delay}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg
+                                            width={12}
+                                            height={20}
+                                            viewBox="0 0 12 20"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <Path
+                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
+                                                fill= {this.state.protection_preset != 'Manual setup' ? "#004b8469" : "#004B84"}
+                                            />
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={[styles.new_test_item]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>Protection lower voltage (V)</Text>
+                                <View style={styles.new_test_item_input_field_box}>
+                                    <TextInput
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
+                                        onChangeText={(val) => {
+                                            this.chooseProtectionLowerVoltage(val);
+                                        }}
+                                        value={this.state.protection_lower_voltage_input}
+                                        // placeholder="3500"
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                    />
+                                </View>
+
+                            </View>
+                            <View style={[styles.new_test_item]}>
+                                <Text style={styles.new_test_item_title}>Lower voltage delay (sec)</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
+                                    if (this.state.protection_preset != 'Manual setup') {
+                                        return false
+                                    } else  {
+                                        this.setState({
+                                            lower_voltage_delay_popup: true
+                                        })
+                                    }
+                                }}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.mainData.lower_voltage_delay}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg
+                                            width={12}
+                                            height={20}
+                                            viewBox="0 0 12 20"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <Path
+                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
+                                                fill= {this.state.protection_preset != 'Manual setup' ? "#004b8469" : "#004B84"}
+                                            />
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={[styles.new_test_item]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Power restore delay (sec)</Text>
+                                <View style={styles.new_test_item_input_field_box}>
+                                    <TextInput
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
+                                        onChangeText={(val) => {
+                                            this.choosePowerRestoreDelay(val);
+                                        }}
+                                        value={this.state.power_restore_delay_input}
+                                        // placeholder="3500"
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                    />
+                                </View>
+
+                            </View>
+                            <View style={[styles.new_test_item]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Startup delay (sec)</Text>
+                                <View style={styles.new_test_item_input_field_box}>
+                                    <TextInput
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
+                                        onChangeText={(val) => {
+                                            this.chooseStartupDelay(val);
+                                        }}
+                                        value={this.state.startup_delay_input}
+                                        // placeholder="3500"
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                    />
+                                </View>
+
+                            </View>
+                            <View style={[styles.new_test_item]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.amperage_trigger_input_error === true ? 'red' : '#4A4A4A'}]}>Зашита по силе тока (А)</Text>
+                                <View style={styles.new_test_item_input_field_box}>
+                                    <TextInput
+                                        style={[styles.new_test_item_input_field,]}
+                                        onChangeText={(val) => {
+                                            this.chooseAmperageTrigger(val);
+                                        }}
+                                        value={this.state.amperage_trigger_input}
+                                        // placeholder="3500"
+                                        placeholderTextColor= '#10BCCE'
+
+                                    />
+                                </View>
+
+                            </View>
+
+
+
+                            <View style={[styles.new_test_item]}>
+                                <Text style={styles.new_test_item_title}>Задержка защиты по току (сек)</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() =>  this.setState({amperage_delay_popup: true})}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.amperage_delay}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg
+                                            width={12}
+                                            height={20}
+                                            viewBox="0 0 12 20"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <Path
+                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
+                                                fill="#004B84"
+                                            />
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+
+                            <View style={styles.new_test_item}>
+                                <Text style={styles.new_test_item_title}>Use schedule</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useScheduleToggleSwitch}
+                                    value={this.state.useScheduleSwitchValue}
                                 />
                             </View>
 
-                        </View>
-                        <View style={[styles.new_test_item]}>
-                            <Text style={styles.new_test_item_title}>Upper voltage delay (sec) </Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
-                                if (this.state.protection_preset != 'Manual setup') {
-                                    return false
-                                } else  {
-                                     this.setState({
-                                         upper_voltage_delay_popup: true
-                                     })
-                                }
-                            }}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.upper_voltage_delay}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg
-                                        width={12}
-                                        height={20}
-                                        viewBox="0 0 12 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                             fill= {this.state.protection_preset != 'Manual setup' ? "#004b8469" : "#004B84"}
-                                        />
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={[styles.new_test_item]}>
-                            <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>Protection lower voltage (V)</Text>
-                            <View style={styles.new_test_item_input_field_box}>
-                                <TextInput
-                                    style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
-                                    onChangeText={(val) => {
-                                        this.chooseProtectionLowerVoltage(val);
-                                    }}
-                                    value={this.state.protection_lower_voltage_input}
-                                    // placeholder="3500"
-                                    placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
-                                    editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                            <View style={[styles.new_test_item, {marginBottom: 23}]}>
+                                <Text style={styles.new_test_item_title}>Week days</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.setState({week_days_popup: true})}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.schedule_days}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={[styles.new_test_item, {marginBottom: 23}]}>
+                                <Text style={styles.new_test_item_title}>Turn-on time</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOn()}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_on}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={[styles.new_test_item, {marginBottom: 23}]}>
+                                <Text style={styles.new_test_item_title}>Turn-off time</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOff()}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_off}</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.new_test_item}>
+                                <Text style={styles.new_test_item_title}>PUSH Notifications</Text>
+                                <Switch
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.pushNotificationsToggleSwitch}
+                                    value={this.state.pushNotificationsSwitchValue}
                                 />
                             </View>
 
-                        </View>
-                        <View style={[styles.new_test_item]}>
-                            <Text style={styles.new_test_item_title}>Lower voltage delay (sec)</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
-                                if (this.state.protection_preset != 'Manual setup') {
-                                    return false
-                                } else  {
-                                    this.setState({
-                                        lower_voltage_delay_popup: true
-                                    })
-                                }
-                            }}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.mainData.lower_voltage_delay}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg
-                                        width={12}
-                                        height={20}
-                                        viewBox="0 0 12 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                            fill= {this.state.protection_preset != 'Manual setup' ? "#004b8469" : "#004B84"}
-                                        />
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={[styles.new_test_item]}>
-                            <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Power restore delay (sec)</Text>
-                            <View style={styles.new_test_item_input_field_box}>
-                                <TextInput
-                                    style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
-                                    onChangeText={(val) => {
-                                       this.choosePowerRestoreDelay(val);
-                                    }}
-                                    value={this.state.power_restore_delay_input}
-                                    // placeholder="3500"
-                                    placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
-                                    editable={this.state.protection_preset != 'Manual setup' ? false : true}
-                                />
+                            <View style={[styles.new_test_item, {marginBottom: 25}]}>
+                                <Text style={styles.new_test_item_title}>Shared access</Text>
+                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({shared_access_popup: true})}}>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.shared_accounts.length} account</Text>
+                                    <View style={styles.preferences_item_btn_icon}>
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
+                                        </Svg>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
 
+                            <TouchableOpacity style={styles.preferences_unlink_btn} onPress={() => this.deleteDevice()}>
+                                <Text style={styles.preferences_unlink_btn_text}>Unlink</Text>
+                            </TouchableOpacity>
                         </View>
-                        <View style={[styles.new_test_item]}>
-                            <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Startup delay (sec)</Text>
-                            <View style={styles.new_test_item_input_field_box}>
-                                <TextInput
-                                    style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
-                                    onChangeText={(val) => {
-                                        this.chooseStartupDelay(val);
-                                    }}
-                                    value={this.state.startup_delay_input}
-                                    // placeholder="3500"
-                                    placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
-                                    editable={this.state.protection_preset != 'Manual setup' ? false : true}
-                                />
+
+
+                    </ScrollView>
+
+                    {this.state.pre_configuration_popup &&
+                        <View style={styles.pre_configuration_popup}>
+                            <View style={styles.pre_configuration_popup_wrapper}>
+                                <View style={styles.all_devices_general_page_header}>
+                                    <View style={styles.all_devices_general_page_header_child}>
+                                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({pre_configuration_popup: false})}}>
+                                            <View style={styles.back_btn}>
+                                                <Svg
+                                                    width={12}
+                                                    height={20}
+                                                    viewBox="0 0 12 20"
+                                                    fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <Path
+                                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                                        fill="#004B84"
+                                                    />
+                                                </Svg>
+                                            </View>
+                                            <Text style={styles.all_devices_general_page_header_title}>Pre-configuration</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                                    <View style={styles.pre_configuration_items_wrapper}>
+                                        <Text style={styles.pre_configuration_item_info}>
+                                            Recommended settings for optimal performance from the manufacturer
+                                        </Text>
+                                        <View style={styles.sort_by_pre_configuration_radio_input}>
+                                            <TouchableOpacity
+                                                style={[styles.sort_by_pre_configuration_radio_input_button]}
+                                                onPress={()=> {
+                                                    this.setState({
+                                                        sort_by_pre_configuration1: true,
+                                                        sort_by_pre_configuration2: false,
+                                                        sort_by_pre_configuration3: false,
+                                                        sort_by_pre_configuration4: false,
+                                                        sort_by_pre_configuration5: false,
+                                                    })
+                                                    this.chooseNewPreConfiguration('sort_by_pre_configuration1')
+                                                }}>
+                                                {this.state.sort_by_pre_configuration1 &&
+                                                <View style={styles.activeRadioRound}>
+
+                                                </View>
+                                                }
+                                            </TouchableOpacity>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>AV</Text>
+
+                                        </View>
+                                        <View style={styles.sort_by_pre_configuration_radio_input}>
+                                            <TouchableOpacity
+                                                style={[styles.sort_by_pre_configuration_radio_input_button]}
+                                                onPress={()=> {
+                                                    this.setState({
+                                                        sort_by_pre_configuration1: false,
+                                                        sort_by_pre_configuration2: true,
+                                                        sort_by_pre_configuration3: false,
+                                                        sort_by_pre_configuration4: false,
+                                                        sort_by_pre_configuration5: false,
+                                                    })
+                                                    this.chooseNewPreConfiguration('sort_by_pre_configuration2')
+                                                }}>
+                                                {this.state.sort_by_pre_configuration2 &&
+                                                <View style={styles.activeRadioRound}>
+
+                                                </View>
+                                                }
+                                            </TouchableOpacity>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Air conditioner</Text>
+
+                                        </View>
+                                        <View style={styles.sort_by_pre_configuration_radio_input}>
+                                            <TouchableOpacity
+                                                style={[styles.sort_by_pre_configuration_radio_input_button]}
+                                                onPress={()=> {
+                                                    this.setState({
+                                                        sort_by_pre_configuration1: false,
+                                                        sort_by_pre_configuration2: false,
+                                                        sort_by_pre_configuration3: true,
+                                                        sort_by_pre_configuration4: false,
+                                                        sort_by_pre_configuration5: false,
+                                                    })
+                                                    this.chooseNewPreConfiguration('sort_by_pre_configuration3')
+                                                }}>
+                                                {this.state.sort_by_pre_configuration3 &&
+                                                <View style={styles.activeRadioRound}>
+
+                                                </View>
+                                                }
+                                            </TouchableOpacity>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Refrigerator</Text>
+
+                                        </View>
+                                        <View style={styles.sort_by_pre_configuration_radio_input}>
+                                            <TouchableOpacity
+                                                style={[styles.sort_by_pre_configuration_radio_input_button]}
+                                                onPress={()=> {
+                                                    this.setState({
+                                                        sort_by_pre_configuration1: false,
+                                                        sort_by_pre_configuration2: false,
+                                                        sort_by_pre_configuration3: false,
+                                                        sort_by_pre_configuration4: true,
+                                                        sort_by_pre_configuration5: false,
+                                                    })
+                                                    this.chooseNewPreConfiguration('sort_by_pre_configuration4')
+                                                }}>
+                                                {this.state.sort_by_pre_configuration4 &&
+                                                <View style={styles.activeRadioRound}>
+
+                                                </View>
+                                                }
+                                            </TouchableOpacity>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Other home  appliance</Text>
+
+                                        </View>
+                                        <View style={styles.sort_by_pre_configuration_radio_input}>
+                                            <TouchableOpacity
+                                                style={[styles.sort_by_pre_configuration_radio_input_button]}
+                                                onPress={()=> {
+                                                    this.setState({
+                                                        sort_by_pre_configuration1: false,
+                                                        sort_by_pre_configuration2: false,
+                                                        sort_by_pre_configuration3: false,
+                                                        sort_by_pre_configuration4: false,
+                                                        sort_by_pre_configuration5: true,
+                                                    })
+                                                    this.chooseNewPreConfiguration('sort_by_pre_configuration5')
+                                                }}>
+                                                {this.state.sort_by_pre_configuration5 &&
+                                                <View style={styles.activeRadioRound}>
+
+                                                </View>
+                                                }
+                                            </TouchableOpacity>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Manual setup</Text>
+
+                                        </View>
+
+
+                                    </View>
+
+                                </ScrollView>
                             </View>
-
                         </View>
-                        <View style={[styles.new_test_item]}>
-                            <Text style={[styles.new_test_item_title, {color: this.state.amperage_trigger_input_error === true ? 'red' : '#4A4A4A'}]}>Зашита по силе тока (А)</Text>
-                            <View style={styles.new_test_item_input_field_box}>
-                                <TextInput
-                                    style={[styles.new_test_item_input_field,]}
-                                    onChangeText={(val) => {
-                                        this.chooseAmperageTrigger(val);
-                                    }}
-                                    value={this.state.amperage_trigger_input}
-                                    // placeholder="3500"
-                                    placeholderTextColor= '#10BCCE'
+                    }
 
-                                />
-                            </View>
+                    {this.state.shared_access_popup &&
+                        <View style={styles.shared_access_popup}>
+                        <View style={styles.shared_access_popup_wrapper}>
 
-                        </View>
-
-
-
-                        <View style={[styles.new_test_item]}>
-                            <Text style={styles.new_test_item_title}>Задержка защиты по току (сек)</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() =>  this.setState({amperage_delay_popup: true})}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.amperage_delay}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg
-                                        width={12}
-                                        height={20}
-                                        viewBox="0 0 12 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                            fill="#004B84"
-                                        />
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-
-                        <View style={styles.new_test_item}>
-                            <Text style={styles.new_test_item_title}>Use schedule</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useScheduleToggleSwitch}
-                                value={this.state.useScheduleSwitchValue}
-                            />
-                        </View>
-
-                        <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                            <Text style={styles.new_test_item_title}>Week days</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.setState({week_days_popup: true})}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.schedule_days}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                            <Text style={styles.new_test_item_title}>Turn-on time</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOn()}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_on}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                            <Text style={styles.new_test_item_title}>Turn-off time</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOff()}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_off}</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.new_test_item}>
-                            <Text style={styles.new_test_item_title}>PUSH Notifications</Text>
-                            <Switch
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.pushNotificationsToggleSwitch}
-                                value={this.state.pushNotificationsSwitchValue}
-                            />
-                        </View>
-
-                        <View style={[styles.new_test_item, {marginBottom: 25}]}>
-                            <Text style={styles.new_test_item_title}>Shared access</Text>
-                            <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({shared_access_popup: true})}}>
-                                <Text style={styles.preferences_item_btn_text}>{this.state.shared_accounts.length} account</Text>
-                                <View style={styles.preferences_item_btn_icon}>
-                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <TouchableOpacity style={styles.preferences_unlink_btn} onPress={() => this.deleteDevice()}>
-                            <Text style={styles.preferences_unlink_btn_text}>Unlink</Text>
-                        </TouchableOpacity>
-                    </View>
-
-
-                </ScrollView>
-
-
-
-                {this.state.pre_configuration_popup &&
-                    <View style={styles.pre_configuration_popup}>
-                        <View style={styles.pre_configuration_popup_wrapper}>
                             <View style={styles.all_devices_general_page_header}>
                                 <View style={styles.all_devices_general_page_header_child}>
-                                    <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({pre_configuration_popup: false})}}>
+                                    <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({shared_access_popup: false})}}>
                                         <View style={styles.back_btn}>
-                                            <Svg
-                                                width={12}
-                                                height={20}
-                                                viewBox="0 0 12 20"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <Path
-                                                    d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                                    fill="#004B84"
-                                                />
+                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                             </Svg>
                                         </View>
-                                        <Text style={styles.all_devices_general_page_header_title}>Pre-configuration</Text>
+                                        <Text style={styles.all_devices_general_page_header_title}>Shared access</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
 
-                          <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-                              <View style={styles.pre_configuration_items_wrapper}>
-                                  <Text style={styles.pre_configuration_item_info}>
-                                      Recommended settings for optimal performance from the manufacturer
-                                  </Text>
-                                  <View style={styles.sort_by_pre_configuration_radio_input}>
-                                      <TouchableOpacity
-                                          style={[styles.sort_by_pre_configuration_radio_input_button]}
-                                          onPress={()=> {
-                                              this.setState({
-                                                  sort_by_pre_configuration1: true,
-                                                  sort_by_pre_configuration2: false,
-                                                  sort_by_pre_configuration3: false,
-                                                  sort_by_pre_configuration4: false,
-                                                  sort_by_pre_configuration5: false,
-                                              })
-                                              this.chooseNewPreConfiguration('sort_by_pre_configuration1')
-                                          }}>
-                                          {this.state.sort_by_pre_configuration1 &&
-                                          <View style={styles.activeRadioRound}>
+                            <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                                <View style={styles.shared_access_info_wrapper}>
 
-                                          </View>
-                                          }
-                                      </TouchableOpacity>
-                                      <Text style={styles.sort_by_pre_configuration_radio_input_title}>AV</Text>
-
-                                  </View>
-                                  <View style={styles.sort_by_pre_configuration_radio_input}>
-                                      <TouchableOpacity
-                                          style={[styles.sort_by_pre_configuration_radio_input_button]}
-                                          onPress={()=> {
-                                              this.setState({
-                                                  sort_by_pre_configuration1: false,
-                                                  sort_by_pre_configuration2: true,
-                                                  sort_by_pre_configuration3: false,
-                                                  sort_by_pre_configuration4: false,
-                                                  sort_by_pre_configuration5: false,
-                                              })
-                                              this.chooseNewPreConfiguration('sort_by_pre_configuration2')
-                                          }}>
-                                          {this.state.sort_by_pre_configuration2 &&
-                                          <View style={styles.activeRadioRound}>
-
-                                          </View>
-                                          }
-                                      </TouchableOpacity>
-                                      <Text style={styles.sort_by_pre_configuration_radio_input_title}>Air conditioner</Text>
-
-                                  </View>
-                                  <View style={styles.sort_by_pre_configuration_radio_input}>
-                                      <TouchableOpacity
-                                          style={[styles.sort_by_pre_configuration_radio_input_button]}
-                                          onPress={()=> {
-                                              this.setState({
-                                                  sort_by_pre_configuration1: false,
-                                                  sort_by_pre_configuration2: false,
-                                                  sort_by_pre_configuration3: true,
-                                                  sort_by_pre_configuration4: false,
-                                                  sort_by_pre_configuration5: false,
-                                              })
-                                              this.chooseNewPreConfiguration('sort_by_pre_configuration3')
-                                          }}>
-                                          {this.state.sort_by_pre_configuration3 &&
-                                          <View style={styles.activeRadioRound}>
-
-                                          </View>
-                                          }
-                                      </TouchableOpacity>
-                                      <Text style={styles.sort_by_pre_configuration_radio_input_title}>Refrigerator</Text>
-
-                                  </View>
-                                  <View style={styles.sort_by_pre_configuration_radio_input}>
-                                      <TouchableOpacity
-                                          style={[styles.sort_by_pre_configuration_radio_input_button]}
-                                          onPress={()=> {
-                                              this.setState({
-                                                  sort_by_pre_configuration1: false,
-                                                  sort_by_pre_configuration2: false,
-                                                  sort_by_pre_configuration3: false,
-                                                  sort_by_pre_configuration4: true,
-                                                  sort_by_pre_configuration5: false,
-                                              })
-                                              this.chooseNewPreConfiguration('sort_by_pre_configuration4')
-                                          }}>
-                                          {this.state.sort_by_pre_configuration4 &&
-                                          <View style={styles.activeRadioRound}>
-
-                                          </View>
-                                          }
-                                      </TouchableOpacity>
-                                      <Text style={styles.sort_by_pre_configuration_radio_input_title}>Other home  appliance</Text>
-
-                                  </View>
-                                  <View style={styles.sort_by_pre_configuration_radio_input}>
-                                      <TouchableOpacity
-                                          style={[styles.sort_by_pre_configuration_radio_input_button]}
-                                          onPress={()=> {
-                                              this.setState({
-                                                  sort_by_pre_configuration1: false,
-                                                  sort_by_pre_configuration2: false,
-                                                  sort_by_pre_configuration3: false,
-                                                  sort_by_pre_configuration4: false,
-                                                  sort_by_pre_configuration5: true,
-                                              })
-                                              this.chooseNewPreConfiguration('sort_by_pre_configuration5')
-                                          }}>
-                                          {this.state.sort_by_pre_configuration5 &&
-                                          <View style={styles.activeRadioRound}>
-
-                                          </View>
-                                          }
-                                      </TouchableOpacity>
-                                      <Text style={styles.sort_by_pre_configuration_radio_input_title}>Manual setup</Text>
-
-                                  </View>
+                                    <Text style={styles.shared_access_info1}>
+                                        Share access with family members or colleagues so they can control this device
+                                    </Text>
 
 
-                              </View>
-
-                          </ScrollView>
-                        </View>
-                    </View>
-
-                }
+                                    {/*Exist accounts list start*/}
+                                    <View style={[styles.existAccountsList, {marginBottom: 27}]}>
 
 
-                {this.state.shared_access_popup &&
-                  <View style={styles.shared_access_popup}>
-                    <View style={styles.shared_access_popup_wrapper}>
+                                        {this.state.shared_accounts.map((item, index) => {
+                                            return (
+                                                <View style={styles.shared_access_gmail_info_delete_btn_wrapper}>
+                                                    <Text style={styles.shared_access_gmail_info}>{item}</Text>
+                                                    <TouchableOpacity
+                                                        style={styles.shared_access_delete_btn}
+                                                        onPress={() => {
+                                                            this.deleteSharedAccount(item)
+                                                        }}
+                                                    >
+                                                        <Text style={styles.shared_access_delete_btn_text}>Delete</Text>
+                                                        <View style={styles.shared_access_delete_btn_icon}>
+                                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
+                                                            </Svg>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            )
+                                        })}
 
-                        <View style={styles.all_devices_general_page_header}>
-                            <View style={styles.all_devices_general_page_header_child}>
-                                <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({shared_access_popup: false})}}>
-                                    <View style={styles.back_btn}>
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
-                                        </Svg>
+
+
+
                                     </View>
-                                    <Text style={styles.all_devices_general_page_header_title}>Shared access</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
+                                    {/*Exist accounts list end*/}
 
-                        <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-                            <View style={styles.shared_access_info_wrapper}>
-
-                                <Text style={styles.shared_access_info1}>
-                                    Share access with family members or colleagues so they can control this device
-                                </Text>
-
-
-                                {/*Exist accounts list start*/}
-                                <View style={[styles.existAccountsList, {marginBottom: 27}]}>
-
-
-                                    {this.state.shared_accounts.map((item, index) => {
-                                        return (
-                                            <View style={styles.shared_access_gmail_info_delete_btn_wrapper}>
-                                                <Text style={styles.shared_access_gmail_info}>{item}</Text>
-                                                <TouchableOpacity
-                                                    style={styles.shared_access_delete_btn}
-                                                    onPress={() => {
-                                                        this.deleteSharedAccount(item)
-                                                    }}
-                                                >
-                                                    <Text style={styles.shared_access_delete_btn_text}>Delete</Text>
-                                                    <View style={styles.shared_access_delete_btn_icon}>
-                                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
-                                                        </Svg>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            </View>
-                                        )
-                                    })}
-
-
-
-
+                                    <TouchableOpacity style={styles.add_account_btn} onPress={() => {this.setState({shared_access_popup: false, SharedAccessPopup: true})}}>
+                                        <Text style={styles.add_account_btn_text}>Add account</Text>
+                                    </TouchableOpacity>
                                 </View>
-                                {/*Exist accounts list end*/}
 
-                                <TouchableOpacity style={styles.add_account_btn} onPress={() => {this.setState({shared_access_popup: false, SharedAccessPopup: true})}}>
-                                    <Text style={styles.add_account_btn_text}>Add account</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                        </ScrollView>
+                            </ScrollView>
+                        </View>
                     </View>
-                </View>
+                    }
 
-                }
-
-                {this.state.upper_voltage_delay_popup  &&
-                  <View style={styles.turn_off_the_load_switch_value_popup}>
-                    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
-                        <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                        </TouchableOpacity>
-
-                        <DropDownPicker
-                            items={
-                                [
-                                    {label: '0', value: '0'},
-                                    {label: '0.5', value: '0.5'},
-                                    {label: '1', value: '1'},
-                                    {label: '1.5', value: '1.5'},
-                                    {label: '2', value: '2'},
-                                    {label: '2.5', value: '2.5'},
-                                    {label: '3', value: '3'},
-                                    {label: '3.5', value: '3.5'},
-                                    {label: '4', value: '4'},
-                                    {label: '4.5', value: '4.5'},
-                                    {label: '5', value: '5'},
-                                    {label: '5.5', value: '5.5'},
-                                    {label: '6', value: '6'},
-                                    {label: '6.5', value: '6.5'},
-                                    {label: '7', value: '7'},
-                                    {label: '7.5', value: '7.5'},
-                                    {label: '8', value: '8'},
-                                    {label: '8.5', value: '8.5'},
-                                    {label: '9', value: '9'},
-                                    {label: '9.5', value: '9.5'},
-                                    {label: '10', value: '10'},
-                                    {label: '10.5', value: '10.5'},
-                                    {label: '11', value: '11'},
-                                    {label: '11.5', value: '11.5'},
-                                    {label: '12', value: '12'},
-                                    {label: '12.5', value: '12.5'},
-                                    {label: '13', value: '13'},
-                                    {label: '13.5', value: '13.5'},
-                                    {label: '14', value: '14'},
-                                    {label: '14.5', value: '14.5'},
-                                    {label: '15', value: '15'},
-                                    {label: '15.5', value: '15.5'},
-                                    {label: '16', value: '16'},
-                                    {label: '16.5', value: '16.5'},
-                                    {label: '17', value: '17'},
-                                    {label: '17.5', value: '17.5'},
-                                    {label: '18', value: '18'},
-                                    {label: '18.5', value: '18.5'},
-                                    {label: '19', value: '19'},
-                                    {label: '19.5', value: '19.5'},
-                                    {label: '20', value: '20'},
-                                    // {label: '20.5', value: '20.5'},
-                                ]
-
-                            }
-                            placeholder='Protection upper voltage (V)'
-                            containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                            style={[styles.phone_code_dropdown,
-                                {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                            ]}
-                            itemStyle={{
-                                justifyContent: 'flex-start',
-                                width: 50,
-                                zIndex: 15
-                            }}
-                            selectedLabelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-
-                            }}
-                            placeholderStyle={{
-                                fontSize: 14,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-
-
-                            dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                            value={this.state.selectedUpperVoltageDelay}
-                            defaultValue={this.state.selectedUpperVoltageDelay}
-
-
-                            // selectedLabel='English'
-                            arrowColor={'white'}
-                            // onChangeItem={this.onChangeDropDownItem}
-                            onChangeItem={item => {
-                                this.chooseUpperVoltageDelay(item);
-                            }}
-
-
-                        />
-                    </View>
-                </View>
-
-                }
-
-
-                {this.state.amperage_delay_popup  &&
-                <View style={styles.turn_off_the_load_switch_value_popup}>
-                    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
-                        <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({amperage_delay_popup: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                        </TouchableOpacity>
-
-                        <DropDownPicker
-                            items={
-                                [
-                                    {label: '0', value: '0'},
-                                    {label: '0.5', value: '0.5'},
-                                    {label: '1', value: '1'},
-                                    {label: '1.5', value: '1.5'},
-                                    {label: '2', value: '2'},
-                                    {label: '2.5', value: '2.5'},
-                                    {label: '3', value: '3'},
-                                    {label: '3.5', value: '3.5'},
-                                    {label: '4', value: '4'},
-                                    {label: '4.5', value: '4.5'},
-                                    {label: '5', value: '5'},
-                                    {label: '5.5', value: '5.5'},
-                                    {label: '6', value: '6'},
-                                    {label: '6.5', value: '6.5'},
-                                    {label: '7', value: '7'},
-                                    {label: '7.5', value: '7.5'},
-                                    {label: '8', value: '8'},
-                                    {label: '8.5', value: '8.5'},
-                                    {label: '9', value: '9'},
-                                    {label: '9.5', value: '9.5'},
-                                    {label: '10', value: '10'},
-                                    {label: '10.5', value: '10.5'},
-                                    {label: '11', value: '11'},
-                                    {label: '11.5', value: '11.5'},
-                                    {label: '12', value: '12'},
-                                    {label: '12.5', value: '12.5'},
-                                    {label: '13', value: '13'},
-                                    {label: '13.5', value: '13.5'},
-                                    {label: '14', value: '14'},
-                                    {label: '14.5', value: '14.5'},
-                                    {label: '15', value: '15'},
-                                    {label: '15.5', value: '15.5'},
-                                    {label: '16', value: '16'},
-                                    {label: '16.5', value: '16.5'},
-                                    {label: '17', value: '17'},
-                                    {label: '17.5', value: '17.5'},
-                                    {label: '18', value: '18'},
-                                    {label: '18.5', value: '18.5'},
-                                    {label: '19', value: '19'},
-                                    {label: '19.5', value: '19.5'},
-                                    {label: '20', value: '20'},
-                                    // {label: '20.5', value: '20.5'},
-                                ]
-
-                            }
-                            placeholder='Задержка защиты по току (сек)'
-                            containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                            style={[styles.phone_code_dropdown,
-                                {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                            ]}
-                            itemStyle={{
-                                justifyContent: 'flex-start',
-                                width: 50,
-                                zIndex: 15
-                            }}
-                            selectedLabelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-
-                            }}
-                            placeholderStyle={{
-                                fontSize: 14,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-
-
-                            dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                            value={this.state.selectedAmperageDelay}
-                            defaultValue={this.state.selectedAmperageDelay}
-
-
-                            // selectedLabel='English'
-                            arrowColor={'white'}
-                            // onChangeItem={this.onChangeDropDownItem}
-                            onChangeItem={item => {
-                                this.chooseAmperageDelay(item);
-                            }}
-
-
-                        />
-                    </View>
-                </View>
-
-                }
-
-
-
-
-
-
-                {this.state.lower_voltage_delay_popup  &&
-                 <View style={styles.turn_off_the_load_switch_value_popup}>
-                    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
-                        <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                        </TouchableOpacity>
-
-                        <DropDownPicker
-                            items={
-                                [
-                                    {label: '0', value: '0'},
-                                    {label: '0.5', value: '0.5'},
-                                    {label: '1', value: '1'},
-                                    {label: '1.5', value: '1.5'},
-                                    {label: '2', value: '2'},
-                                    {label: '2.5', value: '2.5'},
-                                    {label: '3', value: '3'},
-                                    {label: '3.5', value: '3.5'},
-                                    {label: '4', value: '4'},
-                                    {label: '4.5', value: '4.5'},
-                                    {label: '5', value: '5'},
-                                    {label: '5.5', value: '5.5'},
-                                    {label: '6', value: '6'},
-                                    {label: '6.5', value: '6.5'},
-                                    {label: '7', value: '7'},
-                                    {label: '7.5', value: '7.5'},
-                                    {label: '8', value: '8'},
-                                    {label: '8.5', value: '8.5'},
-                                    {label: '9', value: '9'},
-                                    {label: '9.5', value: '9.5'},
-                                    {label: '10', value: '10'},
-                                    {label: '10.5', value: '10.5'},
-                                    {label: '11', value: '11'},
-                                    {label: '11.5', value: '11.5'},
-                                    {label: '12', value: '12'},
-                                    {label: '12.5', value: '12.5'},
-                                    {label: '13', value: '13'},
-                                    {label: '13.5', value: '13.5'},
-                                    {label: '14', value: '14'},
-                                    {label: '14.5', value: '14.5'},
-                                    {label: '15', value: '15'},
-                                    {label: '15.5', value: '15.5'},
-                                    {label: '16', value: '16'},
-                                    {label: '16.5', value: '16.5'},
-                                    {label: '17', value: '17'},
-                                    {label: '17.5', value: '17.5'},
-                                    {label: '18', value: '18'},
-                                    {label: '18.5', value: '18.5'},
-                                    {label: '19', value: '19'},
-                                    {label: '19.5', value: '19.5'},
-                                    {label: '20', value: '20'},
-                                    // {label: '20.5', value: '20.5'},
-                                ]
-
-                            }
-                            placeholder='Lower voltage delay (sec) '
-                            containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                            style={[styles.phone_code_dropdown,
-                                {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                            ]}
-                            itemStyle={{
-                                justifyContent: 'flex-start',
-                                width: 50,
-                                zIndex: 15
-                            }}
-                            selectedLabelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                color: "#ffffff",
-                                fontWeight: '400',
-
-                            }}
-                            placeholderStyle={{
-                                fontSize: 14,
-                                color: "#ffffff",
-                                fontWeight: '400',
-                            }}
-
-
-                            dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                            value={this.state.selectedLowerVoltageDelay}
-                            defaultValue={this.state.selectedLowerVoltageDelay}
-
-
-                            // selectedLabel='English'
-                            arrowColor={'white'}
-                            // onChangeItem={this.onChangeDropDownItem}
-                            onChangeItem={item => {
-                                this.chooseLowerVoltageDelay(item);
-                            }}
-
-
-                        />
-                    </View>
-                </View>
-
-                }
-
-
-
-                {this.state.week_days_popup  &&
-                <View style={styles.turn_off_the_load_switch_value_popup}>
-                    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingTop: 45, paddingBottom: 35}]}>
-                        <View style={styles.week_days_popup_header}>
-                            <TouchableOpacity style={[styles.title_back_btn_wrapper]} onPress={() => {this.setState({week_days_popup: false})}}>
+                    {this.state.upper_voltage_delay_popup  &&
+                        <View style={styles.turn_off_the_load_switch_value_popup}>
+                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
+                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
                                 <View>
                                     <Svg
                                         width={12}
@@ -2299,98 +1918,334 @@ export default class App extends Component {
                                     </Svg>
                                 </View>
                             </TouchableOpacity>
-                            <Text style={styles.week_days_popup_title}>Scheduler</Text>
-                        </View>
 
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Monday</Text>
-                            <Switch
+                            <DropDownPicker
+                                items={
+                                    [
+                                        {label: '0', value: '0'},
+                                        {label: '0.5', value: '0.5'},
+                                        {label: '1', value: '1'},
+                                        {label: '1.5', value: '1.5'},
+                                        {label: '2', value: '2'},
+                                        {label: '2.5', value: '2.5'},
+                                        {label: '3', value: '3'},
+                                        {label: '3.5', value: '3.5'},
+                                        {label: '4', value: '4'},
+                                        {label: '4.5', value: '4.5'},
+                                        {label: '5', value: '5'},
+                                        {label: '5.5', value: '5.5'},
+                                        {label: '6', value: '6'},
+                                        {label: '6.5', value: '6.5'},
+                                        {label: '7', value: '7'},
+                                        {label: '7.5', value: '7.5'},
+                                        {label: '8', value: '8'},
+                                        {label: '8.5', value: '8.5'},
+                                        {label: '9', value: '9'},
+                                        {label: '9.5', value: '9.5'},
+                                        {label: '10', value: '10'},
+                                        {label: '10.5', value: '10.5'},
+                                        {label: '11', value: '11'},
+                                        {label: '11.5', value: '11.5'},
+                                        {label: '12', value: '12'},
+                                        {label: '12.5', value: '12.5'},
+                                        {label: '13', value: '13'},
+                                        {label: '13.5', value: '13.5'},
+                                        {label: '14', value: '14'},
+                                        {label: '14.5', value: '14.5'},
+                                        {label: '15', value: '15'},
+                                        {label: '15.5', value: '15.5'},
+                                        {label: '16', value: '16'},
+                                        {label: '16.5', value: '16.5'},
+                                        {label: '17', value: '17'},
+                                        {label: '17.5', value: '17.5'},
+                                        {label: '18', value: '18'},
+                                        {label: '18.5', value: '18.5'},
+                                        {label: '19', value: '19'},
+                                        {label: '19.5', value: '19.5'},
+                                        {label: '20', value: '20'},
+                                        // {label: '20.5', value: '20.5'},
+                                    ]
 
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDayMondayToggleSwitch}
-                                value={this.state.useWeekDayMondaySwitchValue}
+                                }
+                                placeholder='Protection upper voltage (V)'
+                                containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
+                                style={[styles.phone_code_dropdown,
+                                    {backgroundColor: '#004B84', height: 45, borderRadius: 0}
+                                ]}
+                                itemStyle={{
+                                    justifyContent: 'flex-start',
+                                    width: 50,
+                                    zIndex: 15
+                                }}
+                                selectedLabelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+                                labelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+
+                                }}
+                                placeholderStyle={{
+                                    fontSize: 14,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+
+
+                                dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
+                                value={this.state.selectedUpperVoltageDelay}
+                                defaultValue={this.state.selectedUpperVoltageDelay}
+
+
+                                // selectedLabel='English'
+                                arrowColor={'white'}
+                                // onChangeItem={this.onChangeDropDownItem}
+                                onChangeItem={item => {
+                                    this.chooseUpperVoltageDelay(item);
+                                }}
+
+
                             />
                         </View>
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Tuesday</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDayTuesdayToggleSwitch}
-                                value={this.state.useWeekDayTuesdaySwitchValue}
-                            />
-                        </View>
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Wednesday</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDayWednesdayToggleSwitch}
-                                value={this.state.useWeekDayWednesdaySwitchValue}
-                            />
-                        </View>
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Thursday</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDayThursdayToggleSwitch}
-                                value={this.state.useWeekDayThursdaySwitchValue}
-                            />
-                        </View>
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Friday</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDayFridayToggleSwitch}
-                                value={this.state.useWeekDayFridaySwitchValue}
-                            />
-                        </View>
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Saturday</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDaySaturdayToggleSwitch}
-                                value={this.state.useWeekDaySaturdaySwitchValue}
-                            />
-                        </View>
-                        <View style={styles.week_days_item}>
-                            <Text style={styles.week_day_name}>Sunday</Text>
-                            <Switch
-
-                                trackColor={{ false: '#767577', true: '#004B84' }}
-                                // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                onValueChange={this.useWeekDaySundayToggleSwitch}
-                                value={this.state.useWeekDaySundaySwitchValue}
-                            />
-                        </View>
-
-
-                        <TouchableOpacity style={styles.save_btn} onPress={() => this.saveWeekDays()}>
-                             <Text style={styles.save_btn_text}>Save</Text>
-                        </TouchableOpacity>
-
-
-
                     </View>
-                </View>
+                    }
 
-                }
+                    {this.state.amperage_delay_popup  &&
+                        <View style={styles.turn_off_the_load_switch_value_popup}>
+                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
+                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({amperage_delay_popup: false})}}>
+                                <View>
+                                    <Svg
+                                        width={12}
+                                        height={20}
+                                        viewBox="0 0 12 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <Path
+                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                            fill="#004B84"
+                                        />
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
+
+                            <DropDownPicker
+                                items={
+                                    [
+                                        {label: '0', value: '0'},
+                                        {label: '0.5', value: '0.5'},
+                                        {label: '1', value: '1'},
+                                        {label: '1.5', value: '1.5'},
+                                        {label: '2', value: '2'},
+                                        {label: '2.5', value: '2.5'},
+                                        {label: '3', value: '3'},
+                                        {label: '3.5', value: '3.5'},
+                                        {label: '4', value: '4'},
+                                        {label: '4.5', value: '4.5'},
+                                        {label: '5', value: '5'},
+                                        {label: '5.5', value: '5.5'},
+                                        {label: '6', value: '6'},
+                                        {label: '6.5', value: '6.5'},
+                                        {label: '7', value: '7'},
+                                        {label: '7.5', value: '7.5'},
+                                        {label: '8', value: '8'},
+                                        {label: '8.5', value: '8.5'},
+                                        {label: '9', value: '9'},
+                                        {label: '9.5', value: '9.5'},
+                                        {label: '10', value: '10'},
+                                        {label: '10.5', value: '10.5'},
+                                        {label: '11', value: '11'},
+                                        {label: '11.5', value: '11.5'},
+                                        {label: '12', value: '12'},
+                                        {label: '12.5', value: '12.5'},
+                                        {label: '13', value: '13'},
+                                        {label: '13.5', value: '13.5'},
+                                        {label: '14', value: '14'},
+                                        {label: '14.5', value: '14.5'},
+                                        {label: '15', value: '15'},
+                                        {label: '15.5', value: '15.5'},
+                                        {label: '16', value: '16'},
+                                        {label: '16.5', value: '16.5'},
+                                        {label: '17', value: '17'},
+                                        {label: '17.5', value: '17.5'},
+                                        {label: '18', value: '18'},
+                                        {label: '18.5', value: '18.5'},
+                                        {label: '19', value: '19'},
+                                        {label: '19.5', value: '19.5'},
+                                        {label: '20', value: '20'},
+                                        // {label: '20.5', value: '20.5'},
+                                    ]
+
+                                }
+                                placeholder='Задержка защиты по току (сек)'
+                                containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
+                                style={[styles.phone_code_dropdown,
+                                    {backgroundColor: '#004B84', height: 45, borderRadius: 0}
+                                ]}
+                                itemStyle={{
+                                    justifyContent: 'flex-start',
+                                    width: 50,
+                                    zIndex: 15
+                                }}
+                                selectedLabelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+                                labelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+
+                                }}
+                                placeholderStyle={{
+                                    fontSize: 14,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
 
 
+                                dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
+                                value={this.state.selectedAmperageDelay}
+                                defaultValue={this.state.selectedAmperageDelay}
 
-                    {this.state.isOpenDatePicker &&
-                        <View style={styles.timepicker_popup}>
-                            <View style={styles.timepicker_popup_wrapper}>
-                                <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker: false})}}>
+
+                                // selectedLabel='English'
+                                arrowColor={'white'}
+                                // onChangeItem={this.onChangeDropDownItem}
+                                onChangeItem={item => {
+                                    this.chooseAmperageDelay(item);
+                                }}
+
+
+                            />
+                        </View>
+                    </View>
+                    }
+
+                    {this.state.lower_voltage_delay_popup  &&
+                        <View style={styles.turn_off_the_load_switch_value_popup}>
+                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingBottom: 200, paddingTop: 60}]}>
+                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
+                                <View>
+                                    <Svg
+                                        width={12}
+                                        height={20}
+                                        viewBox="0 0 12 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <Path
+                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                            fill="#004B84"
+                                        />
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
+
+                            <DropDownPicker
+                                items={
+                                    [
+                                        {label: '0', value: '0'},
+                                        {label: '0.5', value: '0.5'},
+                                        {label: '1', value: '1'},
+                                        {label: '1.5', value: '1.5'},
+                                        {label: '2', value: '2'},
+                                        {label: '2.5', value: '2.5'},
+                                        {label: '3', value: '3'},
+                                        {label: '3.5', value: '3.5'},
+                                        {label: '4', value: '4'},
+                                        {label: '4.5', value: '4.5'},
+                                        {label: '5', value: '5'},
+                                        {label: '5.5', value: '5.5'},
+                                        {label: '6', value: '6'},
+                                        {label: '6.5', value: '6.5'},
+                                        {label: '7', value: '7'},
+                                        {label: '7.5', value: '7.5'},
+                                        {label: '8', value: '8'},
+                                        {label: '8.5', value: '8.5'},
+                                        {label: '9', value: '9'},
+                                        {label: '9.5', value: '9.5'},
+                                        {label: '10', value: '10'},
+                                        {label: '10.5', value: '10.5'},
+                                        {label: '11', value: '11'},
+                                        {label: '11.5', value: '11.5'},
+                                        {label: '12', value: '12'},
+                                        {label: '12.5', value: '12.5'},
+                                        {label: '13', value: '13'},
+                                        {label: '13.5', value: '13.5'},
+                                        {label: '14', value: '14'},
+                                        {label: '14.5', value: '14.5'},
+                                        {label: '15', value: '15'},
+                                        {label: '15.5', value: '15.5'},
+                                        {label: '16', value: '16'},
+                                        {label: '16.5', value: '16.5'},
+                                        {label: '17', value: '17'},
+                                        {label: '17.5', value: '17.5'},
+                                        {label: '18', value: '18'},
+                                        {label: '18.5', value: '18.5'},
+                                        {label: '19', value: '19'},
+                                        {label: '19.5', value: '19.5'},
+                                        {label: '20', value: '20'},
+                                        // {label: '20.5', value: '20.5'},
+                                    ]
+
+                                }
+                                placeholder='Lower voltage delay (sec) '
+                                containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
+                                style={[styles.phone_code_dropdown,
+                                    {backgroundColor: '#004B84', height: 45, borderRadius: 0}
+                                ]}
+                                itemStyle={{
+                                    justifyContent: 'flex-start',
+                                    width: 50,
+                                    zIndex: 15
+                                }}
+                                selectedLabelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+                                labelStyle={{
+                                    fontSize: 16,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+
+                                }}
+                                placeholderStyle={{
+                                    fontSize: 14,
+                                    color: "#ffffff",
+                                    fontWeight: '400',
+                                }}
+
+
+                                dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
+                                value={this.state.selectedLowerVoltageDelay}
+                                defaultValue={this.state.selectedLowerVoltageDelay}
+
+
+                                // selectedLabel='English'
+                                arrowColor={'white'}
+                                // onChangeItem={this.onChangeDropDownItem}
+                                onChangeItem={item => {
+                                    this.chooseLowerVoltageDelay(item);
+                                }}
+
+
+                            />
+                        </View>
+                    </View>
+                    }
+
+                    {this.state.week_days_popup  &&
+                        <View style={styles.turn_off_the_load_switch_value_popup}>
+                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingTop: 45, paddingBottom: 35}]}>
+                            <View style={styles.week_days_popup_header}>
+                                <TouchableOpacity style={[styles.title_back_btn_wrapper]} onPress={() => {this.setState({week_days_popup: false})}}>
                                     <View>
                                         <Svg
                                             width={12}
@@ -2406,64 +2261,169 @@ export default class App extends Component {
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
-                                <DateTimePicker
-                                    style={{width: '100%', height: 500, marginBottom: 50, justifyContent: 'center', alignItems: 'center', alignSelf: 'center',}}
-                                    testID="dateTimePicker"
-                                    value={this.state.dateOriginValue}
-                                    mode={'time'}
-                                    is24Hour={true}
-                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                    onChange={(event, timeOriginValue) => {this.onChangeTime(event, timeOriginValue)}}
-                                />
-
-                                <TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOn()}>
-                                    <Text style={styles.save_btn_text}>Save</Text>
-                                </TouchableOpacity>
-
+                                <Text style={styles.week_days_popup_title}>Scheduler</Text>
                             </View>
+
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Monday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDayMondayToggleSwitch}
+                                    value={this.state.useWeekDayMondaySwitchValue}
+                                />
+                            </View>
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Tuesday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDayTuesdayToggleSwitch}
+                                    value={this.state.useWeekDayTuesdaySwitchValue}
+                                />
+                            </View>
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Wednesday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDayWednesdayToggleSwitch}
+                                    value={this.state.useWeekDayWednesdaySwitchValue}
+                                />
+                            </View>
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Thursday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDayThursdayToggleSwitch}
+                                    value={this.state.useWeekDayThursdaySwitchValue}
+                                />
+                            </View>
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Friday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDayFridayToggleSwitch}
+                                    value={this.state.useWeekDayFridaySwitchValue}
+                                />
+                            </View>
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Saturday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDaySaturdayToggleSwitch}
+                                    value={this.state.useWeekDaySaturdaySwitchValue}
+                                />
+                            </View>
+                            <View style={styles.week_days_item}>
+                                <Text style={styles.week_day_name}>Sunday</Text>
+                                <Switch
+
+                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={this.useWeekDaySundayToggleSwitch}
+                                    value={this.state.useWeekDaySundaySwitchValue}
+                                />
+                            </View>
+
+
+                            <TouchableOpacity style={styles.save_btn} onPress={() => this.saveWeekDays()}>
+                                <Text style={styles.save_btn_text}>Save</Text>
+                            </TouchableOpacity>
+
+
+
+                        </View>
+                    </View>
+                    }
+
+                    {this.state.isOpenDatePicker &&
+                         <View style={styles.timepicker_popup}>
+                        <View style={styles.timepicker_popup_wrapper}>
+                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker: false})}}>
+                                <View>
+                                    <Svg
+                                        width={12}
+                                        height={20}
+                                        viewBox="0 0 12 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <Path
+                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                            fill="#004B84"
+                                        />
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
+                            <DateTimePicker
+                                style={{width: '100%', height: 500, marginBottom: 50, justifyContent: 'center', alignItems: 'center', alignSelf: 'center',}}
+                                testID="dateTimePicker"
+                                value={this.state.dateOriginValue}
+                                mode={'time'}
+                                is24Hour={true}
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={(event, timeOriginValue) => {this.onChangeTime(event, timeOriginValue)}}
+                            />
+
+                            <TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOn()}>
+                                <Text style={styles.save_btn_text}>Save</Text>
+                            </TouchableOpacity>
 
                         </View>
 
+                    </View>
                     }
 
-                {this.state.isOpenDatePicker2 &&
-                 <View style={styles.timepicker_popup}>
-                    <View style={styles.timepicker_popup_wrapper}>
-                        <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker2: false})}}>
-                            <View>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                        </TouchableOpacity>
-                        <DateTimePicker
-                            style={{width: '100%', height: 500, marginBottom: 50, justifyContent: 'center', alignItems: 'center', alignSelf: 'center',}}
-                            testID="dateTimePicker"
-                            value={this.state.dateOriginValue}
-                            mode={'time'}
-                            is24Hour={true}
-                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                            onChange={(event, timeOriginValue) => {this.onChangeTime(event, timeOriginValue)}}
-                        />
+                    {this.state.isOpenDatePicker2 &&
+                        <View style={styles.timepicker_popup}>
+                        <View style={styles.timepicker_popup_wrapper}>
+                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenDatePicker2: false})}}>
+                                <View>
+                                    <Svg
+                                        width={12}
+                                        height={20}
+                                        viewBox="0 0 12 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <Path
+                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
+                                            fill="#004B84"
+                                        />
+                                    </Svg>
+                                </View>
+                            </TouchableOpacity>
+                            <DateTimePicker
+                                style={{width: '100%', height: 500, marginBottom: 50, justifyContent: 'center', alignItems: 'center', alignSelf: 'center',}}
+                                testID="dateTimePicker"
+                                value={this.state.dateOriginValue}
+                                mode={'time'}
+                                is24Hour={true}
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={(event, timeOriginValue) => {this.onChangeTime(event, timeOriginValue)}}
+                            />
 
-                        <TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOff()}>
-                            <Text style={styles.save_btn_text}>Save</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOff()}>
+                                <Text style={styles.save_btn_text}>Save</Text>
+                            </TouchableOpacity>
+
+                        </View>
 
                     </View>
-
+                    }
                 </View>
 
-                }
+
 
             </SafeAreaView>
 
@@ -2479,10 +2439,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {
@@ -2785,7 +2741,7 @@ const styles = StyleSheet.create({
     },
 
     pre_configuration_popup: {
-        backgroundColor:  '#ffffff',
+        backgroundColor:  'white',
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
@@ -2805,8 +2761,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         position: 'relative',
-        paddingTop: 60,
-
+        paddingTop: 25,
     },
 
     shared_access_popup: {

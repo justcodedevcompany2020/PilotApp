@@ -84,92 +84,59 @@ export default class App extends Component {
     }
 
     render() {
-
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
-
-
-
         return (
             <SafeAreaView style={styles.container} >
-                <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToAddingNew()}}>
-                            <View style={styles.back_btn}>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
+                {this.state.headerMenuPopup &&
+                    <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+                    <StatusBar style="dark" />
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToAddingNew()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                                <Text style={styles.all_devices_general_page_header_title}>Device setup</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path fill="#004B84" d="M0 0H28V3H0z" />
+                                    <Path fill="#004B84" d="M0 11H28V14H0z" />
+                                    <Path fill="#004B84" d="M0 22H28V25H0z" />
+                                </Svg>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+
+                        <View style={styles.new_device_has_been_found_icon_title_wrapper}>
+
+                            <View style={styles.new_device_settings_icon}>
+                                <Svg width={45} height={45} viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path d="M40.324 17.719l1.336-6.293-6.117-1.969-1.969-6.152-6.293 1.37L22.5.353l-4.781 4.324-6.293-1.371-1.969 6.117-6.152 2.004 1.336 6.293L.35 22.5l4.325 4.781-1.371 6.293 6.117 1.969 1.969 6.117 6.293-1.336 4.816 4.324 4.781-4.324 6.293 1.336 1.969-6.117 6.117-1.969-1.336-6.293 4.324-4.781-4.324-4.781zm-1.793 14.027l-5.133 1.652-1.652 5.133-5.273-1.125-3.973 3.586-3.973-3.62-5.273 1.124-1.652-5.098-5.133-1.652 1.125-5.273L4.008 22.5l3.62-3.973-1.124-5.273 5.098-1.652 1.652-5.133 5.273 1.125L22.5 4.008l3.973 3.62 5.273-1.124 1.652 5.098 5.133 1.652-1.125 5.273 3.586 3.973-3.62 3.973 1.16 5.273z" fill="#10BCCE"/>
+                                    <Path d="M23.906 15.469h-2.812v5.625h-5.625v2.812h5.625v5.625h2.812v-5.625h5.625v-2.812h-5.625v-5.625z" fill="#10BCCE"/>
                                 </Svg>
                             </View>
-                            <Text style={styles.all_devices_general_page_header_title}>Device setup</Text>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg
-                                width={28}
-                                height={25}
-                                viewBox="0 0 28 25"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <Path fill="#004B84" d="M0 0H28V3H0z" />
-                                <Path fill="#004B84" d="M0 11H28V14H0z" />
-                                <Path fill="#004B84" d="M0 22H28V25H0z" />
-                            </Svg>
-                        </TouchableOpacity>
-                    </View>
-
-
-                </View>
-                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-
-                    <View style={styles.new_device_has_been_found_icon_title_wrapper}>
-                               <View style={styles.new_device_settings_icon}>
-                                   <Svg
-                                       width={45}
-                                       height={45}
-                                       viewBox="0 0 45 45"
-                                       fill="none"
-                                       xmlns="http://www.w3.org/2000/svg"
-                                   >
-                                       <Path
-                                           d="M40.324 17.719l1.336-6.293-6.117-1.969-1.969-6.152-6.293 1.37L22.5.353l-4.781 4.324-6.293-1.371-1.969 6.117-6.152 2.004 1.336 6.293L.35 22.5l4.325 4.781-1.371 6.293 6.117 1.969 1.969 6.117 6.293-1.336 4.816 4.324 4.781-4.324 6.293 1.336 1.969-6.117 6.117-1.969-1.336-6.293 4.324-4.781-4.324-4.781zm-1.793 14.027l-5.133 1.652-1.652 5.133-5.273-1.125-3.973 3.586-3.973-3.62-5.273 1.124-1.652-5.098-5.133-1.652 1.125-5.273L4.008 22.5l3.62-3.973-1.124-5.273 5.098-1.652 1.652-5.133 5.273 1.125L22.5 4.008l3.973 3.62 5.273-1.124 1.652 5.098 5.133 1.652-1.125 5.273 3.586 3.973-3.62 3.973 1.16 5.273z"
-                                           fill="#10BCCE"
-                                       />
-                                       <Path
-                                           d="M23.906 15.469h-2.812v5.625h-5.625v2.812h5.625v5.625h2.812v-5.625h5.625v-2.812h-5.625v-5.625z"
-                                           fill="#10BCCE"
-                                       />
-                                   </Svg>
-                               </View>
                             <View style={styles.new_device_has_been_found_info_box}>
                                 <Text style={styles.new_device_has_been_found_info1}>New device has been found!</Text>
                                 <Text style={styles.new_device_has_been_found_info2}>Make device settings</Text>
                             </View>
                         </View>
-                    <View style={styles.device_info_main_wrapper}>
-                          <Text style={styles.device_info_main_title}>Device Information</Text>
-                        <Text style={styles.device_info_detail}>ID: A44E:4439:B2E6</Text>
-                        <Text style={styles.device_info_detail}>Smart Outlet</Text>
-                        <Text style={styles.device_info_detail}>HW v1.0.7  SW v2.32</Text>
-                        <Text style={styles.device_info_detail2}>IP: 192.168.0.1</Text>
-                    </View>
+                        <View style={styles.device_info_main_wrapper}>
+                            <Text style={styles.device_info_main_title}>Device Information</Text>
+                            <Text style={styles.device_info_detail}>ID: A44E:4439:B2E6</Text>
+                            <Text style={styles.device_info_detail}>Smart Outlet</Text>
+                            <Text style={styles.device_info_detail}>HW v1.0.7  SW v2.32</Text>
+                            <Text style={styles.device_info_detail2}>IP: 192.168.0.1</Text>
+                        </View>
 
-                    <View style={styles.device_setup_inputs_btn_wrapper}>
-                        <Text style={styles.device_setup_title}>Setup parameters</Text>
+                        <View style={styles.device_setup_inputs_btn_wrapper}>
+                            <Text style={styles.device_setup_title}>Setup parameters</Text>
                             <TextInput
                                 style={styles.new_device_input_field}
                                 onChangeText={(val) => this.setState({wifiAccess: val})}
@@ -178,23 +145,21 @@ export default class App extends Component {
                                 placeholderTextColor='#D3D3D3'
 
                             />
-                        <TextInput
-                            style={styles.new_device_input_field}
-                            onChangeText={(val) => this.setState({wifiPassword: val})}
-                            value={this.state.wifiPassword}
-                            placeholder="WI-FI Password"
-                            placeholderTextColor='#D3D3D3'
-                        />
+                            <TextInput
+                                style={styles.new_device_input_field}
+                                onChangeText={(val) => this.setState({wifiPassword: val})}
+                                value={this.state.wifiPassword}
+                                placeholder="WI-FI Password"
+                                placeholderTextColor='#D3D3D3'
+                            />
                             <TouchableOpacity style={styles.confirm_new_device_btn}>
-                                 <Text style={styles.confirm_new_device_btn_text}>Confirm</Text>
+                                <Text style={styles.confirm_new_device_btn_text}>Confirm</Text>
                             </TouchableOpacity>
                         </View>
 
-                </ScrollView>
-
-
+                    </ScrollView>
+                </View>
             </SafeAreaView>
-
         );
     }
 }
@@ -207,10 +172,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {

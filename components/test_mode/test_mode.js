@@ -141,7 +141,9 @@ export default class App extends Component {
     };
 
     redirectToDetailsGeneralPage = () => {
-        this.props.navigation.navigate("DetailsGeneralPage");
+        this.props.navigation.navigate("DetailsGeneralPage", {
+            params: this.props.id
+        });
 
     }
     redirectToNewTest = () => {
@@ -152,9 +154,10 @@ export default class App extends Component {
 
     }
 
-    redirectToTestReport = (id) => {
+    redirectToTestReport = (report_id) => {
         this.props.navigation.navigate("TestReport", {
-            params: id,
+            params: report_id,
+            params2: this.props.id,
         });
     }
 
@@ -185,7 +188,7 @@ export default class App extends Component {
         let AuthStr = 'Bearer ' + userToken;
         let id = this.props.id;
 
-        console.log(id, 'hjjjjjj')
+        console.log(id, 'this.props.id')
 
         try {
             fetch(`https://apiv1.zis.ru/tests/device/`+ id, {
@@ -220,152 +223,116 @@ export default class App extends Component {
 
     render() {
 
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
-
-
 
         return (
             <SafeAreaView style={styles.container} >
-                <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToDetailsGeneralPage()}}>
-                            <View style={styles.back_btn}>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
+
+                {this.state.headerMenuPopup &&
+                    <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
+
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+                    <StatusBar style="dark" />
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToDetailsGeneralPage()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                                <Text style={styles.all_devices_general_page_header_title}>Test mode</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" />
                                 </Svg>
-                            </View>
-                            <Text style={styles.all_devices_general_page_header_title}>Test mode</Text>
-                        </TouchableOpacity>
+                            </TouchableOpacity>
+                        </View>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg
-                                width={28}
-                                height={25}
-                                viewBox="0 0 28 25"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <Path fill="#004B84" d="M0 0H28V3H0z" />
-                                <Path fill="#004B84" d="M0 11H28V14H0z" />
-                                <Path fill="#004B84" d="M0 22H28V25H0z" />
-                            </Svg>
-                        </TouchableOpacity>
+
                     </View>
+                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
 
-
-                </View>
-                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-
-                    {this.state.test_mode_info.length == 0 &&
+                        {this.state.test_mode_info.length == 0 &&
                         <View style={styles.test_not_found_title_wrapper}>
                             <Text style={styles.test_not_found_title}>Test Not Found</Text>
                         </View>
+                        }
 
-                    }
+                        {this.state.test_mode_info.map((report, index) => {
 
-                    {this.state.test_mode_info.map((report, index) => {
+                            return (
+                                <View style={styles.report_item}  key={index}>
 
-                        return (
-                            <View style={styles.report_item}  key={index}>
+                                    <View style={styles.chart_box_img_report_item_info_main_wrapper}>
+                                        <View style={styles.chart_box_img}>
+                                            <Image style={styles.chart_box_img_child} source={require('../../assets/images/chart_box_img.png')}/>
+                                        </View>
 
-                                 <View style={styles.chart_box_img_report_item_info_main_wrapper}>
-                                     <View style={styles.chart_box_img}>
-                                         <Image style={styles.chart_box_img_child} source={require('../../assets/images/chart_box_img.png')}/>
-                                     </View>
+                                        <View style={styles.report_item_info_main_wrapper}>
+                                            <View style={styles.report_item_info_title_icon_box}>
+                                                {report.report_status_icon_progress &&
+                                                <View style={styles.report_item_info_icon}>
+                                                    <Svg width={6} height={7} viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <Path d="M6 3.5L.75 6.531V.47L6 3.5z" fill="#10BCCE" />
+                                                    </Svg>
+                                                </View>
+                                                }
+                                                {report.report_status_icon_delete &&
+                                                <View style={styles.report_item_info_icon}>
+                                                    <Svg width={8} height={8} viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <Path d="M2 6.333c0 .369.298.667.667.667h2.666A.666.666 0 006 6.333v-4H2v4zm4.333-5H5.167L4.833 1H3.167l-.334.333H1.667V2h4.666v-.667z" fill="#EB5757"/>
+                                                    </Svg>
+                                                </View>
+                                                }
 
-                                     <View style={styles.report_item_info_main_wrapper}>
-                                         <View style={styles.report_item_info_title_icon_box}>
-                                             {report.report_status_icon_progress &&
-                                             <View style={styles.report_item_info_icon}>
-                                                 <Svg
-                                                     width={6}
-                                                     height={7}
-                                                     viewBox="0 0 6 7"
-                                                     fill="none"
-                                                     xmlns="http://www.w3.org/2000/svg"
-                                                 >
-                                                     <Path d="M6 3.5L.75 6.531V.47L6 3.5z" fill="#10BCCE" />
-                                                 </Svg>
-                                             </View>
-                                             }
-                                             {report.report_status_icon_delete &&
-                                             <View style={styles.report_item_info_icon}>
-                                                 <Svg
-                                                     width={8}
-                                                     height={8}
-                                                     viewBox="0 0 8 8"
-                                                     fill="none"
-                                                     xmlns="http://www.w3.org/2000/svg"
-                                                 >
-                                                     <Path
-                                                         d="M2 6.333c0 .369.298.667.667.667h2.666A.666.666 0 006 6.333v-4H2v4zm4.333-5H5.167L4.833 1H3.167l-.334.333H1.667V2h4.666v-.667z"
-                                                         fill="#EB5757"
-                                                     />
-                                                 </Svg>
-                                             </View>
-                                             }
+                                                <Text style={styles.report_item_info_title}>{report.report_status_text}</Text>
+                                            </View>
+                                            <View style={styles.report_item_date_info_box}>
+                                                <Text style={styles.report_item_date_info}>From {report.start_date}</Text>
+                                                <Text style={styles.report_item_date_info}>To {report.end_date}</Text>
+                                            </View>
+                                            <View style={styles.report_item_details_second_main_wrapper}>
+                                                <Text style={styles.report_item_details_second_info}>{report.consumption  ? report.consumption : 0 }</Text>
+                                                <Text style={styles.report_item_details_second_info}>{report.voltage_min  ? report.voltage_min : 0 } - {report.voltage_max  ? report.voltage_max : 0 }</Text>
+                                                <Text style={styles.report_item_details_second_info}>{report.amperage_min  ? report.amperage_min : 0 } - {report.amperage_max  ? report.amperage_max : 0 }</Text>
 
+                                            </View>
 
+                                        </View>
+                                    </View>
 
-                                             <Text style={styles.report_item_info_title}>{report.report_status_text}</Text>
-                                         </View>
-                                         <View style={styles.report_item_date_info_box}>
-                                             <Text style={styles.report_item_date_info}>From {report.start_date}</Text>
-                                             <Text style={styles.report_item_date_info}>To {report.end_date}</Text>
-                                         </View>
-                                         <View style={styles.report_item_details_second_main_wrapper}>
-                                             <Text style={styles.report_item_details_second_info}>{report.consumption  ? report.consumption : 0 }</Text>
-                                             <Text style={styles.report_item_details_second_info}>{report.voltage_min  ? report.voltage_min : 0 } - {report.voltage_max  ? report.voltage_max : 0 }</Text>
-                                             <Text style={styles.report_item_details_second_info}>{report.amperage_min  ? report.amperage_min : 0 } - {report.amperage_max  ? report.amperage_max : 0 }</Text>
-
-                                         </View>
-
-                                     </View>
-                                </View>
-
-                                <View style={styles.report_btn_status_info_wrapper}>
-                                    <TouchableOpacity style={styles.report_btn} onPress={() => this.redirectToTestReport(report.id)}>
-                                        <Text style={styles.report_btn_text}>Report</Text>
-                                    </TouchableOpacity>
-                                    {report.report_status_info_box &&
+                                    <View style={styles.report_btn_status_info_wrapper}>
+                                        <TouchableOpacity style={styles.report_btn} onPress={() => this.redirectToTestReport(report.id)}>
+                                            <Text style={styles.report_btn_text}>Report</Text>
+                                        </TouchableOpacity>
+                                        {report.report_status_info_box &&
                                         <TouchableOpacity style={styles.report_status_info_box}>
-                                        <Text style={styles.report_status_info}>Osciloscope</Text>
-                                    </TouchableOpacity>
-                                    }
+                                            <Text style={styles.report_status_info}>Osciloscope</Text>
+                                        </TouchableOpacity>
+                                        }
+
+                                    </View>
 
                                 </View>
 
-                            </View>
-
-                        );
-                    })}
+                            );
+                        })}
 
 
 
 
-                </ScrollView>
+                    </ScrollView>
 
-                <View style={styles.all_devices_general_page_footer}>
-                    <TouchableOpacity style={styles.start_a_new_test_button} onPress={() => {this.redirectToNewTest()}}>
-                        <Text style={styles.start_a_new_test_button_text}>Start a new test</Text>
-                    </TouchableOpacity>
+                    <View style={styles.all_devices_general_page_footer}>
+                        <TouchableOpacity style={styles.start_a_new_test_button} onPress={() => {this.redirectToNewTest()}}>
+                            <Text style={styles.start_a_new_test_button_text}>Start a new test</Text>
+                        </TouchableOpacity>
 
+                    </View>
                 </View>
+
 
 
             </SafeAreaView>
@@ -382,17 +349,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {
         width: '100%',
         flex: 1,
         paddingHorizontal: 25,
-
     },
 
     all_devices_general_page_header: {
