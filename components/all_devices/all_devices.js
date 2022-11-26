@@ -103,7 +103,6 @@ export default class App extends Component {
 
     redirectToAddingNew = () => {
         this.props.navigation.navigate("AddingNew");
-
     }
 
     redirectToDeviceSetup = () => {
@@ -164,6 +163,14 @@ export default class App extends Component {
                 return response.json()
             }).then((response) => {
 
+                response.push({
+                    "device_type": "add_new_devices",
+                    "id": '',
+                    "ident": "",
+                    "name": "",
+                    "owner": false,
+                    "status": true,
+                })
                 console.log(response, 'ALL DEVICES')
                 // new_resp[new_resp.length].show_share_button = true
                 this.setState({
@@ -214,6 +221,27 @@ export default class App extends Component {
                     <ScrollView style={styles.all_devices_general_page_main_wrapper}>
                         <View style={styles.all_devices_general_page_items_main_wrapper}>
                             {this.state.all_devices.map((item, index) => {
+
+                                if (item.device_type == 'add_new_devices') {
+                                    return (
+                                        <TouchableOpacity key={index}  style={[styles.all_devices_general_page_button, {paddingTop:15}]} onPress={() => {this.redirectToAddingNew()}}>
+
+                                            <View style={styles.all_devices_general_page_button}>
+                                                <Svg width={55} height={55} viewBox="0 0 54 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path fill="#fff" stroke="#10BCCE" strokeDasharray="10 10" d="M0.5 0.5H53.5V56.5H0.5z"/>
+                                                    <Path stroke="#10BCCE" d="M27.5 17L27.5 39" />
+                                                    <Path stroke="#10BCCE" d="M38 28.5L16 28.5" />
+                                                </Svg>
+                                            </View>
+
+                                            <View style={[styles.all_devices_general_page_button_info_box, {position:'relative', top:-25}]}>
+                                                <Text style={styles.all_devices_general_page_button_name}>Add new</Text>
+                                            </View>
+
+                                        </TouchableOpacity>
+                                    )
+                                }
+
                                 return (
                                     <TouchableOpacity key={index} style={styles.all_devices_general_page_button} onPress={() => {this.redirectToDetailsGeneralPage(item.id)}}>
                                         <View  style={styles.all_devices_general_page_button_icons_img_box}>
@@ -251,16 +279,7 @@ export default class App extends Component {
                             })}
 
 
-                            {/*<TouchableOpacity  onPress={() => {this.redirectToAddingNew()}}>*/}
-                            {/*    <View style={styles.all_devices_general_page_button}>*/}
-                            {/*        <Svg width={54} height={57} viewBox="0 0 54 57" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                            {/*            <Path fill="#fff" stroke="#10BCCE" strokeDasharray="10 10" d="M0.5 0.5H53.5V56.5H0.5z"/>*/}
-                            {/*            <Path stroke="#10BCCE" d="M27.5 17L27.5 39" />*/}
-                            {/*            <Path stroke="#10BCCE" d="M38 28.5L16 28.5" />*/}
-                            {/*        </Svg>*/}
-                            {/*    </View>*/}
-                            {/*    <Text style={[styles.all_devices_general_page_button_name, {marginBottom: 0}]}>dwqdwq</Text>*/}
-                            {/*</TouchableOpacity>*/}
+
 
 
                         </View>
@@ -325,7 +344,6 @@ const styles = StyleSheet.create({
     },
     all_devices_general_page_button_name: {
         fontSize: 12,
-        fontWeight: '500',
         color: '#004B84',
         marginBottom: 5,
         textAlign: 'center',

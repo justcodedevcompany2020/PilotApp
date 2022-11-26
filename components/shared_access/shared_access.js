@@ -159,30 +159,15 @@ export default class App extends Component {
                     <View style={styles.all_devices_general_page_header_child}>
                         <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToPreferences()}}>
                             <View style={styles.back_btn}>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
+                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                 </Svg>
                             </View>
                             <Text style={styles.all_devices_general_page_header_title}>Shared access</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg
-                                width={28}
-                                height={25}
-                                viewBox="0 0 28 25"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
+                            <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <Path fill="#004B84" d="M0 0H28V3H0z" />
                                 <Path fill="#004B84" d="M0 11H28V14H0z" />
                                 <Path fill="#004B84" d="M0 22H28V25H0z" />
@@ -203,17 +188,8 @@ export default class App extends Component {
                               <TouchableOpacity style={styles.shared_access_delete_btn}>
                                   <Text style={styles.shared_access_delete_btn_text}>Delete</Text>
                                   <View style={styles.shared_access_delete_btn_icon}>
-                                      <Svg
-                                          width={12}
-                                          height={20}
-                                          viewBox="0 0 12 20"
-                                          fill="none"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                          <Path
-                                              d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                              fill="#004B84"
-                                          />
+                                      <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                       </Svg>
                                   </View>
                               </TouchableOpacity>
@@ -223,9 +199,7 @@ export default class App extends Component {
                           </TouchableOpacity>
                       </View>
 
-
                 </ScrollView>
-
 
             </SafeAreaView>
 
@@ -241,17 +215,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {
         width: '100%',
         flex: 1,
         paddingHorizontal: 25,
-
     },
 
     all_devices_general_page_header: {

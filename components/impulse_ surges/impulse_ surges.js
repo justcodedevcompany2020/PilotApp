@@ -73,9 +73,9 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            impulse_surges_item_info: '14',
-            peak_limit: '240 V',
-            peak_value: '244.9 V',
+            impulse_surges_item_info: this.props.impulse_surges,
+            peak_limit: '0',
+            peak_value: '0',
             todayDate: '',
 
             date_begin: '2022-09-06',
@@ -161,10 +161,19 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
+                console.log(response, 'surgesData')
 
-                await this.setState({
-                    chartData: response.surgesData
-                })
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400) {
+                    await this.setState({
+                        chartData: []
+                    })
+                } else {
+                    await this.setState({
+                        chartData: response.data,
+                        peak_value: response.peakValue ? response.peakValue : 0
+                    })
+                }
+
                 await callback()
             })
         } catch (e) {
@@ -232,14 +241,11 @@ export default class App extends Component {
         console.log(chartLabels, 'chartLabels')
 
         await this.setState({
-            chartData: chartData1.length > 0  ? chartData1 : [],
-            // chartData: chartData1,
+            chartData: chartData1.length > 0  ? chartData1 : [0],
             chart_labels: chartLabels.length > 0  ? chartLabels : [''] ,
-        })
-
-        await this.setState({
             chart_show:true,
         })
+
 
     }
 
@@ -410,11 +416,12 @@ export default class App extends Component {
             chartLabels.push(chartData[item].timestamp2);
         }
         chartLabels = [... new Set(chartLabels)] // get uniques value;
+        console.log(chartLabels, 'chartLabels');
 
         this.setState({
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
-            chart_labels: chartLabels,
+            chart_labels: chartLabels.length > 0 ? chartLabels : ['0'],
         })
 
     }
@@ -597,36 +604,34 @@ export default class App extends Component {
 
     render() {
 
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
-
-
         return (
             <SafeAreaView style={styles.container} >
                 <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
-                            <View style={styles.back_btn}>
-                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
-                                </Svg>
-                            </View>
-                            <Text style={styles.all_devices_general_page_header_title}>Impulse surges</Text>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" /></Svg>
-                        </TouchableOpacity>
+                {this.state.headerMenuPopup &&
+                     <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
+
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                                <Text style={styles.all_devices_general_page_header_title}>Impulse surges</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" /></Svg>
+                            </TouchableOpacity>
+
+                        </View>
 
                     </View>
-
-                </View>
-                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
                         <View style={styles.impulse_surges_items_main_wrapper}>
                             <View style={styles.impulse_surges_items_second_wrapper}>
                                 <View style={styles.impulse_surges_item_icon_title_wrapper}>
@@ -637,42 +642,42 @@ export default class App extends Component {
                                     </View>
                                     <Text style={styles.impulse_surges_item_info1}>{this.state.impulse_surges_item_info}</Text>
                                 </View>
-                                <View style={styles.impulse_surges_item}>
-                                    <Text style={styles.impulse_surges_item_title}>Peak limit</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.peak_limit}</Text>
-                                </View>
+                                {/*<View style={styles.impulse_surges_item}>*/}
+                                {/*    <Text style={styles.impulse_surges_item_title}>Peak limit</Text>*/}
+                                {/*    <Text style={styles.impulse_surges_item_info}>{this.state.peak_limit}</Text>*/}
+                                {/*</View>*/}
                                 <View style={styles.impulse_surges_item}>
                                     <Text style={styles.impulse_surges_item_title}>Peak value</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.peak_value}</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{parseInt(this.state.peak_value).toFixed(1)} V</Text>
                                 </View>
                             </View>
 
                             <View style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
-                                  <TouchableOpacity
-                                       onPress={() => {
-                                            this.pressToDay()
-                                        }}
-                                      style={styles.impulse_surges_dates_info_button}
-                                  >
-                                      <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
-                                  </TouchableOpacity>
-                                  <TouchableOpacity
-                                      onPress={() => {
-                                            this.pressToWeek()
-                                        }}
-                                      style={styles.impulse_surges_dates_info_button}
-                                  >
-                                      <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
-                                  </TouchableOpacity>
-                                  <TouchableOpacity
-                                       onPress={() => {
-                                            this.pressToMonth()
-                                        }}
-                                      style={styles.impulse_surges_dates_info_button}
-                                  >
-                                      <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
-                                  </TouchableOpacity>
-                              </View>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToDay()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToWeek()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToMonth()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
+                                </TouchableOpacity>
+                            </View>
                             <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
 
 
@@ -720,7 +725,7 @@ export default class App extends Component {
 
 
                                 {this.state.chart_type == 'day' &&
-                                     <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
+                                <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
 
                                     <TouchableOpacity
                                         onPress={() => {
@@ -751,65 +756,65 @@ export default class App extends Component {
 
                                 {this.state.chart_type == 'week' &&
 
-                                    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
+                                <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
 
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToPrevWeek()
-                                            }}
-                                            style={styles.impulse_surges_change_minus_date_button}
-                                        >
-                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToPrevWeek()
+                                        }}
+                                        style={styles.impulse_surges_change_minus_date_button}
+                                    >
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
 
-                                        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
+                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
 
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToNextWeek()
-                                            }}
-                                            style={styles.impulse_surges_change_plus_date_button}
-                                        >
-                                            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToNextWeek()
+                                        }}
+                                        style={styles.impulse_surges_change_plus_date_button}
+                                    >
+                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
 
-                                    </View>
+                                </View>
 
                                 }
 
                                 {this.state.chart_type == 'month' &&
 
-                                    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
+                                <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
 
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToPrevMonth()
-                                            }}
-                                            style={styles.impulse_surges_change_minus_date_button}
-                                        >
-                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToPrevMonth()
+                                        }}
+                                        style={styles.impulse_surges_change_minus_date_button}
+                                    >
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
 
-                                        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
+                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
 
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToNextMonth()
-                                            }}
-                                            style={styles.impulse_surges_change_plus_date_button}
-                                        >
-                                            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToNextMonth()
+                                        }}
+                                        style={styles.impulse_surges_change_plus_date_button}
+                                    >
+                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
 
-                                    </View>
+                                </View>
 
                                 }
 
@@ -818,11 +823,10 @@ export default class App extends Component {
                         </View>
 
 
-                </ScrollView>
-
+                    </ScrollView>
+                </View>
 
             </SafeAreaView>
-
         );
     }
 }
@@ -835,10 +839,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {

@@ -43,12 +43,15 @@ const en = {
     offline: 'Offline',
     consumption: 'Consumption',
     power: 'Power',
+    power_protection: 'Power Protection',
     voltage: 'Voltage',
     amperage: 'Amperage',
     number_of_protection: 'Number of protection triggered',
     last_data: 'Last data',
     started_time: 'Started time',
     preferences: 'Preferences',
+    pre_configuration: 'Pre-configuration'
+
 };
 
 const ru = {
@@ -99,6 +102,8 @@ const ru = {
     last_data: 'Последние данные',
     started_time: 'Время начала',
     preferences: 'Настройки',
+    power_protection: 'Защита питания',
+    pre_configuration: 'Предварительная конфигурация'
 
 };
 

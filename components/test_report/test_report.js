@@ -2,7 +2,14 @@ import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
 import DropDownPicker from "react-native-custom-dropdown";
-import PieChart from 'react-native-expo-pie-chart';
+import {
+    LineChart,
+    BarChart,
+    ProgressChart,
+    ContributionGraph,
+    StackedBarChart,
+    PieChart
+} from "react-native-chart-kit";
 import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';
 import {AuthContext} from "../AuthContext/context";
@@ -26,8 +33,7 @@ import {
     Linking,
     Pressable,
 } from 'react-native';
-
-const windowWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get('window').height;
 
 import {
@@ -39,7 +45,10 @@ import {
 } from 'react-native-safe-area-context';
 import TopMenu from "../includes/header_menu";
 
-
+import { DonutChart } from "react-native-circular-chart";
+const chartConfig = {
+    color: (opacity = 1) => `silver`,
+};
 
 export default class App extends Component {
     constructor(props) {
@@ -49,16 +58,19 @@ export default class App extends Component {
              headerMenuPopup: false,
              report_status: 'In progress',
              report_status_progress: true,
-             report_start_time: '2022-07-15 15:00',
-             report_end_time: '2022-07-23 10:00',
-             undervoltage: '12.4%',
-             overvoltage: '9.7%',
-             power_outages: '1.2%',
+             report_start_time: '',
+             report_end_time: '',
+             undervoltage: 0,
+             overvoltage: 0,
+             power_outages: 0,
              impulse_surges: '14',
              consumption: '75.5 kWh',
              voltage: '214.4 - 244.9 V',
              amperage: '0.01 - 3.11 A',
-
+             loaded: true,
+             blue_chart_data: 0,
+             undervoltage_limit: 0,
+             overvoltage_limit: 0,
         };
 
     }
@@ -106,7 +118,8 @@ export default class App extends Component {
     redirectToImpulseSurges = () => {
         this.props.navigation.navigate("ImpulseSurges", {
             params: this.props.id,
-            params2: this.props.device_id
+            params2: this.props.device_id,
+            impulse_surges: this.state.impulse_surges
         });
 
     }
@@ -128,12 +141,27 @@ export default class App extends Component {
     }
 
     redirectToUndervoltage = () => {
-        this.props.navigation.navigate("Undervoltage");
+        this.props.navigation.navigate("Undervoltage", {
+            params: this.props.id,
+            params2: this.props.device_id,
+            params3: this.state.undervoltage_limit
+        });
+    }
+
+    redirectToOvervoltage = () => {
+        this.props.navigation.navigate("Overvoltage", {
+            params: this.props.id,
+            params2: this.props.device_id,
+            params3: this.state.overvoltage_limit
+        });
 
     }
 
     redirectToPowerOutages = () => {
-        this.props.navigation.navigate("PowerOutages");
+        this.props.navigation.navigate("PowerOutages", {
+            params: this.props.id,
+            params2: this.props.device_id,
+        });
 
     }
 
@@ -141,14 +169,19 @@ export default class App extends Component {
         this.props.navigation.navigate("Voltage", {
             params: this.props.id,
             params2: this.props.device_id,
-            params3: this.state.voltage ? this.state.voltage : 0
+            params3: this.state.voltage ? this.state.voltage : 0,
+            voltage_min: this.state.voltage_min ? this.state.voltage_min : 0,
+            voltage_max: this.state.voltage_max ? this.state.voltage_max : 0
         });
     }
 
     redirectToAmperage = () => {
+
         this.props.navigation.navigate("Amperage", {
             params: this.props.id,
-            params2: this.props.device_id
+            params2: this.props.device_id,
+            amperage_min: this.state.amperage_min,
+            amperage_max: this.state.amperage_max
         });
     }
 
@@ -204,28 +237,107 @@ export default class App extends Component {
             }
         }).then((response) => {
             return response.json()
-        }).then((response) => {
+        }).then( async (response) => {
 
             console.log(response, 'test report')
 
-            this.setState({
+            let report_start_time = new Date(response.start_date);
+            let report_end_time   = new Date(response.end_date);
+            let current_date      = new Date();
+
+            let test_report_status = '';
+
+            if(this.checkInProgress(report_start_time,report_end_time,current_date)) {
+                test_report_status = 'in_progress';
+            } else if(this.checkScheduled(report_start_time, current_date)) {
+                test_report_status = 'scheduled'; // запланирован;
+            } else if(this.checkWillBeDeleted(report_end_time, current_date)) {
+                test_report_status = 'will_be_deleted'; // должен быть удален;
+            }
+
+
+            let undervoltage_limit = response.lower_voltage_trigger // Undervoltage limit желтый
+            let overvoltage_limit = response.upper_voltage_trigger // Overvoltage (Uppervoltage) limit красный
+
+            let undervoltage  = response.undervoltage ? parseFloat(response.undervoltage) : 0;
+            let overvoltage   = response.overvoltage ? parseFloat(response.overvoltage) : 0;
+            let power_outages = response.power_outages ? parseFloat(response.power_outages) : 0;
+            let blue_chart_data = (100 - (undervoltage + overvoltage + power_outages));
+
+            await this.setState({
+                test_report_status: test_report_status,
                 report_start_time: response.start_date,
                 report_end_time: response.end_date,
-                undervoltage: response.undervoltage,
-                overvoltage: response.uppervoltage,
-                power_outages: response.power_outages,
-                impulse_surges:response.impulse_surges,
-                consumption: response.consumption,
+                undervoltage:  undervoltage,
+                overvoltage: overvoltage,
+                power_outages: power_outages,
+                impulse_surges:response.impulse_surges ? response.impulse_surges : 0,
+                consumption: response.consumption ? response.consumption : 0,
                 voltage: response.upper_voltage_trigger,
+                voltage_max: response.voltage_max ? response.voltage_max : 0,
+                voltage_min: response.voltage_min ? response.voltage_min : 0,
                 amperage: response.amperage_max,
+                amperage_min: response.amperage_min ? response.amperage_min : 0,
+                amperage_max: response.amperage_max ? response.amperage_max : 0,
+                blue_chart_data: blue_chart_data,
+                loaded: true,
+
+                undervoltage_limit: undervoltage_limit,
+                overvoltage_limit: overvoltage_limit
             })
 
         })
     }
 
-    render() {
+     checkInProgress = (dateStart, dateEnd, date) =>{
+        return date > dateStart && date < dateEnd;
+     }
+     checkScheduled = (dateStart, date) =>{
+        return date < dateStart ;
+     }
 
+    checkWillBeDeleted = (dateEnd, date) =>{
+        return date > dateEnd ;
+     }
+
+   getCirclePowerChartData = async () => {
+
+        let {undervoltage, overvoltage, power_outages} = this.state;
+
+        undervoltage  = this.state.undervoltage ? parseFloat(this.state.undervoltage) : 0;
+        overvoltage   = this.state.overvoltage ? parseFloat(this.state.overvoltage) : 0;
+        power_outages = this.state.power_outages ? parseFloat(this.state.power_outages) : 0;
+
+        let blue = (100 - (undervoltage + overvoltage + power_outages));
+
+        let result = {
+            undervoltage:undervoltage,
+            overvoltage: overvoltage,
+            power_outages: power_outages,
+            blue: parseFloat(blue)
+        };
+       console.log(result, 'result')
+
+   }
+
+    getWillBeDeletedDate = () => {
+        let date = new Date(this.state.report_end_time);
+        let dateCopy = new Date(date.getTime());
+        dateCopy.setDate(dateCopy.getDate());
+
+        let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
+        let month = dateCopy.getMonth() + 2;
+        month = month <= 9 ? `0${month}` : month;
+        let year = dateCopy.getFullYear();
+        let new_date =  year + '-' + month + '-' + day;
+
+        return  new_date
+    }
+
+
+    render() {
         return (
+
             <SafeAreaView style={styles.container} >
 
                 {this.state.headerMenuPopup &&
@@ -258,117 +370,172 @@ export default class App extends Component {
                         <View style={styles.test_report_items_main_wrapper}>
                             <View style={styles.test_report_status_start_end_time_info_items_wrapper}>
                                 <View style={styles.test_report_status_start_end_time_info_item}>
+
                                     <Text style={styles.test_report_status_start_end_time_info_item_title}>Status</Text>
+
                                     <View style={styles.test_report_status_start_end_time_info_item_icon_text_box}>
-                                        {this.state.report_status_progress &&
-                                        <View style={styles.test_report_status_start_end_time_info_item_icon}>
-                                            <Svg
-                                                width={9}
-                                                height={11}
-                                                viewBox="0 0 9 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <Path d="M9 5.5L.75 10.263V.737L9 5.5z" fill="#10BCCE" />
-                                            </Svg>
-                                        </View>
+                                        {this.state.test_report_status == 'scheduled' &&
+                                            <View style={styles.test_report_status_start_end_time_info_item_icon}>
+
+                                                <Text style={styles.test_report_status_start_end_time_info_item_text}>
+                                                    Scheduled
+                                                </Text>
+                                            </View>
                                         }
-                                        <Text style={styles.test_report_status_start_end_time_info_item_text}>{this.state.report_status}</Text>
+
+                                        {this.state.test_report_status == 'in_progress' &&
+                                            <View style={styles.test_report_status_start_end_time_info_item_icon}>
+                                                <Svg width={9} height={11} viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M9 5.5L.75 10.263V.737L9 5.5z" fill="#10BCCE" />
+                                                </Svg>
+                                                <Text style={styles.test_report_status_start_end_time_info_item_text}>
+                                                    In progress
+                                                </Text>
+                                            </View>
+                                        }
+
+
+                                        {this.state.test_report_status == 'will_be_deleted' &&
+                                            <View style={styles.test_report_status_start_end_time_info_item_icon}>
+                                                <Svg width={8} height={8} viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" >
+                                                    <G clipPath="url(#clip0_8_28)">
+                                                        <Path d="M2 6.333c0 .369.298.667.667.667h2.666A.666.666 0 006 6.333v-4H2v4zm4.333-5H5.167L4.833 1H3.167l-.334.333H1.667V2h4.666v-.667z" fill="#EB5757"/>
+                                                    </G>
+                                                    <Defs>
+                                                        <ClipPath id="clip0_8_28">
+                                                            <Path fill="#fff" d="M0 0H8V8H0z" />
+                                                        </ClipPath>
+                                                    </Defs>
+                                                </Svg>
+                                                <Text style={styles.test_report_status_start_end_time_info_item_text}>
+                                                    Will be delete at {this.getWillBeDeletedDate()}
+                                                </Text>
+                                            </View>
+                                        }
+
                                     </View>
 
                                 </View>
+
                                 <View style={styles.test_report_status_start_end_time_info_item}>
                                     <Text style={styles.test_report_status_start_end_time_info_item_title}>Start time</Text>
                                     <Text style={styles.test_report_status_start_time_info}>{this.state.report_start_time}</Text>
-
                                 </View>
+
                                 <View style={styles.test_report_status_start_end_time_info_item}>
                                     <Text style={styles.test_report_status_start_end_time_info_item_title}>End time</Text>
                                     <Text style={styles.test_report_status_end_time_info}>{this.state.report_end_time}</Text>
-
                                 </View>
-                                <TouchableOpacity style={styles.report_status_button} onPress={() => {this.redirectToOsciloscope()}}>
-                                    <Text style={styles.report_status_button_text}>Osciloscope</Text>
-                                </TouchableOpacity>
+
+                                {/*<TouchableOpacity style={styles.report_status_button} onPress={() => {this.redirectToOsciloscope()}}>*/}
+                                {/*    <Text style={styles.report_status_button_text}>Osciloscope</Text>*/}
+                                {/*</TouchableOpacity>*/}
+
                             </View>
                             <View style={styles.report_chart_main_info_items_wrapper}>
                                 <View  style={styles.report_chart_main_info_item_box}>
+
                                     <View style={styles.report_chart_main_info_item}>
                                         <Text style={styles.report_chart_main_info_item_title}>Power</Text>
-                                        <View style={[styles.report_chart_main_info_item_img, {  width: 242, height: 242,}]}>
-                                            <Image style={styles.report_chart_main_info_item_img_child} source={require('../../assets/images/report_chart_img1.png')}/>
+
+                                        <View style={[{  width: '100%',  justifyContent:'center', alignItems:'center' }]}>
+
+
+                                            {this.state.loaded ?
+
+                                                <PieChart
+                                                    data={[
+                                                        {
+                                                            name: "Undervoltage",
+                                                            population: this.state.undervoltage ,
+                                                            color: "#EB5757",
+                                                        },
+                                                        {
+                                                            name: "Overvoltage",
+                                                            population: this.state.overvoltage ,
+                                                            color: "#F2994A",
+                                                        },
+                                                        {
+                                                            name: "Power outages",
+                                                            population: this.state.power_outages ,
+                                                            color: "#BDBDBD",
+                                                        },
+                                                        {
+                                                            name: "Moscow",
+                                                            population: this.state.blue_chart_data,
+                                                            color: "#10BCCE",
+                                                        }]}
+                                                    width={screenWidth}
+                                                    height={260}
+                                                    chartConfig={chartConfig}
+                                                    accessor={"population"}
+                                                    backgroundColor={"transparent"}
+                                                    // paddingLeft={"15"}
+                                                    center={[100, 0]}
+                                                    // absolute
+                                                    hasLegend={false}
+                                                />
+                                                :
+
+                                                <ActivityIndicator/>
+                                            }
+
+
+
                                         </View>
+
                                     </View>
-                                    <View style={[styles.report_chart_main_info_item]}>
-                                        <Text style={styles.report_chart_main_info_item_title}>Power outages</Text>
-                                        <View style={[styles.report_chart_main_info_item_img, {  width: 313, height: 221,}]}>
-                                            <Image style={styles.report_chart_main_info_item_img_child} source={require('../../assets/images/report_chart_img2.png')}/>
-                                        </View>
-                                    </View>
+
+
                                 </View>
                                 <View style={styles.report_chart_details_main_items_wrapper}>
                                     <View style={styles.report_chart_details_item}>
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={15}
-                                                    height={13}
-                                                    viewBox="0 0 15 13"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path d="M7.5 0l7.361 12.75H.14L7.5 0z" fill="#EB5757" />
+
+                                                <Svg width={15} height={13} viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M7.5 13L.139.25H14.86L7.5 13z" fill="#F2994A" />
                                                 </Svg>
+
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>Undervoltage</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToUndervoltage()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.undervoltage  ? this.state.undervoltage: 0 }</Text>
+                                        <TouchableOpacity style={styles.report_chart_details_item_button}
+                                              onPress={() => {
+                                                  this.redirectToUndervoltage()
+                                              }}
+                                        >
+                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.undervoltage ? this.state.undervoltage: 0 }%</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
                                     </View>
                                     <View style={styles.report_chart_details_item}>
+
                                         <View style={styles.report_chart_details_item_icon_title_box}>
+
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={15}
-                                                    height={13}
-                                                    viewBox="0 0 15 13"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path d="M7.5 13L.139.25H14.86L7.5 13z" fill="#F2994A" />
+                                                <Svg width={15} height={13} viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M7.5 0l7.361 12.75H.14L7.5 0z" fill="#EB5757" />
                                                 </Svg>
                                             </View>
+
                                             <Text style={styles.report_chart_details_item_title}>Overvoltage</Text>
+
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.overvoltage ? this.state.overvoltage : 0}</Text>
+                                        <TouchableOpacity
+                                            style={styles.report_chart_details_item_button}
+                                            onPress={() => {
+                                                this.redirectToOvervoltage()
+                                            }}
+                                        >
+                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.overvoltage ? this.state.overvoltage : 0}%</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
@@ -376,33 +543,15 @@ export default class App extends Component {
                                     <View style={styles.report_chart_details_item}>
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={11}
-                                                    height={13}
-                                                    viewBox="0 0 11 13"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path fill="#BDBDBD" d="M0 0H4V13H0z" />
-                                                    <Path fill="#BDBDBD" d="M7 0H11V13H7z" />
-                                                </Svg>
+                                                <Svg width={11} height={13} viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#BDBDBD" d="M0 0H4V13H0z" /><Path fill="#BDBDBD" d="M7 0H11V13H7z" /></Svg>
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>Power outages</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToPowerOutages()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.power_outages ? this.state.power_outages : 0}</Text>
+                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.power_outages ? this.state.power_outages : 0}%</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
@@ -410,69 +559,40 @@ export default class App extends Component {
                                     <View style={styles.report_chart_details_item}>
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={15}
-                                                    height={12}
-                                                    viewBox="0 0 15 12"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
+                                                <Svg width={15} height={12} viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M0 9.167V12h15V9.167H9L7.5 0l-2 9.167H0z" fill="#004B84" />
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}> Impulse surges (above 325V)</Text>
+                                            <Text style={styles.report_chart_details_item_title}> Impulse surges</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToImpulseSurges()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.impulse_surges ? this.state.impulse_surges : 0}</Text>
+                                            <Text style={styles.report_chart_details_item_button_text}>
+                                                {this.state.impulse_surges ? this.state.impulse_surges : 0}
+                                            </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
                                     </View>
                                     <View style={styles.report_chart_details_item}>
+
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={14}
-                                                    height={14}
-                                                    viewBox="0 0 14 14"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
+                                                <Svg width={14} height={14} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Circle cx={7} cy={7} r={7} fill="#10BCCE" />
-                                                    <Path
-                                                        d="M4 7.571h2.756L5.798 11 10 6.429H7.244L8.2 3 4 7.571z"
-                                                        fill="#fff"
-                                                    />
+                                                    <Path d="M4 7.571h2.756L5.798 11 10 6.429H7.244L8.2 3 4 7.571z" fill="#fff"/>
                                                 </Svg>
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>Consumption</Text>
                                         </View>
+
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToConsumption()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.consumption ? this.state.consumption : 0}</Text>
+                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.consumption ? this.state.consumption : 0} kWh</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
@@ -480,32 +600,20 @@ export default class App extends Component {
                                     <View style={styles.report_chart_details_item}>
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={14}
-                                                    height={14}
-                                                    viewBox="0 0 14 14"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
+                                                <Svg width={14} height={14} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Circle cx={7} cy={7} r={7} fill="#10BCCE" />
-                                                    <Path
-                                                        d="M5.557 4.182l1.406 4.42h.054l1.41-4.42H9.79L7.784 10H6.2L4.19 4.182h1.367z"
-                                                        fill="#fff"
-                                                    />
+                                                    <Path d="M5.557 4.182l1.406 4.42h.054l1.41-4.42H9.79L7.784 10H6.2L4.19 4.182h1.367z" fill="#fff"/>
                                                 </Svg>
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>Voltage</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToVoltage()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.voltage ? this.state.voltage : 0}</Text>
+                                            <Text style={styles.report_chart_details_item_button_text}>
+                                                {/*{this.state.voltage ? this.state.voltage : 0}*/}
+                                                {this.state.voltage_min} - {this.state.voltage_max} V
+                                            </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
@@ -535,19 +643,14 @@ export default class App extends Component {
                                                   this.redirectToAmperage()
                                               }}
                                         >
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.amperage ? this.state.amperage : 0}</Text>
+                                            <Text style={styles.report_chart_details_item_button_text}>
+                                                {/*{this.state.amperage ? this.state.amperage : 0}*/}
+                                                {this.state.amperage_min} - {this.state.amperage_max} A
+
+                                            </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
@@ -762,9 +865,15 @@ const styles = StyleSheet.create({
         color: '#4A4A4A',
     },
 
+    test_report_status_start_end_time_info_item_icon: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent:'center'
+    },
     test_report_status_start_end_time_info_item_icon_text_box: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent:'center'
     },
     test_report_status_start_end_time_info_item_text: {
         fontWeight: '400',

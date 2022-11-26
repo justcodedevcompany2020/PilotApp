@@ -85,8 +85,8 @@ export default class App extends Component {
         this.state = {
             headerMenuPopup: false,
             voltage_item_info: 'AVG 221.7 V',
-            minimum_info: '214.4 V',
-            maximum_info: '244.9 V',
+            minimum_info: 0,
+            maximum_info: 0,
             todayDate: '',
 
             date_begin: '2022-09-06',
@@ -169,7 +169,7 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
-                console.log(response, 'response')
+                console.log(response, 'response avg_data')
 
                 await this.setState({
                     chartData: response
@@ -233,6 +233,10 @@ export default class App extends Component {
             chartData1.push(parseFloat(chartData[item].power));
         }
 
+        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0
+        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0
+
+
         let chartLabels = [];
         for (const item in chartData) {
             chartLabels.push(chartData[item].timestamp2);
@@ -240,15 +244,13 @@ export default class App extends Component {
 
         chartLabels = [... new Set(chartLabels)] // get uniques value;
 
-        // console.log(chartData1, 'chartData1chartData1chartData1')
-        // console.log(chartLabels, 'chartLabels')
-        // console.log([... new Set(chartLabels)], 'chartLabelschartLabels')
 
         this.setState({
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
-            // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
             chart_labels: chartLabels ,
+            minimum_info: minimum_info,
+            maximum_info: maximum_info,
         })
 
     }
@@ -314,6 +316,9 @@ export default class App extends Component {
             chartData1.push(chartData[item].power);
         }
 
+        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0
+        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0
+
         let chartLabels = [];
         for (const item in chartData) {
             chartLabels.push(chartData[item].timestamp2);
@@ -344,6 +349,8 @@ export default class App extends Component {
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels,
+            minimum_info: minimum_info,
+            maximum_info: maximum_info,
         })
 
     }
@@ -413,7 +420,9 @@ export default class App extends Component {
         for (const item in chartData) {
             chartData1.push(parseFloat(chartData[item].power));
         }
-        console.log(chartData1, 'chartData');
+
+        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0
+        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0
 
         let chartLabels = [];
         for (const item in chartData) {
@@ -425,6 +434,8 @@ export default class App extends Component {
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels,
+            minimum_info:minimum_info,
+            maximum_info:maximum_info,
         })
 
     }
@@ -607,137 +618,135 @@ export default class App extends Component {
 
     render() {
 
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
-
-
         return (
             <SafeAreaView style={styles.container} >
                 <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
-                            <View style={styles.back_btn}>
-                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
-                                </Svg>
-                            </View>
-                            <Text style={styles.all_devices_general_page_header_title}>Power</Text>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" /></Svg>
-                        </TouchableOpacity>
-                    </View>
+                {this.state.headerMenuPopup &&
+                    <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
 
-                </View>
-                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-                    <View style={styles.impulse_surges_items_main_wrapper}>
-                        <View style={styles.impulse_surges_items_second_wrapper}>
-                            <View style={styles.impulse_surges_item_icon_title_wrapper}>
-                                <View style={styles.impulse_surges_item_icon}>
-                                    <Svg width={21} height={21} viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Circle cx={10.5} cy={10.5} r={10.5} fill="#10BCCE" />
-                                        <Path d="M7.952 6l2.01 6.838h.077L12.052 6H14l-2.866 9H8.87L6 6h1.952z" fill="#fff"/>
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.impulse_surges_item_info1}>{this.state.voltage_item_info}</Text>
-                            </View>
-                            <View style={styles.impulse_surges_item}>
-                                <Text style={styles.impulse_surges_item_title}>Minimum</Text>
-                                <Text style={styles.impulse_surges_item_info}>{this.state.minimum_info}</Text>
-                            </View>
-                            <View style={styles.impulse_surges_item}>
-                                <Text style={styles.impulse_surges_item_title}>Maximum</Text>
-                                <Text style={styles.impulse_surges_item_info}>{this.state.maximum_info}</Text>
-                            </View>
-
-                        </View>
-
-                        <View  style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
-                            <TouchableOpacity
-                                 onPress={() => {
-                                    this.pressToDay()
-                                }}
-                                style={styles.impulse_surges_dates_info_button}
-                            >
-                                <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>Power</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    this.pressToWeek()
-                                }}
-                                style={styles.impulse_surges_dates_info_button}
-                            >
-                                <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    this.pressToMonth()
-                                }}
-                                style={styles.impulse_surges_dates_info_button}
-                            >
-                                <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
+
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" /></Svg>
                             </TouchableOpacity>
                         </View>
 
-                        <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
-
-                            {/*<View style={[styles.impulse_surges_item_img]}>*/}
-                            {/*    <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img5.png')}/>*/}
-                            {/*</View>*/}
-
-                            <View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>
-
-                                {this.state.chart_show ?
-                                    <LineChart
-                                        data={{
-                                            labels:  this.state.chart_labels,
-                                            datasets: [
-                                                // {
-                                                //     data: [130, 135, 140, 145,  260,130, 135, 140, 145, 260, 220 ],
-                                                //     // color: (opacity = 1) => `silver`, // optional
-                                                //     strokeWidth: 2, // optional
-                                                //     withDots: false, //a flage to make it hidden
-                                                // },
-
-                                                {
-                                                    data: this.state.chartData, //, [210, 215, 240, 220, 210],
-                                                    // color: (opacity = 1) => `silver`, // optional
-                                                    // strokeWidth: 2 // optional
-                                                    withDots: false, //a flage to make it hidden
-                                                },
-                                            ],
-                                        }}
-                                        width={screenWidth}
-                                        height={220}
-                                        chartConfig={chartConfig}
-                                        bezier
-                                        withDots={true}
-                                        withInnerLines={true}
-                                        withOuterLines={false}
-                                        withVerticalLines={false}
-                                        withHorizontalLines={true}
-                                        // yAxisSuffix={'V'}
-                                        // fromNumber={260}
-                                        // fromZero={false}
-                                    />
-
-                                    :
-
-                                    <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>
-                                        <ActivityIndicator size="large" color="#0000ff"/>
+                    </View>
+                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                        <View style={styles.impulse_surges_items_main_wrapper}>
+                            <View style={styles.impulse_surges_items_second_wrapper}>
+                                <View style={styles.impulse_surges_item_icon_title_wrapper}>
+                                    <View style={styles.impulse_surges_item_icon}>
+                                        <Svg width={21} height={21} viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Circle cx={10.5} cy={10.5} r={10.5} fill="#10BCCE" />
+                                            <Path d="M7.952 6l2.01 6.838h.077L12.052 6H14l-2.866 9H8.87L6 6h1.952z" fill="#fff"/>
+                                        </Svg>
                                     </View>
-                                }
+                                    <Text style={styles.impulse_surges_item_info1}>{this.state.voltage_item_info}</Text>
+                                </View>
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Minimum</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.minimum_info} V</Text>
+                                </View>
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Maximum</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.maximum_info} V</Text>
+                                </View>
+
                             </View>
 
+                            <View  style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToDay()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToWeek()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToMonth()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
+
+                                {/*<View style={[styles.impulse_surges_item_img]}>*/}
+                                {/*    <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img5.png')}/>*/}
+                                {/*</View>*/}
+
+                                <View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>
+
+                                    {this.state.chart_show ?
+                                        <LineChart
+                                            data={{
+                                                labels:  this.state.chart_labels,
+                                                datasets: [
+                                                    // {
+                                                    //     data: [130, 135, 140, 145,  260,130, 135, 140, 145, 260, 220 ],
+                                                    //     // color: (opacity = 1) => `silver`, // optional
+                                                    //     strokeWidth: 2, // optional
+                                                    //     withDots: false, //a flage to make it hidden
+                                                    // },
+
+                                                    {
+                                                        data: this.state.chartData, //, [210, 215, 240, 220, 210],
+                                                        // color: (opacity = 1) => `silver`, // optional
+                                                        // strokeWidth: 2 // optional
+                                                        withDots: false, //a flage to make it hidden
+                                                    },
+                                                ],
+                                            }}
+                                            width={screenWidth}
+                                            height={220}
+                                            chartConfig={chartConfig}
+                                            bezier
+                                            withDots={true}
+                                            withInnerLines={true}
+                                            withOuterLines={false}
+                                            withVerticalLines={false}
+                                            withHorizontalLines={true}
+                                            // yAxisSuffix={'V'}
+                                            // fromNumber={260}
+                                            // fromZero={false}
+                                        />
+
+                                        :
+
+                                        <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>
+                                            <ActivityIndicator size="large" color="#0000ff"/>
+                                        </View>
+                                    }
+                                </View>
 
 
-                            {this.state.chart_type == 'day' &&
+
+                                {this.state.chart_type == 'day' &&
                                 <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
 
                                     <TouchableOpacity
@@ -764,10 +773,10 @@ export default class App extends Component {
                                         </Svg>
                                     </TouchableOpacity>
                                 </View>
-                            }
+                                }
 
 
-                            {this.state.chart_type == 'week' &&
+                                {this.state.chart_type == 'week' &&
 
                                 <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
 
@@ -797,9 +806,9 @@ export default class App extends Component {
 
                                 </View>
 
-                            }
+                                }
 
-                            {this.state.chart_type == 'month' &&
+                                {this.state.chart_type == 'month' &&
 
                                 <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
 
@@ -829,16 +838,16 @@ export default class App extends Component {
 
                                 </View>
 
-                            }
+                                }
 
 
 
+                            </View>
                         </View>
-                    </View>
 
 
-                </ScrollView>
-
+                    </ScrollView>
+                </View>
 
             </SafeAreaView>
 
@@ -854,10 +863,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
-
-
     },
 
     all_devices_general_page_main_wrapper: {

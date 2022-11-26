@@ -5,6 +5,13 @@ import DropDownPicker from "react-native-custom-dropdown";
 import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';
+import {
+    LineChart,
+    BarChart,
+    ProgressChart,
+    ContributionGraph,
+    StackedBarChart
+} from "react-native-chart-kit";
 
 import {
     Text,
@@ -27,6 +34,8 @@ import {
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 import {
     SafeAreaView,
@@ -36,7 +45,34 @@ import {
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import TopMenu from "../includes/header_menu";
+import moment from "moment";
 
+const chartConfig = {
+    backgroundGradientFrom: "white",
+    backgroundGradientFromOpacity:1,
+    backgroundGradientTo: "white",
+    backgroundGradientToOpacity: 1,
+    color: (opacity = 1) => `silver`,
+    strokeWidth: 2, // optional, default 3
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false, // optional
+    // decimalPlaces: 0,
+    linejoinType: "round",
+    scrollableDotFill: '#fff',
+    scrollableDotRadius: 6,
+    scrollableDotStrokeColor: 'tomato',
+    scrollableDotStrokeWidth: 3,
+    scrollableInfoViewStyle: {
+        justifyContent: 'center',
+        alignContent: 'center',
+        backgroundColor: '#121212',
+        borderRadius: 2,
+        marginTop: 25,
+        marginLeft: 25
+    },
+
+};
+const screenWidth = Dimensions.get("window").width;
 
 
 export default class App extends Component {
@@ -45,12 +81,19 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            undervoltage_item_info: '9.7%',
-            limit: '215 V',
-            peak_value: '214.4 V',
+            undervoltage_item_info: 0,
+            limit: this.props.undervoltage_limit,
+            peak_value: 0,
             todayDate: '',
-            total_duration: '5h 52m 21s'
+            total_duration: 0,
 
+            date_begin: '2022-09-06',
+            date_end: '2022-09-06',
+            chart_data_day: [],
+            chart_labels: [],
+            chartData: [],
+            chart_show: false,
+            chart_type: 'day'
         };
 
     }
@@ -95,7 +138,10 @@ export default class App extends Component {
 
 
     redirectToTestReport = () => {
-        this.props.navigation.navigate("TestReport");
+        this.props.navigation.navigate("TestReport",{
+            params: this.props.id,
+            params2: this.props.device_id
+        });
 
     }
 
@@ -105,28 +151,461 @@ export default class App extends Component {
     }
 
 
+    getChartData = async (callback) => {
+
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr   = 'Bearer ' + userToken;
+        let {date_begin, date_end, chart_type} = this.state;
+        // let id = this.props.device_id;
+        let id = this.props.id;
+
+        // console.log(`https://apiv1.zis.ru/tests/voltage_problems/4?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=undervoltage`)
+
+        // date_begin = '2022-09-01';
+        // date_end = '2022-09-06';
+
+        // let url = `https://apiv1.zis.ru/tests/voltage_problems/4?date_begin=${date_begin}&date_end=${date_end}&data_type=undervoltage&period=${chart_type}`;
+        let url = `https://apiv1.zis.ru/tests/voltage_problems/${id}?date_begin=${date_begin}&date_end=${date_end}&data_type=undervoltage&period=${chart_type}`;
+        console.log(url)
+        try {
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': AuthStr,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then((response) => {
+                return response.json()
+            }).then(async (response)  => {
+
+                console.log(response, 'responsedwdwdw')
+
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400) {
+                    await this.setState({
+                        chartData: [],
+                        peak_value: 0,
+                        total_duration: 0,
+                        undervoltage_item_info: 0
+                    })
+                } else {
+                    await this.setState({
+                        chartData: response.data,
+                        peak_value: response.peakVoltage ? parseFloat(response.peakVoltage) : 0,
+                        total_duration: response.duration ? parseFloat(response.duration) : 0,
+                        undervoltage_item_info: response.promlemVoltagePercentage ? parseFloat(response.promlemVoltagePercentage) : 0
+                    })
+                }
 
 
-    componentDidMount() {
-
-        var date = new Date().getDate();
-        var month = new Date().getMonth() + 1;
-        var year = new Date().getFullYear();
-
-        //Alert.alert(date + '-' + month + '-' + year);
-        // You can turn it in to your desired format
+                await callback()
+            })
+        } catch (e) {
+            console.log(e)
+        }
+    }
 
 
-        let todayDate =  date + '-' + month + '-' + year;//format: dd-mm-yyyy;
-        this.setState({
-            todayDate: todayDate,
+    pressToDay = async () => {
+        let date = new Date().getDate();
+        let month = new Date().getMonth() + 1;
+        let year = new Date().getFullYear();
+        let todayDate =  year + '-' + month + '-' + date;
+
+        console.log(todayDate, 'setDayData')
+
+        await this.setState({
+            date_begin: todayDate,
+            date_end: todayDate,
+            chart_type: 'day',
+            chart_show: false
+        })
+        await this.getChartData(() => {
+            this.setDayData()
         })
 
     }
-    componentWillUnmount() {
+    pressToDayAfterPressToArrow = async () => {
+        await this.setState({
+            chart_type: 'day',
+            chart_show: false
+        })
+        await this.getChartData(() => {
+            this.setDayData()
+        })
+    }
+    setDayData = async () => {
 
+        let {chartData} = this.state;
+
+        for (const item in chartData) {
+            let timestamp = chartData[item].timestamp
+            // let new_timestamp = new Date(timestamp);
+            // let time = new_timestamp.getHours();
+            let hours = timestamp.split('T')[1];
+            chartData[item].timestamp2 = hours.slice(0,2);
+        }
+
+        chartData.sort(function(a, b) {
+            return a.timestamp2 - b.timestamp2;
+        })
+
+        // console.log(chartData, 'chartData');
+
+        let chartData1 = [];
+        for (const item in chartData) {
+            chartData1.push(parseFloat(chartData[item].voltage));
+        }
+
+        let chartLabels = [];
+        for (const item in chartData) {
+            chartLabels.push(chartData[item].timestamp2+':00');
+        }
+
+        chartLabels = [... new Set(chartLabels)] // get uniques value;
+
+        this.setState({
+            chart_show:true,
+            chartData: chartData1.length > 0 ? chartData1 : [0],
+            chart_labels: chartLabels ,
+        })
 
     }
+
+
+    pressToWeek = async () => {
+
+        let dateOffset = (24*60*60*1000) * 7; //6 days
+        let firstday = new Date();
+        firstday.setTime(firstday.getTime() - dateOffset);
+        firstday = moment(firstday).format('YYYY-MM-DD')
+
+        let date = new Date().getDate();
+        let month = new Date().getMonth() + 1;
+        let year = new Date().getFullYear();
+        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+
+        await this.setState({
+            date_begin: firstday,
+            date_end: lastday,
+            chart_type: 'week',
+            chart_show: false
+        })
+
+        await this.getChartData(() => {
+            this.setWeekData()
+        })
+
+    }
+    pressToWeekAfterPressToArrow = async () => {
+
+        await this.setState({
+            chart_type: 'week',
+            chart_show: false
+        })
+        await this.getChartData(() => {
+            this.setWeekData()
+        })
+
+    }
+
+    setWeekData = async () => {
+
+        let {chartData} = this.state;
+
+        for (const item in chartData) {
+            let timestamp = chartData[item].timestamp
+            let new_timestamp = new Date(timestamp);
+            let hours = new_timestamp.getDay();
+            chartData[item].timestamp2 = hours;
+        }
+
+        chartData.sort(function(a, b) {
+            return a.timestamp2 - b.timestamp2;
+        })
+
+        let chartData1 = [];
+        for (const item in chartData) {
+            chartData1.push(chartData[item].voltage);
+        }
+
+        let chartLabels = [];
+        for (const item in chartData) {
+            chartLabels.push(chartData[item].timestamp2);
+        }
+        chartLabels = [... new Set(chartLabels)] // get uniques value;
+
+        for (const chartLabelsItem in chartLabels) {
+
+            if(chartLabels[chartLabelsItem] == 1) {
+                chartLabels[chartLabelsItem] = 'ПН'
+            } else if(chartLabels[chartLabelsItem] == 2) {
+                chartLabels[chartLabelsItem] = 'ВТ'
+            } else if(chartLabels[chartLabelsItem] == 3) {
+                chartLabels[chartLabelsItem] = 'СР'
+            } else if(chartLabels[chartLabelsItem] == 4) {
+                chartLabels[chartLabelsItem] = 'ЧТ'
+            } else if(chartLabels[chartLabelsItem] == 5) {
+                chartLabels[chartLabelsItem] = 'ПТ'
+            } else if(chartLabels[chartLabelsItem] == 6) {
+                chartLabels[chartLabelsItem] = 'СБ'
+            } else if(chartLabels[chartLabelsItem] == 0) {
+                chartLabels[chartLabelsItem] = 'ВС'
+            }
+
+        }
+
+        this.setState({
+            chart_show:true,
+            chartData: chartData1.length > 0 ? chartData1 : [0],
+            chart_labels: chartLabels,
+        })
+
+    }
+
+    pressToMonth = async () => {
+
+        let dateOffset = (24*60*60*1000) * 30; //6 days
+        let firstday = new Date();
+        firstday.setTime(firstday.getTime() - dateOffset);
+        firstday = moment(firstday).format('YYYY-MM-DD')
+
+        let date = new Date().getDate();
+        let month = new Date().getMonth() + 1;
+        let year = new Date().getFullYear();
+        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+
+        console.log(lastday, 'lastday');
+        console.log(firstday, 'firstday');
+
+        this.setState({
+            date_begin: firstday,
+            date_end: lastday,
+            chart_type: 'month',
+            chart_show: false
+        })
+
+
+        await this.getChartData(() => {
+            this.setMonthData()
+        })
+
+    }
+    pressToMonthAfterPressToArrow = async () => {
+        await this.setState({
+            chart_type: 'month',
+            chart_show: false
+        })
+
+        await this.getChartData(() => {
+            this.setMonthData()
+        })
+
+    }
+    setMonthData = async () => {
+        let {chartData} = this.state;
+
+        for (const item in chartData) {
+            let timestamp = chartData[item].timestamp
+            let new_timestamp = new Date(timestamp);
+
+            let hours = timestamp.split('T')[0];
+            chartData[item].timestamp2 = hours.slice(-2);
+
+            console.log(timestamp + '==d==' + hours.slice(-2));
+
+            // let hours = new_timestamp.getDay();
+            // chartData[item].timestamp2 = hours;
+
+        }
+
+        chartData.sort(function(a, b) {
+            return a.timestamp2 - b.timestamp2;
+        })
+
+
+        let chartData1 = [];
+        for (const item in chartData) {
+            chartData1.push(parseFloat(chartData[item].voltage));
+        }
+        console.log(chartData1, 'chartData');
+
+        let chartLabels = [];
+        for (const item in chartData) {
+            chartLabels.push(chartData[item].timestamp2);
+        }
+        chartLabels = [... new Set(chartLabels)] // get uniques value;
+
+        this.setState({
+            chart_show:true,
+            chartData: chartData1.length > 0 ? chartData1 : [0],
+            chart_labels: chartLabels,
+        })
+
+    }
+
+
+
+    componentDidMount() {
+        const { navigation } = this.props;
+        this.pressToDay()
+        this.focusListener = navigation.addListener("focus", () => {
+            this.pressToDay()
+        });
+    }
+    componentWillUnmount() {
+        if (this.focusListener) {
+            this.focusListener();
+        }
+    }
+
+
+    goToPrevDay = async () => {
+
+        let {date_begin, chart_type, chart_show} = this.state;
+        if (!chart_show) {
+            return false
+        }
+
+        const date = new Date(date_begin);
+        const dateCopy = new Date(date.getTime());
+        dateCopy.setDate(dateCopy.getDate() -1);
+
+        let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
+        let month = dateCopy.getMonth() + 1;
+        month = month <= 9 ? `0${month}` : month;
+        let year = dateCopy.getFullYear();
+        let todayDate =  year + '-' + month + '-' + day;
+
+        console.log( todayDate)
+        await this.setState({
+            date_begin:todayDate,
+            date_end:todayDate
+        })
+        this.pressToDayAfterPressToArrow();
+    }
+    goToNextDay = async () => {
+        let {date_begin, chart_type, chart_show} = this.state;
+        if (!chart_show) {
+            return false
+        }
+
+        const date = new Date(date_begin);
+        const dateCopy = new Date(date.getTime());
+        dateCopy.setDate(dateCopy.getDate() + 1);
+
+        let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
+        let month = dateCopy.getMonth() + 1;
+        month = month <= 9 ? `0${month}` : month;
+        let year = dateCopy.getFullYear();
+        let todayDate =  year + '-' + month + '-' + day;
+
+        console.log( todayDate)
+        await this.setState({
+            date_begin:todayDate,
+            date_end:todayDate
+        })
+        this.pressToDayAfterPressToArrow();
+    }
+
+    goToPrevWeek = async () => {
+
+        let {date_begin, date_end, chart_type, chart_show} = this.state;
+        if (!chart_show) {
+            return false
+        }
+
+        let dateOffset = (24*60*60*1000) * 7; //6 days
+        let firstday = new Date(date_begin);
+        firstday.setTime(firstday.getTime() - dateOffset);
+        firstday = moment(firstday).format('YYYY-MM-DD')
+
+        let date = new Date().getDate();
+        let month = new Date().getMonth() + 1;
+        let year = new Date().getFullYear();
+        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+
+        console.log(firstday, 'firstday')
+        console.log(date_begin, 'lastday')
+        await this.setState({
+            date_begin:firstday,
+            date_end:date_begin
+        })
+        await this.pressToWeekAfterPressToArrow();
+    }
+    goToNextWeek = async () => {
+
+        let {date_begin, date_end, chart_type, chart_show} = this.state;
+        if (!chart_show) {
+            return false
+        }
+        let dateOffset = (24*60*60*1000) * 7; //6 days
+        let firstday = new Date(date_end);
+        firstday.setTime(firstday.getTime() + dateOffset);
+        firstday = moment(firstday).format('YYYY-MM-DD')
+
+        let date = new Date().getDate();
+        let month = new Date().getMonth() + 1;
+        let year = new Date().getFullYear();
+        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+
+        console.log(date_end, 'date_end')
+        console.log(firstday, 'firstday')
+        await this.setState({
+            date_begin:date_end,
+            date_end:firstday
+        })
+        await this.pressToWeekAfterPressToArrow();
+
+    }
+
+    goToPrevMonth = async () => {
+
+        let {date_begin, date_end, chart_type, chart_show} = this.state;
+        if (!chart_show) {
+            return false
+        }
+        let dateOffset = (24*60*60*1000) * 30; //6 days
+        let firstday = new Date(date_begin);
+        firstday.setTime(firstday.getTime() - dateOffset);
+        firstday = moment(firstday).format('YYYY-MM-DD')
+
+        console.log(firstday, 'firstday')
+        console.log(date_begin, 'lastday');
+
+        await this.setState({
+            date_begin:firstday,
+            date_end:date_begin
+        })
+        await this.pressToMonthAfterPressToArrow();
+    }
+    goToNextMonth = async () => {
+
+        let {date_begin, date_end, chart_type, chart_show} = this.state;
+        if (!chart_show) {
+            return false
+        }
+        let dateOffset = (24*60*60*1000) * 30; //6 days
+        let firstday = new Date(date_end);
+        firstday.setTime(firstday.getTime() + dateOffset);
+        firstday = moment(firstday).format('YYYY-MM-DD')
+
+        let date = new Date().getDate();
+        let month = new Date().getMonth() + 1;
+        let year = new Date().getFullYear();
+        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+
+        console.log(date_end, 'date_end')
+        console.log(firstday, 'firstday')
+        await this.setState({
+            date_begin:date_end,
+            date_end:firstday
+        })
+        await this.pressToMonthAfterPressToArrow();
+
+    }
+
+
 
     closeMenu = () => {
         this.setState({
@@ -136,135 +615,246 @@ export default class App extends Component {
 
     render() {
 
-        // headerMenuPopup
-        if (this.state.headerMenuPopup) {
-            return (
-                <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-            )
-        }
-
 
         return (
             <SafeAreaView style={styles.container} >
                 <StatusBar style="dark" />
-                <View style={styles.all_devices_general_page_header}>
-                    <View style={styles.all_devices_general_page_header_child}>
-                        <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
-                            <View style={styles.back_btn}>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </View>
-                            <Text style={styles.all_devices_general_page_header_title}>Undervoltage</Text>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                            <Svg
-                                width={28}
-                                height={25}
-                                viewBox="0 0 28 25"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <Path fill="#004B84" d="M0 0H28V3H0z" />
-                                <Path fill="#004B84" d="M0 11H28V14H0z" />
-                                <Path fill="#004B84" d="M0 22H28V25H0z" />
-                            </Svg>
-                        </TouchableOpacity>
-                    </View>
+                {this.state.headerMenuPopup &&
+                     <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                }
 
-                </View>
-                <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-                    <View style={styles.impulse_surges_items_main_wrapper}>
-                        <View style={styles.impulse_surges_items_second_wrapper}>
-                            <View style={styles.impulse_surges_item_icon_title_wrapper}>
-                                <View style={styles.impulse_surges_item_icon}>
-                                    <Svg
-                                        width={22}
-                                        height={18}
-                                        viewBox="0 0 22 18"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path d="M11 18L.608 0h20.784L11 18z" fill="#F2994A" />
+                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+
+                    <View style={styles.all_devices_general_page_header}>
+                        <View style={styles.all_devices_general_page_header_child}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.impulse_surges_item_info1}>{this.state.undervoltage_item_info}</Text>
-                            </View>
-                            <View style={styles.impulse_surges_item}>
-                                <Text style={styles.impulse_surges_item_title}>Total duration</Text>
-                                <Text style={styles.impulse_surges_item_info}>{this.state.total_duration}</Text>
-                            </View>
+                                <Text style={styles.all_devices_general_page_header_title}>Undervoltage</Text>
+                            </TouchableOpacity>
 
-                            <View style={styles.impulse_surges_item}>
-                                <Text style={styles.impulse_surges_item_title}>Peak value</Text>
-                                <Text style={styles.impulse_surges_item_info}>{this.state.peak_value}</Text>
-                            </View>
-                            <View style={styles.impulse_surges_item}>
-                                <Text style={styles.impulse_surges_item_title}>Limit</Text>
-                                <Text style={styles.impulse_surges_item_info}>{this.state.limit}</Text>
-                            </View>
-                        </View>
-                        <View  style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
-                            <TouchableOpacity style={styles.impulse_surges_dates_info_button}>
-                                <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.impulse_surges_dates_info_button}>
-                                <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.impulse_surges_dates_info_button}>
-                                <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
+                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path fill="#004B84" d="M0 0H28V3H0z" />
+                                    <Path fill="#004B84" d="M0 11H28V14H0z" />
+                                    <Path fill="#004B84" d="M0 22H28V25H0z" />
+                                </Svg>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
-                            <View style={[styles.impulse_surges_item_img]}>
-                                <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img3.png')}/>
-                            </View>
-                            <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
-                                <TouchableOpacity style={styles.impulse_surges_change_minus_date_button}>
-                                    <Svg
-                                        width={12}
-                                        height={20}
-                                        viewBox="0 0 12 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                            fill="#fff"
-                                        />
-                                    </Svg>
-                                </TouchableOpacity>
-                                <Text style={styles.impulse_surges_change_date_info}>{this.state.todayDate}</Text>
-                                <TouchableOpacity style={styles.impulse_surges_change_plus_date_button}>
-                                    <Svg
-                                        width={11}
-                                        height={20}
-                                        viewBox="0 0 11 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z"
-                                            fill="#fff"
-                                        />
-                                    </Svg>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
+
                     </View>
+                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                        <View style={styles.impulse_surges_items_main_wrapper}>
+                            <View style={styles.impulse_surges_items_second_wrapper}>
+                                <View style={styles.impulse_surges_item_icon_title_wrapper}>
+                                    <View style={styles.impulse_surges_item_icon}>
+                                        <Svg width={22} height={18} viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M11 18L.608 0h20.784L11 18z" fill="#F2994A" />
+                                        </Svg>
+                                    </View>
+                                    <Text style={styles.impulse_surges_item_info1}>{this.state.undervoltage_item_info}</Text>
+                                </View>
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Total duration</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.total_duration}</Text>
+                                </View>
+
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Peak value</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.peak_value}</Text>
+                                </View>
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Limit</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.limit}</Text>
+                                </View>
+                            </View>
+                            <View  style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToDay()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToWeek()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        this.pressToMonth()
+                                    }}
+                                    style={styles.impulse_surges_dates_info_button}
+                                >
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
+
+                                <View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>
+
+                                    {this.state.chart_show ?
+
+                                        <LineChart
+                                            data={{
+                                                labels:  this.state.chart_labels,
+                                                datasets: [
+
+                                                    // {
+                                                    //     data: [130, 135, 140, 145,  260,130, 135, 140, 145, 260, 220 ],
+                                                    //     // color: (opacity = 1) => `silver`, // optional
+                                                    //     strokeWidth: 2, // optional
+                                                    //     withDots: false, //a flage to make it hidden
+                                                    // },
+
+                                                    // {
+                                                    //     data: [195,195,195,195,195,195,]  ,  //[180, 260],
+                                                    //     color: (opacity = 0) => `red`, // optional
+                                                    //     strokeWidth: 0, // optional
+                                                    //     withDots: false, //a flage to make it hidden
+                                                    // },
+
+                                                    {
+                                                        data: this.state.chartData, //, [210, 215, 240, 220, 210],
+                                                        color: (opacity = 0) => `#F2994A`, // optional
+                                                        strokeWidth: 2, // optional
+                                                        withDots: false, //a flage to make it hidden
+                                                    },
 
 
-                </ScrollView>
+                                                ],
+                                            }}
+                                            width={screenWidth}
+                                            height={220}
+                                            chartConfig={chartConfig}
+                                            // bezier
+                                            withDots={false}
+                                            withInnerLines={true}
+                                            withOuterLines={false}
+                                            withVerticalLines={false}
+                                            withHorizontalLines={true}
+                                            yAxisSuffix={'V'}
+                                            // fromNumber={260}
+
+                                            // fromZero={false}
+                                        />
+
+                                        :
+
+                                        <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>
+                                            <ActivityIndicator size="large" color="#0000ff"/>
+                                        </View>
+                                    }
+                                </View>
+
+                                {this.state.chart_type == 'day' &&
+                                <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToPrevDay()
+                                        }}
+                                        style={styles.impulse_surges_change_minus_date_button}
+                                    >
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+
+                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15}]}>{this.state.date_begin}</Text>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToNextDay()
+                                        }}
+                                        style={styles.impulse_surges_change_plus_date_button}
+                                    >
+                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+                                </View>
+                                }
+
+                                {this.state.chart_type == 'week' &&
+                                <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToPrevWeek()
+                                        }}
+                                        style={styles.impulse_surges_change_minus_date_button}
+                                    >
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+
+                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToNextWeek()
+                                        }}
+                                        style={styles.impulse_surges_change_plus_date_button}
+                                    >
+                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+
+                                </View>
+                                }
+
+                                {this.state.chart_type == 'month' &&
+                                <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToPrevMonth()
+                                        }}
+                                        style={styles.impulse_surges_change_minus_date_button}
+                                    >
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+
+                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
+
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.goToNextMonth()
+                                        }}
+                                        style={styles.impulse_surges_change_plus_date_button}
+                                    >
+                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+
+                                </View>
+                                }
+
+                            </View>
+                        </View>
+
+
+                    </ScrollView>
+
+                </View>
+
+
 
 
             </SafeAreaView>
@@ -281,8 +871,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: "100%",
         height: "100%",
-        paddingTop: 48,
-        paddingBottom: 29,
+        // paddingTop: 48,
+        // paddingBottom: 29,
 
 
     },
@@ -495,7 +1085,7 @@ const styles = StyleSheet.create({
     impulse_surges_change_date_buttons_info_wrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         paddingHorizontal: 80,
     },
     impulse_surges_change_date_info: {

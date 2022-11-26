@@ -621,7 +621,6 @@ export default class App extends Component {
                                 <TouchableOpacity
                                     style={styles.impulse_surges_dates_info_button}
                                     onPress={() => {
-                                        // this.setDayData()
                                         this.pressToDay()
                                     }}
                                 >
@@ -639,7 +638,6 @@ export default class App extends Component {
                                     style={styles.impulse_surges_dates_info_button}
                                     onPress={() => {
                                         this.pressToMonth()
-
                                     }}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
@@ -648,14 +646,9 @@ export default class App extends Component {
 
                             <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
 
-                                {/*<ScrollView style={{}}>*/}
-                                {/*    /!*<Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img6.png')}/>*!/*/}
-
 
                                 <View style={{width: '100%', height: 220}}>
                                     {this.state.chart_show ?
-
-
                                         <LineChart
                                             data={{
                                                 labels: this.state.chart_labels,
@@ -666,14 +659,6 @@ export default class App extends Component {
                                                         // strokeWidth: 2 // optional
                                                         withDots: false, //a flage to make it hidden
                                                     },
-
-                                                    // {
-                                                    //     data: [130, 135, 140, 145, 110, 260,130, 135, 140, 145, 110, 260, 220 ],
-                                                    //     // color: (opacity = 1) => `silver`, // optional
-                                                    //     strokeWidth: 2, // optional
-                                                    //     withDots: false, //a flage to make it hidden
-                                                    // },
-
                                                 ],
                                             }}
                                             width={screenWidth}

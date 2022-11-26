@@ -28,6 +28,7 @@ import SharedAccessComponent from './components/shared_access/shared_access';
 import TestReportComponent from './components/test_report/test_report';
 import ImpulseSurgesComponent from './components/impulse_ surges/impulse_ surges';
 import UndervoltageComponent from './components/undervoltage/undervoltage';
+import OvervoltageComponent from './components/overvoltage/overvoltage';
 import PowerOutagesComponent from './components/power_outages/power_outages';
 import VoltageComponent from './components/voltage/voltage';
 import AmperageComponent from './components/voltage/amperage';
@@ -121,33 +122,47 @@ function TestReportScreen({route, navigation }) {
 
 function ImpulseSurgesScreen({ route, navigation }) {
 
-    const {params, params2} = route.params
+    const {params, params2, impulse_surges} = route.params
     return (
-        <ImpulseSurgesComponent id={params} device_id={params2} navigation={navigation}  />
+        <ImpulseSurgesComponent id={params} device_id={params2} impulse_surges={impulse_surges} navigation={navigation}  />
     );
 }
-function UndervoltageScreen({ navigation }) {
-    return (
-        <UndervoltageComponent navigation={navigation}  />
-    );
-}
-function PowerOutagesScreen({ navigation }) {
-    return (
-        <PowerOutagesComponent navigation={navigation}  />
-    );
-}
-function VoltageScreen({route, navigation }) {
+
+function UndervoltageScreen({route, navigation }) {
     const {params, params2, params3} = route.params
 
     return (
-        <VoltageComponent id={params} device_id={params2} voltage={params3} navigation={navigation}  />
+        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} navigation={navigation}  />
     );
 }
-function AmperageScreen({route, navigation }) {
+
+function OvervoltageScreen({route, navigation }) {
+    const {params, params2, params3} = route.params
+
+    return (
+        <OvervoltageComponent id={params} device_id={params2} overvoltage_limit={params3} navigation={navigation}  />
+    );
+}
+
+function PowerOutagesScreen({ route, navigation }) {
     const {params, params2} = route.params
 
     return (
-        <AmperageComponent id={params} device_id={params2} navigation={navigation}  />
+        <PowerOutagesComponent id={params} device_id={params2} navigation={navigation}  />
+    );
+}
+function VoltageScreen({route, navigation }) {
+    const {params, params2, params3, voltage_min, voltage_max} = route.params
+
+    return (
+        <VoltageComponent id={params} device_id={params2} voltage={params3} voltage_min={voltage_min} voltage_max={voltage_max} navigation={navigation}  />
+    );
+}
+function AmperageScreen({route, navigation }) {
+    const {params, params2,amperage_min, amperage_max} = route.params
+
+    return (
+        <AmperageComponent id={params} device_id={params2} amperage_min={amperage_min} amperage_max={amperage_max} navigation={navigation}  />
     );
 }
 
@@ -392,6 +407,13 @@ export default function App() {
                             />
 
                             <Stack.Screen name="Undervoltage" component={UndervoltageScreen}
+                                  options={({route}) => ({
+                                      tabBarButton: () => null,
+                                      tabBarStyle: {display: 'none'},
+                                  })}
+                            />
+
+                            <Stack.Screen name="Overvoltage" component={OvervoltageScreen}
                                   options={({route}) => ({
                                       tabBarButton: () => null,
                                       tabBarStyle: {display: 'none'},

@@ -64,14 +64,13 @@ export default class App extends Component {
     };
 
 
-    redirectToDeviceSetup = () => {
+    redirectToDeviceSetup = async () => {
+        await clearInterval(this.interval);
         this.props.navigation.navigate("DeviceSetup");
-
     }
 
     redirectToAllDevices = () => {
         this.props.navigation.navigate("AllDevices");
-
     }
 
     redirectToSettings = () => {
@@ -95,18 +94,22 @@ export default class App extends Component {
         this.focusListener = navigation.addListener("focus", () => {
             this.checkInternet();
             this.searchDevices();
-
-
         });
 
     }
+
+
 
     componentWillUnmount() {
         // Remove the event listener
         if (this.focusListener) {
             this.focusListener();
-            // console.log('Bum END')
+            console.log('Bum END FOCUS')
+            clearInterval(this.interval);
+
         }
+        console.log('Bum END')
+        clearInterval(this.interval);
 
     }
 
@@ -144,7 +147,7 @@ export default class App extends Component {
                         return response.json()
                     }).then((response) => {
 
-                        console.log(response, 'search device')
+                        console.log(response, 'search device interval' )
 
                         this.setState({
                             add_device_info: response,
@@ -160,7 +163,7 @@ export default class App extends Component {
                 alert("No Internet");
             }
 
-        }, 6000)
+        }, 3000)
 
 
 
@@ -250,13 +253,7 @@ export default class App extends Component {
                         <View style={styles.all_devices_general_page_header_child}>
                             <Text style={styles.all_devices_general_page_header_title}>Adding new</Text>
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                                <Svg
-                                    width={28}
-                                    height={25}
-                                    viewBox="0 0 28 25"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <Path fill="#004B84" d="M0 0H28V3H0z" />
                                     <Path fill="#004B84" d="M0 11H28V14H0z" />
                                     <Path fill="#004B84" d="M0 22H28V25H0z" />
@@ -271,27 +268,10 @@ export default class App extends Component {
                         <View style={styles.adding_new_page_icon_img_input_box}>
                             <View style={styles.adding_new_page_icon_title_box}>
                                 <View style={styles.adding_new_page_icon}>
-                                    <Svg
-                                        width={283}
-                                        height={194}
-                                        viewBox="0 0 283 194"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M133.908 127.161c-18.892 0-34.43-15.361-34.43-34.43 0-18.892 15.361-34.43 34.43-34.43 19.068 0 34.429 15.361 34.429 34.43-.176 19.069-15.537 34.43-34.429 34.43zm0-63.74c-16.244 0-29.486 13.243-29.486 29.487s13.242 29.486 29.486 29.486c16.243 0 29.486-13.242 29.486-29.486-.177-16.244-13.419-29.486-29.486-29.486z"
-                                            fill="#10BCCE"
-                                        />
-                                        <Path
-                                            d="M179.814 142.522l-24.012-23.836 3.884-3.884 23.836 24.012-3.708 3.708z"
-                                            fill="#10BCCE"
-                                        />
-                                        <Path
-                                            fillRule="evenodd"
-                                            clipRule="evenodd"
-                                            d="M99.728 23.898C75.638 32.96 58 62.232 58 96.944c0 34.713 17.639 63.985 41.728 73.047v-4.709c-22.077-8.946-38.133-36.157-38.133-68.338 0-32.18 16.056-59.392 38.133-68.337v-4.709zM48.07 0C19.91 14.76 0 51.057 0 93.493c0 42.436 19.91 78.733 48.07 93.493v-6.492c-25.468-14.454-43.31-47.967-43.31-87 0-39.035 17.842-72.548 43.31-87.002V0zM183 170.088c24.089-9.061 41.728-38.334 41.728-73.046S207.089 33.057 183 23.995v4.709c22.077 8.946 38.133 36.157 38.133 68.338 0 32.18-16.056 59.392-38.133 68.338v4.708zM234.658 193.986c28.16-14.76 48.07-51.057 48.07-93.493 0-42.436-19.91-78.732-48.07-93.493v6.492c25.468 14.454 43.31 47.967 43.31 87.001 0 39.034-17.842 72.547-43.31 87.001v6.492z"
-                                            fill="#10BCCE"
-                                        />
+                                    <Svg width={283} height={194} viewBox="0 0 283 194" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M133.908 127.161c-18.892 0-34.43-15.361-34.43-34.43 0-18.892 15.361-34.43 34.43-34.43 19.068 0 34.429 15.361 34.429 34.43-.176 19.069-15.537 34.43-34.429 34.43zm0-63.74c-16.244 0-29.486 13.243-29.486 29.487s13.242 29.486 29.486 29.486c16.243 0 29.486-13.242 29.486-29.486-.177-16.244-13.419-29.486-29.486-29.486z" fill="#10BCCE"/>
+                                        <Path d="M179.814 142.522l-24.012-23.836 3.884-3.884 23.836 24.012-3.708 3.708z" fill="#10BCCE"/>
+                                        <Path fillRule="evenodd" clipRule="evenodd" d="M99.728 23.898C75.638 32.96 58 62.232 58 96.944c0 34.713 17.639 63.985 41.728 73.047v-4.709c-22.077-8.946-38.133-36.157-38.133-68.338 0-32.18 16.056-59.392 38.133-68.337v-4.709zM48.07 0C19.91 14.76 0 51.057 0 93.493c0 42.436 19.91 78.733 48.07 93.493v-6.492c-25.468-14.454-43.31-47.967-43.31-87 0-39.035 17.842-72.548 43.31-87.002V0zM183 170.088c24.089-9.061 41.728-38.334 41.728-73.046S207.089 33.057 183 23.995v4.709c22.077 8.946 38.133 36.157 38.133 68.338 0 32.18-16.056 59.392-38.133 68.338v4.708zM234.658 193.986c28.16-14.76 48.07-51.057 48.07-93.493 0-42.436-19.91-78.732-48.07-93.493v6.492c25.468 14.454 43.31 47.967 43.31 87.001 0 39.034-17.842 72.547-43.31 87.001v6.492z" fill="#10BCCE"/>
                                     </Svg>
                                 </View>
                                 <Text style={styles.adding_new_page_icon_title}>Searching...</Text>
@@ -326,21 +306,9 @@ export default class App extends Component {
                                     placeholderTextColor='#D3D3D3'
                                 />
                                 <TouchableOpacity style={styles.enter_new_device_number_search_btn}>
-                                    <Svg
-                                        width={25}
-                                        height={25}
-                                        viewBox="0 0 25 25"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M10.82 18.398c-4.18 0-7.617-3.398-7.617-7.617 0-4.18 3.399-7.617 7.617-7.617a7.602 7.602 0 017.617 7.617C18.398 15 15 18.398 10.82 18.398zm0-14.101c-3.593 0-6.523 2.93-6.523 6.523 0 3.594 2.93 6.524 6.523 6.524 3.594 0 6.524-2.93 6.524-6.524-.04-3.593-2.969-6.523-6.524-6.523z"
-                                            fill="#fff"
-                                        />
-                                        <Path
-                                            d="M20.977 21.797l-5.313-5.274.86-.859 5.273 5.313-.82.82z"
-                                            fill="#fff"
-                                        />
+                                    <Svg width={25} height={25} viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M10.82 18.398c-4.18 0-7.617-3.398-7.617-7.617 0-4.18 3.399-7.617 7.617-7.617a7.602 7.602 0 017.617 7.617C18.398 15 15 18.398 10.82 18.398zm0-14.101c-3.593 0-6.523 2.93-6.523 6.523 0 3.594 2.93 6.524 6.523 6.524 3.594 0 6.524-2.93 6.524-6.524-.04-3.593-2.969-6.523-6.524-6.523z" fill="#fff"/>
+                                        <Path d="M20.977 21.797l-5.313-5.274.86-.859 5.273 5.313-.82.82z" fill="#fff"/>
                                     </Svg>
                                 </TouchableOpacity>
                             </View>
@@ -364,27 +332,15 @@ export default class App extends Component {
 
                     {this.state.addDeviceSuccess &&
                         <View style={styles.add_device_success_popup}>
-                        <View style={styles.add_device_success_popup_wrapper}>
-                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({addDeviceSuccess: false})}}>
-                                <Svg
-                                    width={12}
-                                    height={20}
-                                    viewBox="0 0 12 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                        fill="#004B84"
-                                    />
-                                </Svg>
-                            </TouchableOpacity>
-                            <Text style={styles.add_device_success_info}>Ваш девайс успешно добавлен!</Text>
-
-
-
+                            <View style={styles.add_device_success_popup_wrapper}>
+                                <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({addDeviceSuccess: false})}}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </TouchableOpacity>
+                                <Text style={styles.add_device_success_info}>Ваш девайс успешно добавлен!</Text>
+                            </View>
                         </View>
-                    </View>
                     }
 
                 </View>

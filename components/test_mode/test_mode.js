@@ -205,6 +205,8 @@ export default class App extends Component {
 
                 console.log(response, 'test mode')
 
+
+
                this.setState({
                    test_mode_info: response,
                })
@@ -214,6 +216,53 @@ export default class App extends Component {
             console.log(e)
         }
     }
+
+    checkInProgress = (dateStart, dateEnd, date) =>{
+        return date > dateStart && date < dateEnd;
+    }
+    checkScheduled = (dateStart, date) =>{
+        return date < dateStart ;
+    }
+
+    checkWillBeDeleted = (dateEnd, date) =>{
+        return date > dateEnd ;
+    }
+
+    getWillBeDeletedDate = (item) => {
+        let date = new Date(item.end_date);
+        let dateCopy = new Date(date.getTime());
+        dateCopy.setDate(dateCopy.getDate());
+
+        let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
+        let month = dateCopy.getMonth() + 2;
+        month = month <= 9 ? `0${month}` : month;
+        let year = dateCopy.getFullYear();
+        let new_date =  year + '-' + month + '-' + day;
+
+        return  new_date
+    }
+
+    checkTestReportStatus = (item) => {
+        let report_start_time = new Date(item.start_date);
+        let report_end_time   = new Date(item.end_date);
+        let current_date      = new Date();
+
+        console.log(report_start_time, report_end_time, current_date)
+
+        let test_report_status = '';
+
+        if(this.checkInProgress(report_start_time,report_end_time,current_date)) {
+            test_report_status = 'in_progress';
+        } else if(this.checkScheduled(report_start_time, current_date)) {
+            test_report_status = 'scheduled'; // запланирован;
+        } else if(this.checkWillBeDeleted(report_end_time, current_date)) {
+            test_report_status = 'will_be_deleted'; // должен быть удален;
+        }
+
+        return test_report_status
+
+    }
+
 
     closeMenu = () => {
         this.setState({
@@ -255,9 +304,9 @@ export default class App extends Component {
                     <ScrollView style={styles.all_devices_general_page_main_wrapper}>
 
                         {this.state.test_mode_info.length == 0 &&
-                        <View style={styles.test_not_found_title_wrapper}>
-                            <Text style={styles.test_not_found_title}>Test Not Found</Text>
-                        </View>
+                            <View style={styles.test_not_found_title_wrapper}>
+                                <Text style={styles.test_not_found_title}>Test Not Found</Text>
+                            </View>
                         }
 
                         {this.state.test_mode_info.map((report, index) => {
@@ -266,28 +315,49 @@ export default class App extends Component {
                                 <View style={styles.report_item}  key={index}>
 
                                     <View style={styles.chart_box_img_report_item_info_main_wrapper}>
-                                        <View style={styles.chart_box_img}>
-                                            <Image style={styles.chart_box_img_child} source={require('../../assets/images/chart_box_img.png')}/>
-                                        </View>
+                                        {/*<View style={styles.chart_box_img}>*/}
+                                        {/*    <Image style={styles.chart_box_img_child} source={require('../../assets/images/chart_box_img.png')}/>*/}
+                                        {/*</View>*/}
 
                                         <View style={styles.report_item_info_main_wrapper}>
                                             <View style={styles.report_item_info_title_icon_box}>
-                                                {report.report_status_icon_progress &&
-                                                <View style={styles.report_item_info_icon}>
-                                                    <Svg width={6} height={7} viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <Path d="M6 3.5L.75 6.531V.47L6 3.5z" fill="#10BCCE" />
-                                                    </Svg>
-                                                </View>
-                                                }
-                                                {report.report_status_icon_delete &&
-                                                <View style={styles.report_item_info_icon}>
-                                                    <Svg width={8} height={8} viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <Path d="M2 6.333c0 .369.298.667.667.667h2.666A.666.666 0 006 6.333v-4H2v4zm4.333-5H5.167L4.833 1H3.167l-.334.333H1.667V2h4.666v-.667z" fill="#EB5757"/>
-                                                    </Svg>
-                                                </View>
+
+                                                {this.checkTestReportStatus(report) == 'scheduled'  &&
+
+                                                    <View style={styles.report_item_info_icon}>
+                                                        <Text style={styles.report_item_info_title}>Scheduled</Text>
+
+                                                    </View>
+
                                                 }
 
+
+                                                {this.checkTestReportStatus(report) == 'in_progress'  &&
+
+                                                    <View style={styles.report_item_info_icon}>
+                                                        <Svg width={6} height={7} viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <Path d="M6 3.5L.75 6.531V.47L6 3.5z" fill="#10BCCE" />
+                                                        </Svg>
+                                                        <Text style={styles.report_item_info_title}>In progress</Text>
+
+                                                    </View>
+
+                                                }
+
+                                                {this.checkTestReportStatus(report) == 'will_be_deleted'  &&
+
+                                                    <View style={styles.report_item_info_icon}>
+                                                        <Svg width={8} height={8} viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <Path d="M2 6.333c0 .369.298.667.667.667h2.666A.666.666 0 006 6.333v-4H2v4zm4.333-5H5.167L4.833 1H3.167l-.334.333H1.667V2h4.666v-.667z" fill="#EB5757"/>
+                                                        </Svg>
+                                                        <Text style={styles.report_item_info_title}>Will be deleted {this.getWillBeDeletedDate(report)}</Text>
+                                                    </View>
+
+                                                }
+
+
                                                 <Text style={styles.report_item_info_title}>{report.report_status_text}</Text>
+
                                             </View>
                                             <View style={styles.report_item_date_info_box}>
                                                 <Text style={styles.report_item_date_info}>From {report.start_date}</Text>
@@ -587,5 +657,10 @@ const styles = StyleSheet.create({
     all_devices_general_page_footer: {
         width: '100%',
         paddingHorizontal: 21,
+    },
+    report_item_info_icon: {
+        flexDirection:'row',
+        justifyContent:'center',
+        alignItems:'center'
     }
 });

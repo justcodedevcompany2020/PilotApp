@@ -5,7 +5,6 @@ import DropDownPicker from "react-native-custom-dropdown";
 import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';
-// import { LineChart, YAxis, Grid } from 'react-native-svg-charts'
 import {
     LineChart,
     BarChart,
@@ -35,6 +34,8 @@ import {
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 import {
     SafeAreaView,
@@ -44,12 +45,7 @@ import {
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import TopMenu from "../includes/header_menu";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
-
-
-const data = [190, 200, 210, 240, 245]
-const contentInset = { top: 20, bottom: 20 }
 
 const chartConfig = {
     backgroundGradientFrom: "white",
@@ -78,16 +74,18 @@ const chartConfig = {
 };
 const screenWidth = Dimensions.get("window").width;
 
+
 export default class App extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             headerMenuPopup: false,
-            voltage_item_info: 'AVG '+this.props.voltage+' V',
-            minimum_info: this.props.voltage_min,
-            maximum_info: this.props.voltage_max,
+            undervoltage_item_info: 0,
+            limit: this.props.overvoltage_limit,
+            peak_value: 0,
             todayDate: '',
+            total_duration: 0,
 
             date_begin: '2022-09-06',
             date_end: '2022-09-06',
@@ -96,17 +94,14 @@ export default class App extends Component {
             chartData: [],
             chart_show: false,
             chart_type: 'day'
-
         };
 
     }
-
 
     pressCall = () => {
         const url='tel://+7 (495) 984-21-01'
         Linking.openURL(url)
     }
-
 
     handlePress = () => {
         Linking.openURL('mailto://pilot@zis.ru');
@@ -114,31 +109,23 @@ export default class App extends Component {
 
     redirectToAddingNew = () => {
         this.props.navigation.navigate("AddingNew");
-
     }
 
     redirectToDeviceSetup = () => {
         this.props.navigation.navigate("DeviceSetup");
-
     }
 
     redirectToSettings = () => {
         this.props.navigation.navigate("Settings");
-
     }
 
     redirectToAllDevices = () => {
         this.props.navigation.navigate("AllDevices");
-
     }
-
 
     redirectToRegistration = () => {
         this.props.navigation.navigate("Registration");
-
     }
-
-
 
     redirectToTestReport = () => {
         this.props.navigation.navigate("TestReport",{
@@ -146,21 +133,24 @@ export default class App extends Component {
             params2: this.props.device_id
         });
     }
+
     redirectToNewTest = () => {
         this.props.navigation.navigate("NewTest");
-
     }
+
+
     getChartData = async (callback) => {
 
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
 
-        console.log(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=voltage`, 'userToken')
+        date_begin = '2022-09-01';
+        date_end = '2022-09-06';
+        let url = `https://apiv1.zis.ru/tests/voltage_problems/4?date_begin=${date_begin}&date_end=${date_end}&data_type=undervoltage&period=${chart_type}`;
 
         try {
-            // fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=2022-09-06&date_end=2022-09-07&period=day&data_type=consumption`, {
-            fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=voltage`, {
+            fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': AuthStr,
@@ -171,11 +161,25 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
-                console.log(response, 'response')
+                console.log(response, 'responsedwdwdw')
 
-                await this.setState({
-                    chartData: response
-                })
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400) {
+                    await this.setState({
+                        chartData: [],
+                        peak_value: 0,
+                        total_duration: 0,
+                        undervoltage_item_info: 0
+                    })
+                } else {
+                    await this.setState({
+                        chartData: response.data,
+                        peak_value: response.peakVoltage ? parseFloat(response.peakVoltage) : 0,
+                        total_duration: response.duration ? parseFloat(response.duration) : 0,
+                        undervoltage_item_info: response.promlemVoltagePercentage ? parseFloat(response.promlemVoltagePercentage) : 0
+                    })
+                }
+
+
                 await callback()
             })
         } catch (e) {
@@ -217,16 +221,18 @@ export default class App extends Component {
         let {chartData} = this.state;
 
         for (const item in chartData) {
-
-            let timestamp = chartData[item].timestamp;
-            let hours     = timestamp.split('T')[1];
-
+            let timestamp = chartData[item].timestamp
+            // let new_timestamp = new Date(timestamp);
+            // let time = new_timestamp.getHours();
+            let hours = timestamp.split('T')[1];
             chartData[item].timestamp2 = hours.slice(0,2);
         }
 
         chartData.sort(function(a, b) {
             return a.timestamp2 - b.timestamp2;
         })
+
+        // console.log(chartData, 'chartData');
 
         let chartData1 = [];
         for (const item in chartData) {
@@ -235,19 +241,20 @@ export default class App extends Component {
 
         let chartLabels = [];
         for (const item in chartData) {
-            chartLabels.push(chartData[item].timestamp2);
+            chartLabels.push(chartData[item].timestamp2+':00');
         }
 
         chartLabels = [... new Set(chartLabels)] // get uniques value;
-        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
-        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+
+        // console.log(chartData1, 'chartData1chartData1chartData1')
+        console.log(chartLabels, 'chartLabels')
+        // console.log([... new Set(chartLabels)], 'chartLabelschartLabels')
 
         this.setState({
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
+            // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
             chart_labels: chartLabels ,
-            minimum_info: minimum_info,
-            maximum_info: maximum_info,
         })
 
     }
@@ -264,12 +271,16 @@ export default class App extends Component {
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
 
+        console.log(lastday, 'lastday');
+        console.log(firstday, 'firstday');
+
         await this.setState({
             date_begin: firstday,
             date_end: lastday,
             chart_type: 'week',
             chart_show: false
         })
+
 
         await this.getChartData(() => {
             this.setWeekData()
@@ -334,15 +345,11 @@ export default class App extends Component {
             }
 
         }
-        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
-        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
 
         this.setState({
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels,
-            minimum_info: minimum_info,
-            maximum_info: maximum_info,
         })
 
     }
@@ -396,6 +403,11 @@ export default class App extends Component {
             let hours = timestamp.split('T')[0];
             chartData[item].timestamp2 = hours.slice(-2);
 
+            console.log(timestamp + '==d==' + hours.slice(-2));
+
+            // let hours = new_timestamp.getDay();
+            // chartData[item].timestamp2 = hours;
+
         }
 
         chartData.sort(function(a, b) {
@@ -415,16 +427,10 @@ export default class App extends Component {
         }
         chartLabels = [... new Set(chartLabels)] // get uniques value;
 
-
-        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
-        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
-
         this.setState({
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels,
-            minimum_info: minimum_info,
-            maximum_info: maximum_info,
         })
 
     }
@@ -443,13 +449,6 @@ export default class App extends Component {
             this.focusListener();
         }
     }
-
-    closeMenu = () => {
-        this.setState({
-            headerMenuPopup: false
-        })
-    }
-
 
 
     goToPrevDay = async () => {
@@ -598,6 +597,13 @@ export default class App extends Component {
     }
 
 
+
+    closeMenu = () => {
+        this.setState({
+            headerMenuPopup: false
+        })
+    }
+
     render() {
 
         return (
@@ -609,6 +615,7 @@ export default class App extends Component {
                 }
 
                 <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
+
                     <View style={styles.all_devices_general_page_header}>
                         <View style={styles.all_devices_general_page_header_child}>
                             <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
@@ -617,11 +624,15 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>Voltage</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>Overvoltage</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" /></Svg>
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path fill="#004B84" d="M0 0H28V3H0z" />
+                                    <Path fill="#004B84" d="M0 11H28V14H0z" />
+                                    <Path fill="#004B84" d="M0 22H28V25H0z" />
+                                </Svg>
                             </TouchableOpacity>
                         </View>
 
@@ -630,25 +641,30 @@ export default class App extends Component {
                         <View style={styles.impulse_surges_items_main_wrapper}>
                             <View style={styles.impulse_surges_items_second_wrapper}>
                                 <View style={styles.impulse_surges_item_icon_title_wrapper}>
+
                                     <View style={styles.impulse_surges_item_icon}>
-                                        <Svg width={21} height={21} viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Circle cx={10.5} cy={10.5} r={10.5} fill="#10BCCE" />
-                                            <Path d="M7.952 6l2.01 6.838h.077L12.052 6H14l-2.866 9H8.87L6 6h1.952z" fill="#fff"/>
+                                        <Svg width={22} height={19} viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M11.323.004l9.904 18.274-20.777-.56L11.323.004z" fill="#F24A4A"/>
                                         </Svg>
                                     </View>
-                                    <Text style={styles.impulse_surges_item_info1}>{this.state.voltage_item_info}</Text>
+
+                                    <Text style={styles.impulse_surges_item_info1}>{this.state.undervoltage_item_info}</Text>
+
                                 </View>
                                 <View style={styles.impulse_surges_item}>
-                                    <Text style={styles.impulse_surges_item_title}>Minimum</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{parseInt(this.state.minimum_info).toFixed(1)} V</Text>
-                                </View>
-                                <View style={styles.impulse_surges_item}>
-                                    <Text style={styles.impulse_surges_item_title}>Maximum</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{parseInt(this.state.maximum_info).toFixed(1)} V</Text>
+                                    <Text style={styles.impulse_surges_item_title}>Total duration</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.total_duration}</Text>
                                 </View>
 
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Peak value</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.peak_value}</Text>
+                                </View>
+                                <View style={styles.impulse_surges_item}>
+                                    <Text style={styles.impulse_surges_item_title}>Limit</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.limit}</Text>
+                                </View>
                             </View>
-
                             <View  style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
                                 <TouchableOpacity
                                     onPress={() => {
@@ -678,14 +694,9 @@ export default class App extends Component {
 
                             <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
 
-                                {/*<View style={[styles.impulse_surges_item_img]}>*/}
-                                {/*    <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img5.png')}/>*/}
-                                {/*</View>*/}
-
                                 <View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>
 
                                     {this.state.chart_show ?
-
 
                                         <LineChart
                                             data={{
@@ -699,17 +710,17 @@ export default class App extends Component {
                                                     //     withDots: false, //a flage to make it hidden
                                                     // },
 
-                                                    {
-                                                        data: (this.state.chartData.length == 1 && this.state.chartData[0] == 0)  ? [0] : [180, 260]  ,  //[180, 260],
-                                                        color: (opacity = 0) => `transparent`, // optional
-                                                        strokeWidth: 0, // optional
-                                                        withDots: false, //a flage to make it hidden
-                                                    },
+                                                    // {
+                                                    //     data: [195,195,195,195,195,195,]  ,  //[180, 260],
+                                                    //     color: (opacity = 0) => `red`, // optional
+                                                    //     strokeWidth: 0, // optional
+                                                    //     withDots: false, //a flage to make it hidden
+                                                    // },
 
                                                     {
                                                         data: this.state.chartData, //, [210, 215, 240, 220, 210],
-                                                        // color: (opacity = 1) => `silver`, // optional
-                                                        // strokeWidth: 2 // optional
+                                                        color: (opacity = 0) => `#F24A4A`, // optional
+                                                        strokeWidth: 2, // optional
                                                         withDots: false, //a flage to make it hidden
                                                     },
 
@@ -720,13 +731,14 @@ export default class App extends Component {
                                             height={220}
                                             chartConfig={chartConfig}
                                             // bezier
-                                            withDots={true}
+                                            withDots={false}
                                             withInnerLines={true}
                                             withOuterLines={false}
                                             withVerticalLines={false}
                                             withHorizontalLines={true}
                                             yAxisSuffix={'V'}
                                             // fromNumber={260}
+
                                             // fromZero={false}
                                         />
 
@@ -832,7 +844,9 @@ export default class App extends Component {
 
 
                     </ScrollView>
+
                 </View>
+
 
 
             </SafeAreaView>
@@ -854,6 +868,8 @@ const styles = StyleSheet.create({
     all_devices_general_page_main_wrapper: {
         width: '100%',
         flex: 1,
+        // paddingHorizontal: 25,
+
     },
 
     all_devices_general_page_header: {
@@ -973,12 +989,12 @@ const styles = StyleSheet.create({
     },
 
     impulse_surges_item_img: {
-        width: 346,
+        width: 339,
         height: 221,
         alignItems: 'center',
         alignSelf: 'center',
         justifyContent: 'center',
-        marginBottom: 25,
+        marginBottom: 15,
     },
     impulse_surges_item_img_child: {
         width: '100%',
@@ -1022,7 +1038,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 44,
+        marginBottom: 20,
         paddingLeft: 18,
         paddingRight: 21,
     },
