@@ -6,7 +6,11 @@ import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {AuthContext} from "../AuthContext/context";
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
+
 
 import {
     Text,
@@ -153,8 +157,56 @@ export default class App extends Component {
                 {label: '19', value: '19'},
                 {label: '19.5', value: '19.5'},
                 {label: '20', value: '20'},
-            ]
+            ],
+
+            language: en,
+            language_name: 'en',
         };
+
+    }
+
+    static contextType = AuthContext;
+
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
+
+
+    componentDidMount() {
+        const { navigation } = this.props;
+        this.setLanguageFromStorage();
+        this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
+
+        });
+
+    }
+
+    componentWillUnmount() {
+        // Remove the event listener
+        if (this.focusListener) {
+            this.focusListener();
+            // console.log('Bum END')
+        }
 
     }
 
@@ -794,7 +846,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>New test</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.new_test_title}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
@@ -821,7 +873,7 @@ export default class App extends Component {
 
                             <View style={styles.new_test_item}>
 
-                                <Text style={styles.new_test_item_title}>Start</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.start}</Text>
 
                                 <View style={{flex:1, flexDirection:'row', justifyContent:'flex-end'}}>
 
@@ -835,7 +887,7 @@ export default class App extends Component {
                                             ]}
                                         >
                                             {this.state.startCompletedDate  == '' ?
-                                                <Text>Start Date</Text>
+                                                <Text>{this.state.language.start_date}</Text>
                                                 :
                                                 this.state.startCompletedDate
                                             }
@@ -847,7 +899,7 @@ export default class App extends Component {
 
                             <View style={styles.new_test_item}>
 
-                                <Text style={styles.new_test_item_title}>To</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.to}</Text>
 
                                 <View style={{flex:1, flexDirection:'row', justifyContent:'flex-end'}}>
                                     {/*To DatePicker open button*/}
@@ -860,7 +912,7 @@ export default class App extends Component {
                                             ]}
                                         >
                                             {this.state.endCompletedDate  == '' ?
-                                                <Text>To Date</Text>
+                                                <Text>{this.state.language.to_date}</Text>
                                                 :
                                                 this.state.endCompletedDate
                                             }
@@ -871,7 +923,7 @@ export default class App extends Component {
                             </View>
                             {/*Выключать нагрузку?*/}
                             <View style={styles.new_test_item}>
-                                <Text style={styles.new_test_item_title}>Выключать нагрузку?</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.turn_off_the_load}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
@@ -882,7 +934,7 @@ export default class App extends Component {
                             {/*Protection upper voltage (V)*/}
                             <View style={[styles.new_test_item]}>
                                 <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>
-                                    Protection upper voltage (V)
+                                    {this.state.language.protection_upper_voltage_title}
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
@@ -903,7 +955,9 @@ export default class App extends Component {
                             </View>
                             {/*Upper voltage delay (sec)*/}
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>Upper voltage delay (sec) </Text>
+                                <Text style={styles.new_test_item_title}>
+                                    {this.state.language.upper_voltage_sec}
+                                </Text>
                                 <TouchableOpacity
                                      style={styles.preferences_item_btn}
                                      onPress={() => {
@@ -921,7 +975,7 @@ export default class App extends Component {
                                 </TouchableOpacity>
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>Protection lower voltage (V)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.protection_lower_voltage_title}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: '#10BCCE'}]}
@@ -937,7 +991,7 @@ export default class App extends Component {
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>Lower voltage delay (sec)</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.lower_voltage_delay_sec}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
                                     this.setState({
                                         lower_voltage_delay_popup: true
@@ -952,7 +1006,7 @@ export default class App extends Component {
                                 </TouchableOpacity>
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Power restore delay (sec)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.power_restore_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: '#10BCCE'}]}
@@ -968,7 +1022,7 @@ export default class App extends Component {
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Startup delay (sec)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.startup_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor:'#10BCCE'}]}
@@ -990,7 +1044,7 @@ export default class App extends Component {
 
                     <View style={styles.new_test_footer}>
                         <TouchableOpacity style={styles.new_test_schedule_btn} onPress={() => {this.redirectToTestReport()}}>
-                            <Text style={styles.new_test_schedule_btn_text}>Schedule</Text>
+                            <Text style={styles.new_test_schedule_btn_text}>{this.state.language.schedule}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -1189,9 +1243,9 @@ export default class App extends Component {
                 {this.state.turnOffTheLoadSwitchValuePopup &&
                     <View style={styles.turn_off_the_load_switch_value_popup}>
                     <View style={styles.turn_off_the_load_switch_value_popup_wrapper}>
-                        <Text style={styles.turn_off_the_load_switch_value_popup_title}>Внимание!</Text>
+                        <Text style={styles.turn_off_the_load_switch_value_popup_title}>{this.state.language.attention}</Text>
                         <Text style={styles.turn_off_the_load_switch_value_popup_info}>
-                            Подключенные устройства будут отключены от сети во время проведения тестирования.
+                            {this.state.language.turn_off_the_load_popup_info}
                         </Text>
                         <TouchableOpacity
                             style={styles.turn_off_the_load_switch_value_popup_cancel_btn}
@@ -1202,7 +1256,7 @@ export default class App extends Component {
                                 })
                             }}
                         >
-                            <Text style={styles.turn_off_the_load_switch_value_popup_cancel_btn_text}>Отмена</Text>
+                            <Text style={styles.turn_off_the_load_switch_value_popup_cancel_btn_text}>{this.state.language.cancel}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.turn_off_the_load_switch_value_popup_confirm_btn}
@@ -1213,7 +1267,7 @@ export default class App extends Component {
                                 })
                             }}
                         >
-                            <Text style={styles.turn_off_the_load_switch_value_popup_confirm_btn_text}>Ok</Text>
+                            <Text style={styles.turn_off_the_load_switch_value_popup_confirm_btn_text}>{this.state.language.ok}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -1221,9 +1275,9 @@ export default class App extends Component {
                 {this.state.turnOnnTheLoadSwitchValuePopup &&
                     <View style={styles.turn_off_the_load_switch_value_popup}>
                         <View style={styles.turn_off_the_load_switch_value_popup_wrapper}>
-                            <Text style={styles.turn_off_the_load_switch_value_popup_title}>Внимание!</Text>
+                            <Text style={styles.turn_off_the_load_switch_value_popup_title}>{this.state.language.attention}</Text>
                             <Text style={styles.turn_off_the_load_switch_value_popup_info}>
-                                Подключенные устройства могут исказить результаты теста. Рекомендуем отключить нагрузку во время проведения тестирования электросети
+                                {this.state.language.turn_on_the_load_popup_info}
                             </Text>
                             <TouchableOpacity
                                 style={styles.turn_off_the_load_switch_value_popup_cancel_btn}
@@ -1234,7 +1288,7 @@ export default class App extends Component {
                                     })
                                 }}
                             >
-                                <Text style={styles.turn_off_the_load_switch_value_popup_cancel_btn_text}>Отмена</Text>
+                                <Text style={styles.turn_off_the_load_switch_value_popup_cancel_btn_text}>{this.state.language.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.turn_off_the_load_switch_value_popup_confirm_btn}
@@ -1245,7 +1299,7 @@ export default class App extends Component {
                                     })
                                 }}
                             >
-                                <Text style={styles.turn_off_the_load_switch_value_popup_confirm_btn_text}>Ok</Text>
+                                <Text style={styles.turn_off_the_load_switch_value_popup_confirm_btn_text}>{this.state.language.ok}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

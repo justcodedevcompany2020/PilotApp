@@ -1684,7 +1684,7 @@ export default class App extends Component {
                             </View>
                             <View style={[styles.new_test_item]}>
                                 <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>
-                                    Protection upper voltage (V)
+                                    {this.state.language.protection_upper_voltage_title}
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
@@ -1704,7 +1704,7 @@ export default class App extends Component {
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>Upper voltage delay (sec) </Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.upper_voltage_sec}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
                                     if (this.state.protection_preset != 'Manual setup') {
                                         return false
@@ -1723,7 +1723,7 @@ export default class App extends Component {
                                 </TouchableOpacity>
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>Protection lower voltage (V)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.protection_lower_voltage_title}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
@@ -1738,7 +1738,7 @@ export default class App extends Component {
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>Lower voltage delay (sec)</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.lower_voltage_delay_sec}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
                                     if (this.state.protection_preset != 'Manual setup') {
                                         return false
@@ -1758,7 +1758,7 @@ export default class App extends Component {
                             </View>
 
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Power restore delay (sec)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.power_restore_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
@@ -1774,7 +1774,7 @@ export default class App extends Component {
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>Startup delay (sec)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.startup_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
@@ -1790,7 +1790,7 @@ export default class App extends Component {
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.amperage_trigger_input_error === true ? 'red' : '#4A4A4A'}]}>Зашита по силе тока (А)</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.amperage_trigger_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.current_protection_title}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
                                         style={[styles.new_test_item_input_field,]}
@@ -1809,7 +1809,7 @@ export default class App extends Component {
 
 
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>Задержка защиты по току (сек)</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.current_protection_delay}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() =>  this.setState({amperage_delay_popup: true})}>
                                     <Text style={styles.preferences_item_btn_text}>{this.state.amperage_delay}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
@@ -1822,7 +1822,7 @@ export default class App extends Component {
 
 
                             <View style={styles.new_test_item}>
-                                <Text style={styles.new_test_item_title}>Use schedule</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.use_schedule}</Text>
                                 <Switch
 
                                     trackColor={{ false: '#767577', true: '#004B84' }}
@@ -1833,7 +1833,7 @@ export default class App extends Component {
                             </View>
 
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                                <Text style={styles.new_test_item_title}>Week days</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.week_days}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn}
                                     onPress={() => {
                                         this.openWeekDaysPopUp()
@@ -1849,7 +1849,7 @@ export default class App extends Component {
                             </View>
 
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                                <Text style={styles.new_test_item_title}>Turn-on time</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.turn_on_time}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOn()}>
                                     <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_on}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
@@ -1861,7 +1861,7 @@ export default class App extends Component {
                             </View>
 
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                                <Text style={styles.new_test_item_title}>Turn-off time</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.turn_of_time}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOff()}>
                                     <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_off}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
@@ -1873,7 +1873,7 @@ export default class App extends Component {
                             </View>
 
                             <View style={styles.new_test_item}>
-                                <Text style={styles.new_test_item_title}>PUSH Notifications</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.push_notifications}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
@@ -1883,7 +1883,7 @@ export default class App extends Component {
                             </View>
 
                             <View style={[styles.new_test_item, {marginBottom: 25}]}>
-                                <Text style={styles.new_test_item_title}>Shared access</Text>
+                                <Text style={styles.new_test_item_title}>{this.state.language.shared_access}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({shared_access_popup: true})}}>
                                     <Text style={styles.preferences_item_btn_text}>{this.state.shared_accounts.length} account</Text>
                                     <View style={styles.preferences_item_btn_icon}>
@@ -1895,7 +1895,7 @@ export default class App extends Component {
                             </View>
 
                             <TouchableOpacity style={styles.preferences_unlink_btn} onPress={() => this.deleteDevice()}>
-                                <Text style={styles.preferences_unlink_btn_text}>Unlink</Text>
+                                <Text style={styles.preferences_unlink_btn_text}>{this.state.language.unlink}</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -1922,7 +1922,7 @@ export default class App extends Component {
                                                     />
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.all_devices_general_page_header_title}>Pre-configuration</Text>
+                                            <Text style={styles.all_devices_general_page_header_title}>{this.state.language.pre_configuration}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -1930,7 +1930,7 @@ export default class App extends Component {
                                 <ScrollView style={styles.all_devices_general_page_main_wrapper}>
                                     <View style={styles.pre_configuration_items_wrapper}>
                                         <Text style={styles.pre_configuration_item_info}>
-                                            Recommended settings for optimal performance from the manufacturer
+                                            {this.state.language.pre_configuration_popup_title}
                                         </Text>
                                         <View style={styles.sort_by_pre_configuration_radio_input}>
                                             <TouchableOpacity
@@ -2063,7 +2063,7 @@ export default class App extends Component {
                                                     <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.all_devices_general_page_header_title}>Shared access</Text>
+                                            <Text style={styles.all_devices_general_page_header_title}>{this.state.language.shared_access}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -2072,7 +2072,7 @@ export default class App extends Component {
                                     <View style={styles.shared_access_info_wrapper}>
 
                                         <Text style={styles.shared_access_info1}>
-                                            Share access with family members or colleagues so they can control this device
+                                            {this.state.language.shared_access_popup_title}
                                         </Text>
 
 
@@ -2090,7 +2090,7 @@ export default class App extends Component {
                                                                 this.deleteSharedAccount(item)
                                                             }}
                                                         >
-                                                            <Text style={styles.shared_access_delete_btn_text}>Delete</Text>
+                                                            <Text style={styles.shared_access_delete_btn_text}>{this.state.language.delete}</Text>
                                                             <View style={styles.shared_access_delete_btn_icon}>
                                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -2106,7 +2106,7 @@ export default class App extends Component {
                                         {/*Exist accounts list end*/}
 
                                         <TouchableOpacity style={styles.add_account_btn} onPress={() => {this.setState({shared_access_popup: false, SharedAccessPopup: true})}}>
-                                            <Text style={styles.add_account_btn_text}>Add account</Text>
+                                            <Text style={styles.add_account_btn_text}>{this.state.language.add_account}</Text>
                                         </TouchableOpacity>
                                     </View>
 
@@ -2206,11 +2206,11 @@ export default class App extends Component {
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
-                                <Text style={styles.week_days_popup_title}>Scheduler</Text>
+                                <Text style={styles.week_days_popup_title}>{this.state.language.scheduler}</Text>
                             </View>
 
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Monday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.monday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDayMondayToggleSwitch}
@@ -2218,7 +2218,7 @@ export default class App extends Component {
                                 />
                             </View>
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Tuesday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.tuesday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDayTuesdayToggleSwitch}
@@ -2226,7 +2226,7 @@ export default class App extends Component {
                                 />
                             </View>
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Wednesday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.wednesday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDayWednesdayToggleSwitch}
@@ -2234,7 +2234,7 @@ export default class App extends Component {
                                 />
                             </View>
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Thursday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.thursday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDayThursdayToggleSwitch}
@@ -2242,7 +2242,7 @@ export default class App extends Component {
                                 />
                             </View>
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Friday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.friday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDayFridayToggleSwitch}
@@ -2250,7 +2250,7 @@ export default class App extends Component {
                                 />
                             </View>
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Saturday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.saturday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDaySaturdayToggleSwitch}
@@ -2258,7 +2258,7 @@ export default class App extends Component {
                                 />
                             </View>
                             <View style={styles.week_days_item}>
-                                <Text style={styles.week_day_name}>Sunday</Text>
+                                <Text style={styles.week_day_name}>{this.state.language.sunday}</Text>
                                 <Switch
                                     trackColor={{ false: '#767577', true: '#004B84' }}
                                     onValueChange={this.useWeekDaySundayToggleSwitch}
@@ -2268,7 +2268,7 @@ export default class App extends Component {
 
 
                             <TouchableOpacity style={styles.save_btn} onPress={() => this.saveWeekDays()}>
-                                <Text style={styles.save_btn_text}>Save</Text>
+                                <Text style={styles.save_btn_text}>{this.state.language.save}</Text>
                             </TouchableOpacity>
 
 
@@ -2301,7 +2301,7 @@ export default class App extends Component {
                             />
 
                             <TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOn()}>
-                                <Text style={styles.save_btn_text}>Save</Text>
+                                <Text style={styles.save_btn_text}>{this.state.language.save}</Text>
                             </TouchableOpacity>
 
                         </View>
@@ -2330,7 +2330,7 @@ export default class App extends Component {
                             />
 
                             <TouchableOpacity style={styles.save_btn} onPress={() => this.saveTimeOff()}>
-                                <Text style={styles.save_btn_text}>Save</Text>
+                                <Text style={styles.save_btn_text}>{this.state.language.save}</Text>
                             </TouchableOpacity>
 
                         </View>

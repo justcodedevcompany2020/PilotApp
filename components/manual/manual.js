@@ -186,7 +186,7 @@ export default class App extends Component {
                                         />
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>Manual</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.manual}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
@@ -208,85 +208,82 @@ export default class App extends Component {
                     </View>
                     <ScrollView style={styles.manual_items_wrapper}>
                         <View style={[styles.manual_item_parent, {marginBottom: 58}]}>
-                            <Text style={styles.manual_item_title}>Первое подключение устройства</Text>
+                            <Text style={styles.manual_item_title}>{this.state.language.first_device_connection}</Text>
                             <View style={styles.manual_item_child}>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 1.
+                                        {this.state.language.step} 1.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    Подключите устройство к электросети
+                                    {this.state.language.connect_the_device}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 2.
+                                        {this.state.language.step} 2.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    На смартфоне выполните поиск доступных WI-FI сетей. Должна появиться сеть PILOT_XXXX. (где XXXX - последние цифры заводского номера). Подключитесь к этой открытой сети
+                                    {this.state.language.wifi_connect}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 3.
+                                        {this.state.language.step} 3.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    В боковом меню приложения нажмите “Первичная настройка” или в разделе поиска, наюмите кнопку “Ручная настройка устройства” или откройте в веб браузере страницу http://192.1168.0.
+                                    {this.state.language.initial_setup}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 4.
+                                        {this.state.language.step} 4.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
                                     Введите название и пароль вашей Wi-Fi сети
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 5.
+                                        {this.state.language.step} 5.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    Если сеть с именем PILOT_XXXX больше не доступна и не появилась снова в течении 60 секунд, Значит устройство настроено верно. Вы можете вернуться в вашу рабочую Wi-Fi сеть.
+                                    {this.state.language.no_wifi}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
-                                    <Text style={styles.manual_item_child_info_bold}>Если сеть PILOT_XXXX</Text>
-                                    <View style={{marginRight: 5}}></View>
-                                    снова доступна для подключения, то повторите действия, начиная шага 2, Удостоверьтесь в том что вы указываете правильные имя Wi-Fi сети и пароль.
+                                    {this.state.language.wifi_available}
                                 </Text>
                             </View>
                         </View>
                         <View style={styles.manual_item_parent}>
-                            <Text style={styles.manual_item_title}>Добавление устройства к аккаунту</Text>
+                            <Text style={styles.manual_item_title}>{this.state.language.add_device_to_an_account}</Text>
                             <View style={styles.manual_item_child}>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 1.
+                                        {this.state.language.step} 1.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    В боковом меню приложения выберите пункт “Добавить новое устройство”
+                                    {this.state.language.side_menu_info}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 2.
+                                        {this.state.language.step} 2.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    Если вы находитесь в одной Wi-Fi сети с устройством. то оно должно отобразиться в списке доступных для подключения. Достаточно нажать кнопку “Добавить”
+                                    {this.state.language.same_wifi_info}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 3.
+                                        {this.state.language.step} 3.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    Если в списке нет нужно устройства. то введите заводской номер в формате AAAA:BBBB:CCCC который напечатан на коробке и на устройтсве.
+                                    {this.state.language.not_device}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
                                     <Text style={styles.manual_item_child_info_bold}>
-                                        Шаг 4.
+                                        {this.state.language.step} 4.
                                     </Text>
                                     <View style={{marginRight: 5}}></View>
-                                    Новое устройство готово к работе. Рекомендуется задать имя новому устройству.
+                                    {this.state.language.new_device_is_ready}
                                 </Text>
                                 <Text style={styles.manual_item_child_info}>
-                                    <Text style={styles.manual_item_child_info_bold}>Если устройства нет в списке,</Text>
-                                    <View style={{marginRight: 5}}></View>
-                                    выполните сброс устройства. Для этого удержите кнопку на корпусе естройства в течении 10 секунд, и повторите шаги по первичной настройке.                            </Text>
+                                    {this.state.language.not_listed_device}
+                                </Text>
                             </View>
                         </View>
 

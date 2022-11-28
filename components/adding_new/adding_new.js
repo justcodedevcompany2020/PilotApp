@@ -4,6 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import DropDownPicker from "react-native-custom-dropdown";
 import  TopMenu from '../includes/header_menu';
 import * as Network from 'expo-network';
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
+import {AuthContext} from "../AuthContext/context";
+
 
 import {
     Text,
@@ -48,10 +52,37 @@ export default class App extends Component {
             inetAvalaibel: true,
             add_device_info: [],
             addDeviceSuccess: false,
+            language: en,
+            language_name: 'en',
         };
 
     }
 
+
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
+
+    static contextType = AuthContext;
 
     pressCall = () => {
         const url='tel://+7 (495) 984-21-01'
@@ -87,11 +118,13 @@ export default class App extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
+        this.setLanguageFromStorage();
         this.checkInternet();
         this.searchDevices();
 
 
         this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
             this.checkInternet();
             this.searchDevices();
         });
@@ -251,7 +284,7 @@ export default class App extends Component {
                     <StatusBar style="dark" />
                     <View style={styles.all_devices_general_page_header}>
                         <View style={styles.all_devices_general_page_header_child}>
-                            <Text style={styles.all_devices_general_page_header_title}>Adding new</Text>
+                            <Text style={styles.all_devices_general_page_header_title}>{this.state.language.adding_new}</Text>
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
                                 <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <Path fill="#004B84" d="M0 0H28V3H0z" />
@@ -274,7 +307,7 @@ export default class App extends Component {
                                         <Path fillRule="evenodd" clipRule="evenodd" d="M99.728 23.898C75.638 32.96 58 62.232 58 96.944c0 34.713 17.639 63.985 41.728 73.047v-4.709c-22.077-8.946-38.133-36.157-38.133-68.338 0-32.18 16.056-59.392 38.133-68.337v-4.709zM48.07 0C19.91 14.76 0 51.057 0 93.493c0 42.436 19.91 78.733 48.07 93.493v-6.492c-25.468-14.454-43.31-47.967-43.31-87 0-39.035 17.842-72.548 43.31-87.002V0zM183 170.088c24.089-9.061 41.728-38.334 41.728-73.046S207.089 33.057 183 23.995v4.709c22.077 8.946 38.133 36.157 38.133 68.338 0 32.18-16.056 59.392-38.133 68.338v4.708zM234.658 193.986c28.16-14.76 48.07-51.057 48.07-93.493 0-42.436-19.91-78.732-48.07-93.493v6.492c25.468 14.454 43.31 47.967 43.31 87.001 0 39.034-17.842 72.547-43.31 87.001v6.492z" fill="#10BCCE"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.adding_new_page_icon_title}>Searching...</Text>
+                                <Text style={styles.adding_new_page_icon_title}>{this.state.language.searching}...</Text>
                             </View>
 
                             {this.state.add_device_info.map((item, index) => {
@@ -291,7 +324,7 @@ export default class App extends Component {
                                             </View>
                                         </View>
                                         <TouchableOpacity style={styles.adding_new_device_btn} onPress={() => this.addDevice(item.id)}>
-                                            <Text style={styles.adding_new_device_btn_text}>Add</Text>
+                                            <Text style={styles.adding_new_device_btn_text}>{this.state.language.add}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 )
@@ -317,11 +350,11 @@ export default class App extends Component {
 
                         <View style={styles.adding_new_manual_device_setup_page_buttons_box}>
                             <TouchableOpacity style={styles.adding_new_manual_btn}>
-                                <Text style={styles.adding_new_manual_btn_text}>Manual</Text>
+                                <Text style={styles.adding_new_manual_btn_text}>{this.state.language.manual}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.adding_new_device_setup_page_btn} onPress={() => {this.redirectToDeviceSetup()}}>
-                                <Text style={styles.adding_new_device_setup_page_btn_text}>Device setup page</Text>
+                                <Text style={styles.adding_new_device_setup_page_btn_text}>{this.state.language.device_setup_page}</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -338,7 +371,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </TouchableOpacity>
-                                <Text style={styles.add_device_success_info}>Ваш девайс успешно добавлен!</Text>
+                                <Text style={styles.add_device_success_info}></Text>
                             </View>
                         </View>
                     }

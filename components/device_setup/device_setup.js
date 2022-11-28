@@ -3,6 +3,10 @@ import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-nati
 import { StatusBar } from 'expo-status-bar';
 import DropDownPicker from "react-native-custom-dropdown";
 import  TopMenu from '../includes/header_menu';
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
+import {AuthContext} from "../AuthContext/context";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
     Text,
@@ -46,7 +50,54 @@ export default class App extends Component {
             enterNewDevice: '',
             wifiAccess: '',
             wifiPassword: '',
+            language: en,
+            language_name: 'en',
         };
+
+    }
+
+
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
+
+
+    static contextType = AuthContext;
+
+    componentDidMount() {
+        const { navigation } = this.props;
+        this.setLanguageFromStorage();
+        this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
+        });
+
+    }
+
+    componentWillUnmount() {
+        // Remove the event listener
+        if (this.focusListener) {
+            this.focusListener();
+            // console.log('Bum END')
+        }
 
     }
 
@@ -99,7 +150,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>Device setup</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.device_setup}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
@@ -123,12 +174,12 @@ export default class App extends Component {
                             </View>
 
                             <View style={styles.new_device_has_been_found_info_box}>
-                                <Text style={styles.new_device_has_been_found_info1}>New device has been found!</Text>
-                                <Text style={styles.new_device_has_been_found_info2}>Make device settings</Text>
+                                <Text style={styles.new_device_has_been_found_info1}>{this.state.language.new_device_has_been_found}</Text>
+                                <Text style={styles.new_device_has_been_found_info2}>{this.state.language.make_device_settings}</Text>
                             </View>
                         </View>
                         <View style={styles.device_info_main_wrapper}>
-                            <Text style={styles.device_info_main_title}>Device Information</Text>
+                            <Text style={styles.device_info_main_title}>{this.state.device_info}</Text>
                             <Text style={styles.device_info_detail}>ID: A44E:4439:B2E6</Text>
                             <Text style={styles.device_info_detail}>Smart Outlet</Text>
                             <Text style={styles.device_info_detail}>HW v1.0.7  SW v2.32</Text>
@@ -136,12 +187,12 @@ export default class App extends Component {
                         </View>
 
                         <View style={styles.device_setup_inputs_btn_wrapper}>
-                            <Text style={styles.device_setup_title}>Setup parameters</Text>
+                            <Text style={styles.device_setup_title}>{this.state.setup_parameters}</Text>
                             <TextInput
                                 style={styles.new_device_input_field}
                                 onChangeText={(val) => this.setState({wifiAccess: val})}
                                 value={this.state.wifiAccess}
-                                placeholder="WI-FI Access point name"
+                                placeholder={this.state.language.wifi_access_name}
                                 placeholderTextColor='#D3D3D3'
 
                             />
@@ -149,11 +200,11 @@ export default class App extends Component {
                                 style={styles.new_device_input_field}
                                 onChangeText={(val) => this.setState({wifiPassword: val})}
                                 value={this.state.wifiPassword}
-                                placeholder="WI-FI Password"
+                                placeholder={this.state.language.wifi_password}
                                 placeholderTextColor='#D3D3D3'
                             />
                             <TouchableOpacity style={styles.confirm_new_device_btn}>
-                                <Text style={styles.confirm_new_device_btn_text}>Confirm</Text>
+                                <Text style={styles.confirm_new_device_btn_text}>{this.state.language.confirm}</Text>
                             </TouchableOpacity>
                         </View>
 

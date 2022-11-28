@@ -14,6 +14,8 @@ import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
 
 import {
     Text,
@@ -71,6 +73,9 @@ export default class App extends Component {
              blue_chart_data: 0,
              undervoltage_limit: 0,
              overvoltage_limit: 0,
+
+            language: en,
+            language_name: 'en',
         };
 
     }
@@ -205,10 +210,38 @@ export default class App extends Component {
         })
     }
 
+
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
+
+
+
     componentDidMount() {
         const { navigation } = this.props;
+        this.setLanguageFromStorage();
         this.getTestReportInfo();
         this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
             this.getTestReportInfo();
         });
     }
@@ -357,7 +390,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>Test report</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.test_report}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
@@ -371,14 +404,14 @@ export default class App extends Component {
                             <View style={styles.test_report_status_start_end_time_info_items_wrapper}>
                                 <View style={styles.test_report_status_start_end_time_info_item}>
 
-                                    <Text style={styles.test_report_status_start_end_time_info_item_title}>Status</Text>
+                                    <Text style={styles.test_report_status_start_end_time_info_item_title}>{this.state.language.status}</Text>
 
                                     <View style={styles.test_report_status_start_end_time_info_item_icon_text_box}>
                                         {this.state.test_report_status == 'scheduled' &&
                                             <View style={styles.test_report_status_start_end_time_info_item_icon}>
 
                                                 <Text style={styles.test_report_status_start_end_time_info_item_text}>
-                                                    Scheduled
+                                                    {this.state.language.scheduled}
                                                 </Text>
                                             </View>
                                         }
@@ -389,7 +422,7 @@ export default class App extends Component {
                                                     <Path d="M9 5.5L.75 10.263V.737L9 5.5z" fill="#10BCCE" />
                                                 </Svg>
                                                 <Text style={styles.test_report_status_start_end_time_info_item_text}>
-                                                    In progress
+                                                    {this.state.language.in_progress}
                                                 </Text>
                                             </View>
                                         }
@@ -418,12 +451,12 @@ export default class App extends Component {
                                 </View>
 
                                 <View style={styles.test_report_status_start_end_time_info_item}>
-                                    <Text style={styles.test_report_status_start_end_time_info_item_title}>Start time</Text>
+                                    <Text style={styles.test_report_status_start_end_time_info_item_title}>{this.state.language.start_time}</Text>
                                     <Text style={styles.test_report_status_start_time_info}>{this.state.report_start_time}</Text>
                                 </View>
 
                                 <View style={styles.test_report_status_start_end_time_info_item}>
-                                    <Text style={styles.test_report_status_start_end_time_info_item_title}>End time</Text>
+                                    <Text style={styles.test_report_status_start_end_time_info_item_title}>{this.state.language.end_time}</Text>
                                     <Text style={styles.test_report_status_end_time_info}>{this.state.report_end_time}</Text>
                                 </View>
 
@@ -436,7 +469,7 @@ export default class App extends Component {
                                 <View  style={styles.report_chart_main_info_item_box}>
 
                                     <View style={styles.report_chart_main_info_item}>
-                                        <Text style={styles.report_chart_main_info_item_title}>Power</Text>
+                                        <Text style={styles.report_chart_main_info_item_title}>{this.state.language.power}</Text>
 
                                         <View style={[{  width: '100%',  justifyContent:'center', alignItems:'center' }]}>
 
@@ -498,7 +531,7 @@ export default class App extends Component {
                                                 </Svg>
 
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}>Undervoltage</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.undervoltage}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button}
                                               onPress={() => {
@@ -523,7 +556,7 @@ export default class App extends Component {
                                                 </Svg>
                                             </View>
 
-                                            <Text style={styles.report_chart_details_item_title}>Overvoltage</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.overvoltage}</Text>
 
                                         </View>
                                         <TouchableOpacity
@@ -545,7 +578,7 @@ export default class App extends Component {
                                             <View style={styles.report_chart_details_item_icon}>
                                                 <Svg width={11} height={13} viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#BDBDBD" d="M0 0H4V13H0z" /><Path fill="#BDBDBD" d="M7 0H11V13H7z" /></Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}>Power outages</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.power_outages}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToPowerOutages()}}>
                                             <Text style={styles.report_chart_details_item_button_text}>{this.state.power_outages ? this.state.power_outages : 0}%</Text>
@@ -563,7 +596,7 @@ export default class App extends Component {
                                                     <Path d="M0 9.167V12h15V9.167H9L7.5 0l-2 9.167H0z" fill="#004B84" />
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}> Impulse surges</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.impulse_surges}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToImpulseSurges()}}>
                                             <Text style={styles.report_chart_details_item_button_text}>
@@ -585,7 +618,7 @@ export default class App extends Component {
                                                     <Path d="M4 7.571h2.756L5.798 11 10 6.429H7.244L8.2 3 4 7.571z" fill="#fff"/>
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}>Consumption</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.consumption}</Text>
                                         </View>
 
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToConsumption()}}>
@@ -605,7 +638,7 @@ export default class App extends Component {
                                                     <Path d="M5.557 4.182l1.406 4.42h.054l1.41-4.42H9.79L7.784 10H6.2L4.19 4.182h1.367z" fill="#fff"/>
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}>Voltage</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.voltage}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToVoltage()}}>
                                             <Text style={styles.report_chart_details_item_button_text}>
@@ -636,7 +669,7 @@ export default class App extends Component {
                                                     />
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}>Amperage</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.amperage}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button}
                                               onPress={() => {
@@ -668,7 +701,7 @@ export default class App extends Component {
                                                     />
                                                 </Svg>
                                             </View>
-                                            <Text style={styles.report_chart_details_item_title}>Power</Text>
+                                            <Text style={styles.report_chart_details_item_title}>{this.state.language.power}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button}
                                               onPress={() => {
@@ -688,7 +721,7 @@ export default class App extends Component {
 
                                     <View style={styles.report_stop_now_button_box}>
                                         <TouchableOpacity style={styles.report_stop_now_button}>
-                                            <Text style={styles.report_stop_now_button_text}>Stop now</Text>
+                                            <Text style={styles.report_stop_now_button_text}>{this.state.language.stop_now}</Text>
                                         </TouchableOpacity>
                                     </View>
 

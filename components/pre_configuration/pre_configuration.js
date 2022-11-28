@@ -5,7 +5,9 @@ import DropDownPicker from "react-native-custom-dropdown";
 import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';
-
+import {AuthContext} from "../AuthContext/context";
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
 import {
     Text,
     Alert,
@@ -36,6 +38,7 @@ import {
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import TopMenu from "../includes/header_menu";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
@@ -72,10 +75,51 @@ export default class App extends Component {
             sort_by_pre_configuration3: false,
             sort_by_pre_configuration4: false,
             sort_by_pre_configuration5: false,
+            language: en,
+            language_name: 'en',
         };
 
     }
 
+
+    static contextType = AuthContext;
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
+
+
+
+    componentDidMount() {
+        const { navigation } = this.props;
+        this.setLanguageFromStorage();
+        this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
+        });
+    }
+    componentWillUnmount() {
+        if (this.focusListener) {
+            this.focusListener();
+        }
+    }
 
     pressCall = () => {
         const url='tel://+7 (495) 984-21-01'

@@ -6,6 +6,8 @@ import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
 
 
 
@@ -92,6 +94,8 @@ export default class App extends Component {
             ],
             graphicColor: ['#10BCCE', '#EB5757', '#F2994A', '#BDBDBD',  ],
             test_mode_info: [],
+            language: en,
+            language_name: 'en',
 
         };
 
@@ -99,6 +103,31 @@ export default class App extends Component {
 
 
     static contextType = AuthContext;
+
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
+
+
 
     pressCall = () => {
         const url='tel://+7 (495) 984-21-01'
@@ -165,9 +194,12 @@ export default class App extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
+        this.setLanguageFromStorage();
         this.getTestModeInfo();
         this.focusListener = navigation.addListener("focus", () => {
+        this.setLanguageFromStorage();
         this.getTestModeInfo();
+
 
 
         });
@@ -290,7 +322,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>Test mode</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.test_mode}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
@@ -305,7 +337,7 @@ export default class App extends Component {
 
                         {this.state.test_mode_info.length == 0 &&
                             <View style={styles.test_not_found_title_wrapper}>
-                                <Text style={styles.test_not_found_title}>Test Not Found</Text>
+                                <Text style={styles.test_not_found_title}>{this.state.language.test_not_found}</Text>
                             </View>
                         }
 
@@ -325,7 +357,7 @@ export default class App extends Component {
                                                 {this.checkTestReportStatus(report) == 'scheduled'  &&
 
                                                     <View style={styles.report_item_info_icon}>
-                                                        <Text style={styles.report_item_info_title}>Scheduled</Text>
+                                                        <Text style={styles.report_item_info_title}>{this.state.language.scheduled}</Text>
 
                                                     </View>
 
@@ -338,7 +370,7 @@ export default class App extends Component {
                                                         <Svg width={6} height={7} viewBox="0 0 6 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <Path d="M6 3.5L.75 6.531V.47L6 3.5z" fill="#10BCCE" />
                                                         </Svg>
-                                                        <Text style={styles.report_item_info_title}>In progress</Text>
+                                                        <Text style={styles.report_item_info_title}>{this.state.language.in_progress}</Text>
 
                                                     </View>
 
@@ -375,11 +407,11 @@ export default class App extends Component {
 
                                     <View style={styles.report_btn_status_info_wrapper}>
                                         <TouchableOpacity style={styles.report_btn} onPress={() => this.redirectToTestReport(report.id)}>
-                                            <Text style={styles.report_btn_text}>Report</Text>
+                                            <Text style={styles.report_btn_text}>{this.state.language.report}</Text>
                                         </TouchableOpacity>
                                         {report.report_status_info_box &&
                                         <TouchableOpacity style={styles.report_status_info_box}>
-                                            <Text style={styles.report_status_info}>Osciloscope</Text>
+                                            <Text style={styles.report_status_info}>{this.state.language.oscilloscope}</Text>
                                         </TouchableOpacity>
                                         }
 
@@ -397,7 +429,7 @@ export default class App extends Component {
 
                     <View style={styles.all_devices_general_page_footer}>
                         <TouchableOpacity style={styles.start_a_new_test_button} onPress={() => {this.redirectToNewTest()}}>
-                            <Text style={styles.start_a_new_test_button_text}>Start a new test</Text>
+                            <Text style={styles.start_a_new_test_button_text}>{this.state.language.start_new_test}</Text>
                         </TouchableOpacity>
 
                     </View>

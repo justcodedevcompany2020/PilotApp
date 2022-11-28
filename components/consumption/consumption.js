@@ -4,6 +4,9 @@ import { StatusBar } from 'expo-status-bar';
 import DropDownPicker from "react-native-custom-dropdown";
 // import PieChart from 'react-native-expo-pie-chart';
 // import { VictoryPie } from "victory-native";
+import {AuthContext} from "../AuthContext/context";
+import i18n from "i18n-js";
+import {en, ru} from "../../i18n/supportedLanguages";
 import DatePicker from 'react-native-datepicker';
 import  TopMenu from '../includes/header_menu';
 
@@ -88,12 +91,37 @@ export default class App extends Component {
             chart_labels: [],
             chartData: [],
             chart_show: false,
-            chart_type: 'day'
+            chart_type: 'day',
+            language: en,
+            language_name: 'en',
         };
 
     }
 
 
+    static contextType = AuthContext;
+    setLanguageFromStorage = async ()=> {
+
+        await AsyncStorage.getItem('language',(err,item) => {
+
+            let language = item ? JSON.parse(item) : {};
+
+            if (language.hasOwnProperty('language')) {
+                this.setState({
+                    language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
+                    language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                })
+            } else {
+                this.setState({
+                    language: en,
+                    language_name: 'en'
+                })
+            }
+
+        })
+
+    }
     pressCall = () => {
         const url='tel://+7 (495) 984-21-01'
         Linking.openURL(url)
@@ -426,9 +454,10 @@ export default class App extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
-
+        this.setLanguageFromStorage();
         this.pressToDay()
         this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
             this.pressToDay()
         });
     }
@@ -591,7 +620,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>Consumption</Text>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.consumption}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
@@ -624,7 +653,7 @@ export default class App extends Component {
                                         this.pressToDay()
                                     }}
                                 >
-                                    <Text style={styles.impulse_surges_dates_info_button_text}>Day</Text>
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.impulse_surges_dates_info_button}
@@ -632,7 +661,7 @@ export default class App extends Component {
                                         this.pressToWeek()
                                     }}
                                 >
-                                    <Text style={styles.impulse_surges_dates_info_button_text}>Week</Text>
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.impulse_surges_dates_info_button}
@@ -640,7 +669,7 @@ export default class App extends Component {
                                         this.pressToMonth()
                                     }}
                                 >
-                                    <Text style={styles.impulse_surges_dates_info_button_text}>Month</Text>
+                                    <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>
                                 </TouchableOpacity>
                             </View>
 

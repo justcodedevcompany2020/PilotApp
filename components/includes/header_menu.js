@@ -188,7 +188,7 @@ export default class App extends Component {
                     {/*    </Svg>*/}
                     {/*</TouchableOpacity>*/}
 
-                    <View style={styles.header_menu_popup_wrapper}>
+                    <View style={[styles.header_menu_popup_wrapper, {paddingBottom: Platform.OS === 'ios' ? 170 : 100}]}>
                         <View style={styles.header_menu_popup_logo_nav_btn_wrapper}>
                             <View style={styles.header_menu_popup_logo}>
                                 <Svg width={155} height={52} viewBox="0 0 155 52" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -326,8 +326,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#004B84',
         height: '100%',
         paddingHorizontal: 22,
-        paddingBottom: 70,
-        paddingTop: 70,
+        paddingTop: 50,
         alignItems: 'flex-start',
         justifyContent: 'space-between',
         position: 'relative'
@@ -374,7 +373,7 @@ const styles = StyleSheet.create({
     header_menu_popup_call_btn_text: {
         fontWeight: '700',
         color: '#ffffff',
-        fontSize: 24,
+        fontSize: 20,
 
     },
     header_menu_popup_email_btn_text: {
@@ -385,7 +384,7 @@ const styles = StyleSheet.create({
     },
 
     header_menu_popup_email_btn: {
-        marginBottom: 36
+        marginBottom: 50
     },
 
 
