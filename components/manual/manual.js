@@ -55,6 +55,7 @@ export default class App extends Component {
             language_name: 'en',
             edit_name: '',
             name: '',
+            loader: false
         };
 
     }
@@ -112,9 +113,12 @@ export default class App extends Component {
     }
 
     redirectToAllDevices = () => {
+
         this.props.navigation.navigate("AllDevices");
 
     }
+
+
 
 
     redirectToRegistration = () => {
@@ -137,15 +141,20 @@ export default class App extends Component {
         await AsyncStorage.getItem('language',(err,item) => {
             let language = item ? JSON.parse(item) : {};
             if (language.hasOwnProperty('language')) {
+
                 this.setState({
                     language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
                     language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
-                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
+                    loader: true,
                 })
+                console.log(language.language == 'ru' ? ru : language.language == 'en' ?  en : en, 'kkkkk')
+
             } else {
                 this.setState({
                     language: en,
-                    language_name: 'en'
+                    language_name: 'en',
+                    loader: true,
                 })
             }
         })
@@ -171,32 +180,17 @@ export default class App extends Component {
                     <StatusBar style="dark" />
                     <View style={styles.all_devices_general_page_header}>
                         <View style={styles.all_devices_general_page_header_child}>
-                            <TouchableOpacity style={styles.title_back_btn_wrapper}>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToAllDevices()}}>
                                 <View style={styles.back_btn}>
-                                    <Svg
-                                        width={12}
-                                        height={20}
-                                        viewBox="0 0 12 20"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <Path
-                                            d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                            fill="#004B84"
-                                        />
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </View>
                                 <Text style={styles.all_devices_general_page_header_title}>{this.state.language.manual}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                                <Svg
-                                    width={28}
-                                    height={25}
-                                    viewBox="0 0 28 25"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
+                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <Path fill="#004B84" d="M0 0H28V3H0z" />
                                     <Path fill="#004B84" d="M0 11H28V14H0z" />
                                     <Path fill="#004B84" d="M0 22H28V25H0z" />
@@ -206,7 +200,11 @@ export default class App extends Component {
 
 
                     </View>
-                    <ScrollView style={styles.manual_items_wrapper}>
+
+
+                    {this.state.loader &&
+
+                        <ScrollView style={styles.manual_items_wrapper}>
                         <View style={[styles.manual_item_parent, {marginBottom: 58}]}>
                             <Text style={styles.manual_item_title}>{this.state.language.first_device_connection}</Text>
                             <View style={styles.manual_item_child}>
@@ -288,6 +286,7 @@ export default class App extends Component {
                         </View>
 
                     </ScrollView>
+                    }
                 </View>
 
 

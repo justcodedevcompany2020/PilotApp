@@ -53,10 +53,11 @@ export default class App extends Component {
 
             switch_value_error: false,
 
-            registration_error: false,
-            registration_error_text: '',
 
             register_success_popup: false,
+
+            registration_error: false,
+            registration_error_text: '',
 
             password_error: false,
             password_error_text: '',
@@ -64,6 +65,8 @@ export default class App extends Component {
             email_error: false,
             email_error_text: '',
 
+            invalid_email_error: false,
+            invalid_email_error_text: '',
 
             language: en,
             language_name: 'en',
@@ -79,6 +82,18 @@ export default class App extends Component {
     static contextType = AuthContext
 
     redirectToLogin = () => {
+        this.setState({
+            email: '',
+            password: '',
+            registration_error: false,
+            registration_error_text: '',
+            password_error: false,
+            password_error_text: '',
+            email_error: false,
+            email_error_text: '',
+            invalid_email_error: false,
+            invalid_email_error_text: '',
+        })
         this.props.navigation.navigate("Login");
 
     }
@@ -89,6 +104,18 @@ export default class App extends Component {
 
 
     redirectToPasswordRecovery = () => {
+        this.setState({
+            email: '',
+            password: '',
+            registration_error: false,
+            registration_error_text: '',
+            password_error: false,
+            password_error_text: '',
+            email_error: false,
+            email_error_text: '',
+            invalid_email_error: false,
+            invalid_email_error_text: '',
+        })
         this.props.navigation.navigate("PasswordRecovery");
 
     }
@@ -221,6 +248,22 @@ export default class App extends Component {
 
 
                      }
+
+                     if (response.hasOwnProperty('error')) {
+                         let error_text = '';
+                         if (response.error == 'validate_parameters') {
+                             error_text = this.state.language.incorrect_email
+                             this.setState({
+                                 invalid_email_error: true,
+                                 invalid_email_error_text: error_text,
+                             })
+                         }  else {
+                             this.setState({
+                                 invalid_email_error: false,
+                                 invalid_email_error_text: ''
+                             })
+                         }
+                     }
                  }
 
                 })
@@ -326,7 +369,7 @@ export default class App extends Component {
                             onChangeText={(val) => this.setState({email: val})}
                             value={this.state.email}
                             placeholder={this.state.language.login}
-                            placeholderTextColor='#D3D3D3'
+                            placeholderTextColor='#4A4A4A'
 
                         />
 
@@ -334,8 +377,13 @@ export default class App extends Component {
 
                     </View>
                     {this.state.email_error &&
-                    <Text style={styles.error_text}>{this.state.email_error_text}</Text>
+                         <Text style={styles.error_text}>{this.state.email_error_text}</Text>
                     }
+
+                    {this.state.invalid_email_error &&
+                        <Text style={styles.error_text}>{this.state.invalid_email_error_text}</Text>
+                    }
+
 
                     <View style={[styles.registration_input_field_wrapper ]}>
 
@@ -345,7 +393,7 @@ export default class App extends Component {
                             value={this.state.password}
                             secureTextEntry={true}
                             placeholder={this.state.language.password}
-                            placeholderTextColor='#D3D3D3'
+                            placeholderTextColor='#4A4A4A'
 
                         />
 
@@ -481,7 +529,8 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 13,
         height: 45,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },
@@ -562,7 +611,7 @@ const styles = StyleSheet.create({
 
     error_text: {
         fontWeight: '500',
-        fontSize: 15,
+        fontSize: 10,
         color: 'red',
         marginBottom: 10,
     },

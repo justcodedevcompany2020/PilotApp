@@ -193,7 +193,7 @@ export default class App extends Component {
                                 onChangeText={(val) => this.setState({wifiAccess: val})}
                                 value={this.state.wifiAccess}
                                 placeholder={this.state.language.wifi_access_name}
-                                placeholderTextColor='#D3D3D3'
+                                placeholderTextColor='#4A4A4A'
 
                             />
                             <TextInput
@@ -201,7 +201,7 @@ export default class App extends Component {
                                 onChangeText={(val) => this.setState({wifiPassword: val})}
                                 value={this.state.wifiPassword}
                                 placeholder={this.state.language.wifi_password}
-                                placeholderTextColor='#D3D3D3'
+                                placeholderTextColor='#4A4A4A'
                             />
                             <TouchableOpacity style={styles.confirm_new_device_btn}>
                                 <Text style={styles.confirm_new_device_btn_text}>{this.state.language.confirm}</Text>
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     },
     all_devices_general_page_header_title: {
         fontWeight: '400',
-        fontSize: 24,
+        fontSize: 21,
         color: '#004B84',
     },
 
@@ -404,7 +404,8 @@ const styles = StyleSheet.create({
         borderColor: '#10BCCE',
         paddingHorizontal: 13,
         paddingVertical: 12,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },

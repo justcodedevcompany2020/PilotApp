@@ -62,7 +62,9 @@ export default class App extends Component {
 
             language: en,
             language_name: 'en',
-            page_ready: false
+            page_ready: false,
+            invalid_email_error: false,
+            invalid_email_error_text: '',
         };
 
     }
@@ -124,6 +126,7 @@ export default class App extends Component {
                 this.setState({
                     password_error: false,
                     password_error_text: '',
+              
                 })
             }
 
@@ -233,6 +236,22 @@ export default class App extends Component {
 
                     }
 
+                    if (response.hasOwnProperty('error')) {
+                        let error_text = '';
+                         if (response.error == 'validate_parameters') {
+                             error_text = this.state.language.incorrect_email
+                             this.setState({
+                                 invalid_email_error: true,
+                                 invalid_email_error_text: error_text,
+                             })
+                         }  else {
+                             this.setState({
+                                 invalid_email_error: false,
+                                 invalid_email_error_text: ''
+                             })
+                         }
+                    }
+
 
                 }
 
@@ -299,6 +318,10 @@ export default class App extends Component {
             selectedLanguage: item.value,
             error_language: false,
             valid_language: true,
+           password_error: false,
+           password_error_text: '',
+           email_error: false,
+           email_error_text: '',
         })
 
         console.log({language: item.value}, '{language: item.value}')
@@ -312,12 +335,32 @@ export default class App extends Component {
 
 
     redirectToPasswordRecovery = () => {
+        this.setState({
+            email: '',
+            password: '',
+            email_error: false,
+            email_error_text: '',
+            password_error: false,
+            password_error_text: '',
+            invalid_email_error: false,
+            invalid_email_error_text: '',
+        })
         this.props.navigation.navigate("PasswordRecovery");
 
     }
 
 
     redirectToRegistration = () => {
+        this.setState({
+            email: '',
+            password: '',
+            email_error: false,
+            email_error_text: '',
+            password_error: false,
+            password_error_text: '',
+            invalid_email_error: false,
+            invalid_email_error_text: '',
+        })
         this.props.navigation.navigate("Registration");
 
     }
@@ -397,6 +440,7 @@ export default class App extends Component {
 
 
                             dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
+
                             value={this.state.selectedLanguage}
                             defaultValue={this.state.selectedLanguage}
 
@@ -419,12 +463,16 @@ export default class App extends Component {
                             onChangeText={(val) => this.setState({email: val})}
                             value={this.state.email}
                             placeholder={this.state.language.login}
-                            placeholderTextColor='#D3D3D3'
+                            placeholderTextColor='#4A4A4A'
                         />
                     </View>
 
                     {this.state.email_error &&
                         <Text style={styles.error_text}>{this.state.email_error_text}</Text>
+                    }
+
+                    {this.state.invalid_email_error &&
+                    <Text style={styles.error_text}>{this.state.invalid_email_error_text}</Text>
                     }
 
                     <View style={[styles.login_input_field_wrapper, {flexDirection: 'row', alignItems: 'center' }]}>
@@ -434,7 +482,7 @@ export default class App extends Component {
                             value={this.state.password}
                             secureTextEntry={true}
                             placeholder={this.state.language.password}
-                            placeholderTextColor='#D3D3D3'
+                            placeholderTextColor='#4A4A4A'
                         />
 
 
@@ -509,7 +557,8 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 13,
         height: 45,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },
@@ -565,7 +614,7 @@ const styles = StyleSheet.create({
 
     error_text: {
         fontWeight: '500',
-        fontSize: 15,
+        fontSize: 10,
         color: 'red',
         marginBottom: 10
     },

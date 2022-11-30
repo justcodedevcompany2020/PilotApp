@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
+// import DropDownPicker from "react-native-custom-dropdown";
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -10,6 +10,7 @@ import md5 from 'md5';
 import i18n from "i18n-js";
 import {en, ru} from "../../i18n/supportedLanguages";
 import  TopMenu from '../includes/header_menu';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 import {
     Text,
@@ -78,6 +79,14 @@ export default class App extends Component {
 
             language: en,
             language_name: 'en',
+
+            languages: [
+                {label: 'English', value: 'en', selected: true, icon: () => <Image style={{width: 26, height: 16}} source={require('../../assets/images/flag_uk.png')}/>},
+                {label: 'Русский', value: 'ru', selected: true, icon: () => <Image style={{width: 26, height: 16}} source={require('../../assets/images/flag_russia.png')}/>},
+            ],
+
+            openLanguages: false,
+            openTimezones: false,
         };
 
     }
@@ -103,7 +112,6 @@ export default class App extends Component {
                     language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
                     language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
                     selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
-
                 })
 
 
@@ -367,18 +375,24 @@ export default class App extends Component {
 
     }
 
-    chooseLanguage = async (item) => {
+    chooseLanguage = async (callback) => {
 
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
 
-        this.setState({
-            selectedLanguage: item.value,
+        await this.setState(state => ({
+            selectedLanguage: callback(state.value),
             error_language: false,
             valid_language: true,
-        })
+        }));
 
-        await AsyncStorage.setItem('language', JSON.stringify({language: item.value}))
+
+        let  {selectedLanguage} = this.state;
+        console.log(selectedLanguage, 'selectedLanguage');
+
+
+
+        await AsyncStorage.setItem('language', JSON.stringify({language: selectedLanguage}))
 
         try {
             fetch(`https://apiv1.zis.ru/account`, {
@@ -389,7 +403,7 @@ export default class App extends Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    language:  item.value,
+                    language:  selectedLanguage,
 
                 })
 
@@ -408,18 +422,20 @@ export default class App extends Component {
 
 
 
-        console.log(item);
     }
 
 
-    chooseTimezone = (item) => {
-        this.setState({
-            selectedTimeZone: item.value,
-            // error_language: false,
-            // valid_language: true,
-        })
+    chooseTimezone = async (callback) => {
+        await this.setState(state => ({
+            selectedTimeZone: callback(state.value),
 
-        console.log(item);
+        }));
+
+        let  {selectedTimeZone} = this.state;
+
+
+
+        console.log(selectedTimeZone, 'selectedTimeZone');
     }
 
 
@@ -477,13 +493,14 @@ export default class App extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
+        this.setLanguageFromStorage();
         this.setTimeZone();
         this.getProfileInfo();
-        this.setLanguageFromStorage();
+
         this.focusListener = navigation.addListener("focus", () => {
-              this.setTimeZone();
-             this.getProfileInfo();
             this.setLanguageFromStorage();
+            this.setTimeZone();
+            this.getProfileInfo();
         });
 
     }
@@ -552,7 +569,9 @@ export default class App extends Component {
 
 
                     </View>
-                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
+                    <ScrollView  nestedScrollEnabled={true} style={styles.all_devices_general_page_main_wrapper}>
+
+
 
                         <View style={styles.setting_items_wrapper}>
 
@@ -574,7 +593,8 @@ export default class App extends Component {
                                     // onChangeText={(val) => this.setState({settingsLogin: val})}
                                     value={this.state.userInfo.login}
                                     placeholder={this.state.userInfo.login}
-                                    placeholderTextColor='#10BCCE'
+                                    // placeholderTextColor='#10BCCE'
+                                    placeholderTextColor='#4A4A4A'
                                     editable={false}
                                 />
                             </View>
@@ -625,72 +645,130 @@ export default class App extends Component {
                                     </View>
                                 </TouchableOpacity>
                             </View>
-                            <View style={[styles.languages_dropDown_wrapper, {zIndex: 999999999, borderRadius: 0,}]}>
+                            <View style={[styles.languages_dropDown_wrapper, {zIndex: 9999999999999999999, borderRadius: 0,}]}>
 
-                                {this.state.selectedLanguage == 'en'  &&
+                                {/*{this.state.selectedLanguage == 'en'  &&*/}
 
-                                <View style={{width: 26, height: 16, position: 'absolute', zIndex: 9999999, top: 15, left: 15}}><Image style={{width: '100%', height: '100%'}} source={require('../../assets/images/flag_uk.png')}/></View>
+                                {/*<View style={{width: 26, height: 16, position: 'absolute', zIndex: 9999999, top: 15, left: 15}}><Image style={{width: '100%', height: '100%'}} source={require('../../assets/images/flag_uk.png')}/></View>*/}
 
-                                }
+                                {/*}*/}
 
-                                {this.state.selectedLanguage == 'ru'  &&
+                                {/*{this.state.selectedLanguage == 'ru'  &&*/}
 
-                                <View style={{width: 26, height: 16, position: 'absolute', zIndex: 9999999, top: 15, left: 15}}><Image style={{width: '100%', height: '100%'}} source={require('../../assets/images/flag_russia.png')}/></View>
+                                {/*<View style={{width: 26, height: 16, position: 'absolute', zIndex: 9999999, top: 15, left: 15}}><Image style={{width: '100%', height: '100%'}} source={require('../../assets/images/flag_russia.png')}/></View>*/}
 
-                                }
+                                {/*}*/}
+
+                                {/*<DropDownPicker*/}
+                                {/*    items={*/}
+                                {/*        [*/}
+                                {/*            {label: 'English', value: 'en'},*/}
+                                {/*            {label: 'Русский', value: 'ru'},*/}
+                                {/*            // {label: 'Latviski', value: 'lv', icon: () => {} },*/}
+                                {/*        ]*/}
+
+                                {/*    }*/}
+                                {/*    placeholder='Language'*/}
+                                {/*    containerStyle={{  width: '100%', height: 45,  zIndex: 999999, borderRadius: 0, }}*/}
+                                {/*    style={[styles.phone_code_dropdown,*/}
+                                {/*        {backgroundColor: '#004B84', height: 45, borderRadius: 0}*/}
+                                {/*    ]}*/}
+                                {/*    itemStyle={{*/}
+                                {/*        justifyContent: 'flex-start',*/}
+                                {/*        width: 150,*/}
+                                {/*        zIndex: 15*/}
+                                {/*    }}*/}
+                                {/*    selectedLabelStyle={{*/}
+                                {/*        fontSize: 16,*/}
+                                {/*        color: "#ffffff",*/}
+                                {/*        fontWeight: '400',*/}
+                                {/*        paddingLeft: 32*/}
+                                {/*    }}*/}
+                                {/*    labelStyle={{*/}
+                                {/*        fontSize: 16,*/}
+                                {/*        color: "#ffffff",*/}
+                                {/*        fontWeight: '400',*/}
+
+                                {/*    }}*/}
+                                {/*    placeholderStyle={{*/}
+                                {/*        fontSize: 14,*/}
+                                {/*        color: "#ffffff",*/}
+                                {/*        fontWeight: '400',*/}
+                                {/*    }}*/}
+
+
+                                {/*    dropDownStyle={{backgroundColor: '#004B84',  width: '100%', zIndex: 999999, borderRadius: 0,}}*/}
+                                {/*    value={this.state.selectedLanguage}*/}
+                                {/*    defaultValue={this.state.selectedLanguage}*/}
+
+
+                                {/*    // selectedLabel='English'*/}
+                                {/*    arrowColor={'white'}*/}
+                                {/*    // onChangeItem={this.onChangeDropDownItem}*/}
+                                {/*    onChangeItem={item => {*/}
+                                {/*        this.chooseLanguage(item);*/}
+                                {/*    }}*/}
+
+
+                                {/*/>*/}
 
                                 <DropDownPicker
-                                    items={
-                                        [
-                                            {label: 'English', value: 'en'},
-                                            {label: 'Русский', value: 'ru'},
-                                            // {label: 'Latviski', value: 'lv', icon: () => {} },
-                                        ]
-
-                                    }
-                                    placeholder='Language'
-                                    containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                                    style={[styles.phone_code_dropdown,
-                                        {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                                    ]}
-                                    itemStyle={{
-                                        justifyContent: 'flex-start',
-                                        width: 150,
-                                        zIndex: 15
+                                    listMode="SCROLLVIEW"
+                                    open={this.state.openLanguages}
+                                    value={this.state.selectedLanguage}
+                                    setOpen={() => {
+                                        this.setState({
+                                            openLanguages: !this.state.openLanguages
+                                        })
                                     }}
-                                    selectedLabelStyle={{
-                                        fontSize: 16,
-                                        color: "#ffffff",
-                                        fontWeight: '400',
-                                        paddingLeft: 32
+                                    items={this.state.languages}
+                                    setValue={this.chooseLanguage}
+                                    // setItems={setRegionsDropdownItems}/}
+                                    style={{
+                                        width: '100%',
+                                        height: 45,
+                                        backgroundColor: '#004B84',
+                                        borderRadius: 0,
+                                        borderColor: 'white'
+                                    }}
+                                    containerStyle={{
+                                        width: '100%',
+                                        height: 70,
+                                        borderRadius: 0,
+                                    }}
+                                    // listItemContainerStyle={{
+                                    //
+                                    //     borderRadius: 0
+                                    // }}
+                                    listItemLabelStyle={{
+                                      color: '#ffffff',
+                                      fontSize: 16,
+                                      fontWeight: '400'
                                     }}
                                     labelStyle={{
+                                        color: '#ffffff',
                                         fontSize: 16,
-                                        color: "#ffffff",
-                                        fontWeight: '400',
-
-                                    }}
-                                    placeholderStyle={{
-                                        fontSize: 14,
-                                        color: "#ffffff",
-                                        fontWeight: '400',
+                                        fontWeight: '400'
                                     }}
 
+                                    arrowIconStyle={{
+                                        width: 20,
+                                        height: 20,
 
-                                    dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                                    value={this.state.selectedLanguage}
-                                    defaultValue={this.state.selectedLanguage}
 
-
-                                    // selectedLabel='English'
-                                    arrowColor={'white'}
-                                    // onChangeItem={this.onChangeDropDownItem}
-                                    onChangeItem={item => {
-                                        this.chooseLanguage(item);
                                     }}
 
+                                    dropDownContainerStyle={{
+                                        borderRadius: 0,
+                                        backgroundColor: '#004B84',
+                                        borderColor: 'white'
+                                    }}
+
+
+                                    // keyExtractor={(item, index) => index+1}/}
 
                                 />
+
 
                             </View>
 
@@ -762,7 +840,7 @@ export default class App extends Component {
                                         value={this.state.old_password}
                                         secureTextEntry={true}
                                         placeholder={this.state.language.old_password}
-                                        placeholderTextColor='#D3D3D3'
+                                        placeholderTextColor='#4A4A4A'
                                     />
 
                                 </View>
@@ -773,7 +851,7 @@ export default class App extends Component {
                                         value={this.state.new_password}
                                         secureTextEntry={true}
                                         placeholder={this.state.language.new_password}
-                                        placeholderTextColor='#D3D3D3'
+                                        placeholderTextColor='#4A4A4A'
 
 
                                     />
@@ -786,7 +864,7 @@ export default class App extends Component {
                                         value={this.state.confirm_password}
                                         secureTextEntry={true}
                                         placeholder={this.state.language.confirm_password}
-                                        placeholderTextColor='#D3D3D3'
+                                        placeholderTextColor='#4A4A4A'
 
 
 
@@ -827,53 +905,120 @@ export default class App extends Component {
                             </TouchableOpacity>
                             <View style={[styles.timezone_dropDown_wrapper, {zIndex: 999999999, borderRadius: 0,}]}>
 
+                                {/*<DropDownPicker*/}
+                                {/*    items={this.state.timezones}*/}
+                                {/*    placeholder={this.state.language.time_zone}*/}
+                                {/*    containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}*/}
+                                {/*    style={[styles.phone_code_dropdown,*/}
+                                {/*        {backgroundColor: '#004B84', height: 45, borderRadius: 0}*/}
+                                {/*    ]}*/}
+                                {/*    itemStyle={{*/}
+                                {/*        justifyContent: 'flex-start',*/}
+                                {/*        width: 160,*/}
+                                {/*        zIndex: 15*/}
+                                {/*    }}*/}
+                                {/*    selectedLabelStyle={{*/}
+                                {/*        fontSize: 16,*/}
+                                {/*        color: "#ffffff",*/}
+                                {/*        fontWeight: '400',*/}
+                                {/*        // width: 150,*/}
+                                {/*    }}*/}
+                                {/*    labelStyle={{*/}
+                                {/*        fontSize: 16,*/}
+                                {/*        color: "#ffffff",*/}
+                                {/*        fontWeight: '400',*/}
+
+                                {/*    }}*/}
+                                {/*    placeholderStyle={{*/}
+                                {/*        fontSize: 14,*/}
+                                {/*        color: "#ffffff",*/}
+                                {/*        fontWeight: '400',*/}
+                                {/*    }}*/}
+
+
+                                {/*    dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}*/}
+                                {/*    value={this.state.selectedTimeZone}*/}
+                                {/*    // defaultValue={this.state.userInfo.language}*/}
+
+
+                                {/*    // selectedLabel='English'*/}
+                                {/*    arrowColor={'white'}*/}
+                                {/*    // onChangeItem={this.onChangeDropDownItem}*/}
+                                {/*    onChangeItem={item => {*/}
+                                {/*        this.chooseTimezone(item);*/}
+                                {/*    }}*/}
+
+
+                                {/*/>*/}
+
+
                                 <DropDownPicker
-                                    items={this.state.timezones}
-                                    placeholder={this.state.language.time_zone}
-                                    containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}
-                                    style={[styles.phone_code_dropdown,
-                                        {backgroundColor: '#004B84', height: 45, borderRadius: 0}
-                                    ]}
-                                    itemStyle={{
-                                        justifyContent: 'flex-start',
-                                        width: 160,
-                                        zIndex: 15
+                                    listMode="SCROLLVIEW"
+                                    open={this.state.openTimezones}
+                                    value={this.state.selectedTimeZone}
+                                    setOpen={() => {
+                                        this.setState({
+                                            openTimezones: !this.state.openTimezones
+                                        })
                                     }}
-                                    selectedLabelStyle={{
-                                        fontSize: 16,
-                                        color: "#ffffff",
-                                        fontWeight: '400',
-                                        // width: 150,
+                                    items={this.state.timezones}
+                                    setValue={this.chooseTimezone}
+                                    // setItems={setRegionsDropdownItems}/}
+                                    style={{
+                                        width: '100%',
+                                        height: 45,
+                                        backgroundColor: '#004B84',
+                                        borderRadius: 0,
+                                        borderColor: 'white'
+                                    }}
+                                    containerStyle={{
+                                        width: '100%',
+                                        height: 200,
+                                        borderRadius: 0,
+                                    }}
+                                    listItemContainerStyle={{
+                                        borderRadius: 0,
+                                    }}
+                                    listItemLabelStyle={{
+                                        color: '#ffffff',
+                                        fontSize: 14,
+                                        fontWeight: '400'
                                     }}
                                     labelStyle={{
+                                        color: '#ffffff',
                                         fontSize: 16,
-                                        color: "#ffffff",
-                                        fontWeight: '400',
+                                        fontWeight: '400'
+                                    }}
+
+                                    arrowIconStyle={{
+                                        width: 20,
+                                        height: 20,
+
 
                                     }}
+                                    dropDownContainerStyle={{
+                                        borderRadius: 0,
+                                        backgroundColor: '#004B84',
+                                        borderColor: 'white',
+                                        paddingBottom: 20,
+                                    }}
+
+                                    placeholder={this.state.language.time_zone}
                                     placeholderStyle={{
+                                        color: '#ffffff',
                                         fontSize: 14,
-                                        color: "#ffffff",
-                                        fontWeight: '400',
+                                        fontWeight: '400'
                                     }}
 
 
-                                    dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}
-                                    value={this.state.selectedTimeZone}
-                                    // defaultValue={this.state.userInfo.language}
 
-
-                                    // selectedLabel='English'
-                                    arrowColor={'white'}
-                                    // onChangeItem={this.onChangeDropDownItem}
-                                    onChangeItem={item => {
-                                        this.chooseTimezone(item);
-                                    }}
-
+                                    // keyExtractor={(item, index) => index+1}/}
 
                                 />
-
                             </View>
+
+
+
                             <TouchableOpacity style={styles.timezone_popup_confirm_btn} onPress={() => {this.changeTimeZones()}}>
                                 <Text style={styles.timezone_popup_confirm_btn_text}>{this.state.language.confirm}</Text>
                             </TouchableOpacity>
@@ -1032,20 +1177,22 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     settings_input_field: {
-        width:  163,
+        width:  184,
         borderWidth: 1,
         borderColor: '#10BCCE',
         paddingVertical: 10,
         paddingLeft: 14,
         paddingRight: 10,
+        fontSize: 12,
         // justifyContent: 'flex-end',
         // alignItems: 'flex-end',
         // alignSelf: 'flex-end',
+        color: '#4A4A4A'
     },
     settings_input_field_text: {
         color: '#10BCCE',
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 12,
         textAlign: 'right'
 
     },
@@ -1083,11 +1230,11 @@ const styles = StyleSheet.create({
 
     timezone_popup: {
         backgroundColor:  'rgba(255, 255, 255, 0.80)',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 999,
         zIndex: 999999,
         height: windowHeight + 40,
         width: '100%',
@@ -1103,9 +1250,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         shadowColor: '#004B84',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
+        shadowOpacity: 0.50,
         shadowRadius: 4,
-        elevation: 999,
+        elevation: 10,
+        zIndex: 999999,
         width: '90%',
         paddingHorizontal: 25,
         paddingTop: 80,
@@ -1140,7 +1288,8 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 13,
         height: 45,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },
@@ -1182,6 +1331,7 @@ const styles = StyleSheet.create({
     languages_dropDown_wrapper: {
         marginBottom: 17,
         width: '100%',
+        // height: 100
     },
 
     timezone_popup_confirm_btn: {
@@ -1203,6 +1353,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 16,
         textAlign: 'center'
+    },
+    timezone_dropDown_wrapper: {
+        width: '100%',
+         marginBottom: 20
+        // height: 600,
     }
 
 });

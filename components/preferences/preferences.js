@@ -1657,7 +1657,7 @@ export default class App extends Component {
 
                         <View style={styles.new_test_items_wrapper}>
                             <View style={styles.new_test_item}>
-                                <Text style={styles.new_test_item_title}>
+                                <Text  style={styles.new_test_item_title}>
                                     {/* Power Protection */}
                                     {this.state.language.power_protection}
                                 </Text>
@@ -2198,16 +2198,14 @@ export default class App extends Component {
                     {this.state.week_days_popup  &&
                         <View style={styles.turn_off_the_load_switch_value_popup}>
                         <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {paddingTop: 45, paddingBottom: 35}]}>
-                            <View style={styles.week_days_popup_header}>
-                                <TouchableOpacity style={[styles.title_back_btn_wrapper]} onPress={() => {this.setState({week_days_popup: false})}}>
+                            <TouchableOpacity style={styles.week_days_popup_header} onPress={() => {this.setState({week_days_popup: false})}}>
                                     <View>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                         </Svg>
                                     </View>
-                                </TouchableOpacity>
                                 <Text style={styles.week_days_popup_title}>{this.state.language.scheduler}</Text>
-                            </View>
+                            </TouchableOpacity>
 
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.monday}</Text>
@@ -2280,7 +2278,7 @@ export default class App extends Component {
                     {this.state.isOpenTimePicker &&
                          <View style={styles.timepicker_popup}>
                         <View style={styles.timepicker_popup_wrapper}>
-                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenTimePicker: false})}}>
+                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 20}} onPress={() => {this.setState({isOpenTimePicker: false})}}>
                                 <View>
                                     <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <Path
@@ -2312,7 +2310,7 @@ export default class App extends Component {
                     {this.state.isOpenTimePicker2 &&
                         <View style={styles.timepicker_popup}>
                         <View style={styles.timepicker_popup_wrapper}>
-                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenTimePicker2: false})}}>
+                            <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 20}} onPress={() => {this.setState({isOpenTimePicker2: false})}}>
                                 <View>
                                     <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
@@ -2398,10 +2396,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         bottom: 0,
+        // top: 0,
         alignSelf: 'center',
         flex:1,
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start',
+        // alignItems: 'flex-start',
+        // justifyContent: 'flex-start',
+        alignItems: 'center',
+        justifyContent: 'center',
         paddingTop: 100,
     },
     turn_off_the_load_switch_value_popup_wrapper: {
@@ -2562,8 +2563,12 @@ const styles = StyleSheet.create({
     },
     new_test_item_title: {
         fontWeight: '400',
-        fontSize: 16,
+        fontSize: 14,
         color: '#4A4A4A',
+        // marginBottom: 10,
+        width: '65%',
+        lineHeight: 22
+
 
     },
 
@@ -2658,11 +2663,11 @@ const styles = StyleSheet.create({
 
     pre_configuration_popup: {
         backgroundColor:  'white',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 999,
         zIndex: 999999,
         width: '100%',
         height: windowHeight + 40,
@@ -2682,29 +2687,30 @@ const styles = StyleSheet.create({
 
     shared_access_popup: {
         backgroundColor:  '#ffffff',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 999,
         zIndex: 999999,
         width: '100%',
-        height: windowHeight,
+        height: windowHeight + 40,
         position: 'absolute',
         left: 0,
-        top: 25,
+        top: 0,
         // alignSelf: 'center',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
+        paddingTop: 30
     },
 
     timepicker_popup: {
         backgroundColor:  '#ffffff',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 999,
         zIndex: 999999,
         width: '100%',
         height: windowHeight + 40,
@@ -2805,7 +2811,7 @@ const styles = StyleSheet.create({
         paddingBottom: 23,
         borderBottomWidth: 1,
         borderBottomColor: '#004B84',
-        marginBottom: 53,
+        marginBottom: 40,
 
     },
     week_days_popup_title: {
@@ -2819,7 +2825,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 27,
+        marginBottom: 20,
     },
 
     week_day_name: {

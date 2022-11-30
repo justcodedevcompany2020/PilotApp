@@ -136,6 +136,9 @@ const en = {
     month: 'Month',
     minimum: 'Minimum',
     maximum: 'Maximum',
+    incorrect_email: 'Incorrect email address',
+    add_new: 'Add new',
+    enter_device_number: 'Enter device number',
 
 
 
@@ -189,7 +192,7 @@ const ru = {
     number_of_protection: 'Количество сработавших защит',
     last_data: 'Последние данные',
     started_time: 'Время начала',
-    preferences: 'Настройки',
+    preferences: 'Предпочтения',
     power_protection: 'Защита питания',
     pre_configuration: 'Предварительная конфигурация',
     adding_new: 'Добавление новых',
@@ -277,6 +280,9 @@ const ru = {
     month: 'Месяц',
     minimum: 'Минимум',
     maximum: 'Максимум',
+    incorrect_email: 'Некорректный email',
+    add_new: 'Добавить новое',
+    enter_device_number: 'Введите номер устройства',
 
 };
 

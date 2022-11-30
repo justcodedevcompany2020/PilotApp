@@ -335,8 +335,8 @@ export default class App extends Component {
                                     style={styles.enter_new_device_number_input_field}
                                     onChangeText={(val) => this.setState({enterNewDevice: val})}
                                     value={this.state.enterNewDevice}
-                                    placeholder="Enter device number"
-                                    placeholderTextColor='#D3D3D3'
+                                    placeholder={this.state.language.enter_device_number}
+                                    placeholderTextColor='#4A4A4A'
                                 />
                                 <TouchableOpacity style={styles.enter_new_device_number_search_btn}>
                                     <Svg width={25} height={25} viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -371,7 +371,7 @@ export default class App extends Component {
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                     </Svg>
                                 </TouchableOpacity>
-                                <Text style={styles.add_device_success_info}></Text>
+                                <Text style={styles.add_device_success_info}>{this.state.language.add_device_success_info}</Text>
                             </View>
                         </View>
                     }
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
         fontSize: 8,
     },
     adding_new_device_btn: {
-        width: 60,
+        width: 120,
         height: 40,
         backgroundColor: '#004B84',
         justifyContent: 'center',
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     adding_new_device_btn_text: {
         color: '#ffffff',
         fontWeight: '400',
-        fontSize: 16,
+        fontSize: 14,
     },
     enter_new_device_number_input_search_btn_wrapper: {
         marginBottom: 43,
@@ -584,9 +584,11 @@ const styles = StyleSheet.create({
         borderColor: '#10BCCE',
         paddingHorizontal: 13,
         paddingVertical: 12,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
+        height: 40,
     },
     enter_new_device_number_search_btn: {
         width: 40,

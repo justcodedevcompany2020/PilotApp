@@ -1053,7 +1053,7 @@ export default class App extends Component {
                         <View style={styles.timepicker_popup}>
                             <View style={styles.timepicker_popup_wrapper}>
                                 <TouchableOpacity
-                                    style={{width: '100%', position: 'absolute', left: 20, top: 60}}
+                                    style={{width: '100%', position: 'absolute', left: 20, top: 20}}
                                     onPress={() => {
                                         this.setState({
                                             isOpenStartDatePicker: false
@@ -1088,7 +1088,7 @@ export default class App extends Component {
                         <View style={styles.timepicker_popup}>
                             <View style={styles.timepicker_popup_wrapper}>
                                 <TouchableOpacity
-                                    style={{width: '100%', position: 'absolute', left: 20, top: 60}}
+                                    style={{width: '100%', position: 'absolute', left: 20, top: 20}}
                                     onPress={() => {
                                         this.setState({
                                             isOpenStartTimePicker: false
@@ -1122,7 +1122,7 @@ export default class App extends Component {
                     {this.state.isOpenEndDatePicker &&
                         <View style={styles.timepicker_popup}>
                             <View style={styles.timepicker_popup_wrapper}>
-                                <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 60}} onPress={() => {this.setState({isOpenEndDatePicker: false})}}>
+                                <TouchableOpacity style={{width: '100%', position: 'absolute', left: 20, top: 20}} onPress={() => {this.setState({isOpenEndDatePicker: false})}}>
                                     <View>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
@@ -1152,7 +1152,7 @@ export default class App extends Component {
                      <View style={styles.timepicker_popup}>
                         <View style={styles.timepicker_popup_wrapper}>
                             <TouchableOpacity
-                                style={{width: '100%', position: 'absolute', left: 20, top: 60}}
+                                style={{width: '100%', position: 'absolute', left: 20, top: 20}}
                                 onPress={() => {
                                     this.setState({
                                         isOpenEndTimePicker: false
@@ -1351,21 +1351,22 @@ const styles = StyleSheet.create({
 
     turn_off_the_load_switch_value_popup: {
         backgroundColor:  'rgba(0, 0, 0, 0.3)',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 999,
         zIndex: 999999,
         width: '100%',
         height: windowHeight + 40,
         position: 'absolute',
         left: 0,
-        top: 0,
+        // top: 0,
+        bottom: 0,
         // alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
-        // paddingTop: 100,
+        paddingTop: 100,
     },
     turn_off_the_load_switch_value_popup_wrapper: {
          width: 284,
@@ -1524,8 +1525,11 @@ const styles = StyleSheet.create({
     },
     new_test_item_title: {
        fontWeight: '400',
-       fontSize: 16,
+       fontSize: 14,
         color: '#4A4A4A',
+        width: '70%',
+        lineHeight: 23,
+
 
     },
 
@@ -1576,11 +1580,11 @@ const styles = StyleSheet.create({
 
     timepicker_popup: {
         backgroundColor:  '#ffffff',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 999,
         zIndex: 999999,
         width: '100%',
         height: windowHeight + 40,

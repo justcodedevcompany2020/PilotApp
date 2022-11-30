@@ -372,12 +372,12 @@ export default class App extends Component {
                                 <Text style={styles.details_general_page_item_info}>{this.state.device_data.protection_triggered}</Text>
 
                             </View>
-                            <View style={styles.details_general_page_item}>
-                                <Text style={styles.details_general_page_item_title}>{this.state.language.last_data}</Text>
+                            <View style={[styles.details_general_page_item, {flexDirection: 'column', alignItems: 'flex-start'}]}>
+                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5}]}>{this.state.language.last_data}</Text>
                                 <Text style={styles.details_general_page_item_info}>{this.state.device_data.last_data}</Text>
                             </View>
-                            <View style={styles.details_general_page_item}>
-                                <Text style={styles.details_general_page_item_title}>{this.state.language.started_time}</Text>
+                            <View style={[styles.details_general_page_item, {flexDirection: 'column', alignItems: 'flex-start'}]}>
+                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5}]}>{this.state.language.started_time}</Text>
                                 <Text style={styles.details_general_page_item_info}>{this.state.device_data.start_time}</Text>
                             </View>
                         </View>

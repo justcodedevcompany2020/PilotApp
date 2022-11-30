@@ -66,10 +66,20 @@ export default class App extends Component {
 
 
     redirectToLogin = () => {
+        this.setState({
+            email: '',
+            email_error: false,
+            email_error_text: '',
+        })
         this.props.navigation.navigate("Login");
 
     }
     redirectToRegistration = () => {
+        this.setState({
+            email: '',
+            email_error: false,
+            email_error_text: '',
+        })
         this.props.navigation.navigate("Registration");
 
     }
@@ -237,7 +247,7 @@ export default class App extends Component {
                             onChangeText={(val) => this.setState({email: val})}
                             value={this.state.email}
                             placeholder={this.state.language.login}
-                            placeholderTextColor='#D3D3D3'
+                            placeholderTextColor='#4A4A4A'
 
                         />
                         <TouchableOpacity style={styles.password_recovery_btn2} onPress={() => {this.recoveryPassword()}}>
@@ -319,7 +329,8 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 13,
         height: 45,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },
@@ -381,7 +392,7 @@ const styles = StyleSheet.create({
     },
     error_text: {
         fontWeight: '500',
-        fontSize: 15,
+        fontSize: 10,
         color: 'red',
         marginBottom: 10,
     },

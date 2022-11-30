@@ -235,7 +235,7 @@ export default class App extends Component {
                                             </View>
 
                                             <View style={[styles.all_devices_general_page_button_info_box, {position:'relative', top:-25}]}>
-                                                <Text style={styles.all_devices_general_page_button_name}>Add new</Text>
+                                                <Text style={styles.all_devices_general_page_button_name}>{this.state.language.add_new}</Text>
                                             </View>
 
                                         </TouchableOpacity>
