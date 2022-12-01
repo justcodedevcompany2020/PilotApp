@@ -374,13 +374,14 @@ const styles = StyleSheet.create({
     header_menu_popup_call_btn_text: {
         fontWeight: '700',
         color: '#ffffff',
-        fontSize: 20,
+        fontSize: 24,
 
     },
     header_menu_popup_email_btn_text: {
         fontWeight: '400',
         color: '#ffffff',
         fontSize: 16,
+        textDecorationLine: 'underline'
 
     },
 

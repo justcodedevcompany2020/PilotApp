@@ -531,6 +531,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         paddingTop: 102,
+        paddingBottom: 30,
     },
     registration_header_logo: {
         marginBottom: 65,

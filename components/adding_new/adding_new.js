@@ -362,6 +362,13 @@ export default class App extends Component {
 
                         </View>
 
+
+
+
+
+                    </ScrollView>
+
+                    <View style={styles.footer}>
                         <View style={styles.adding_new_manual_device_setup_page_buttons_box}>
                             <TouchableOpacity style={styles.adding_new_manual_btn} onPress={() => {this.redirectToManual()}}>
                                 <Text style={styles.adding_new_manual_btn_text}>{this.state.language.manual}</Text>
@@ -372,10 +379,7 @@ export default class App extends Component {
                             </TouchableOpacity>
                         </View>
 
-
-
-
-                    </ScrollView>
+                    </View>
 
                     {this.state.addDeviceSuccess &&
                         <View style={styles.add_device_success_popup}>
@@ -572,8 +576,10 @@ const styles = StyleSheet.create({
         fontSize: 8,
     },
     adding_new_device_btn: {
-        width: 120,
-        height: 40,
+        // width: 120,
+        // height: 40,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
         backgroundColor: '#004B84',
         justifyContent: 'center',
         alignItems: 'center',
@@ -690,4 +696,9 @@ const styles = StyleSheet.create({
     back_btn:{
         marginRight: 10,
     },
+
+    footer: {
+        width: '100%',
+        paddingHorizontal: 29,
+    }
 });

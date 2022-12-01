@@ -179,7 +179,7 @@ export default class App extends Component {
                             </View>
                         </View>
                         <View style={styles.device_info_main_wrapper}>
-                            <Text style={styles.device_info_main_title}>{this.state.device_info}</Text>
+                            <Text style={styles.device_info_main_title}>{this.state.language.device_info}</Text>
                             <Text style={styles.device_info_detail}>ID: A44E:4439:B2E6</Text>
                             <Text style={styles.device_info_detail}>Smart Outlet</Text>
                             <Text style={styles.device_info_detail}>HW v1.0.7  SW v2.32</Text>
@@ -187,7 +187,7 @@ export default class App extends Component {
                         </View>
 
                         <View style={styles.device_setup_inputs_btn_wrapper}>
-                            <Text style={styles.device_setup_title}>{this.state.setup_parameters}</Text>
+                            <Text style={styles.device_setup_title}>{this.state.language.setup_parameters}</Text>
                             <TextInput
                                 style={styles.new_device_input_field}
                                 onChangeText={(val) => this.setState({wifiAccess: val})}

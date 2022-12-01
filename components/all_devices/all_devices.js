@@ -257,7 +257,7 @@ export default class App extends Component {
                                             </View>
 
                                             <View  style={styles.all_devices_general_page_button_main_img}>
-                                                <Image style={styles.all_devices_general_page_img} source={require('../../assets/images/device_img.png')}/>
+                                                <Image style={styles.all_devices_general_page_img} source={require('../../assets/images/device_img2.png')}/>
                                             </View>
 
                                             {item.show_share_button &&

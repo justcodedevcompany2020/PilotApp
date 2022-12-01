@@ -328,6 +328,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         paddingTop: 102,
+        paddingBottom: 30,
     },
     password_recovery_header_logo: {
         marginBottom: 116,
