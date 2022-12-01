@@ -234,6 +234,11 @@ export default class App extends Component {
 
     }
 
+    redirectToManual = () => {
+        this.props.navigation.navigate("Manual");
+    }
+
+
     addDevice = async (id) => {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
@@ -284,7 +289,16 @@ export default class App extends Component {
                     <StatusBar style="dark" />
                     <View style={styles.all_devices_general_page_header}>
                         <View style={styles.all_devices_general_page_header_child}>
-                            <Text style={styles.all_devices_general_page_header_title}>{this.state.language.adding_new}</Text>
+                            <TouchableOpacity style={styles.title_back_btn_wrapper2} onPress={() => {this.redirectToAllDevices()}}>
+                                <View style={styles.back_btn}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </View>
+                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.adding_new}</Text>
+                            </TouchableOpacity>
+
+
                             <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
                                 <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <Path fill="#004B84" d="M0 0H28V3H0z" />
@@ -349,7 +363,7 @@ export default class App extends Component {
                         </View>
 
                         <View style={styles.adding_new_manual_device_setup_page_buttons_box}>
-                            <TouchableOpacity style={styles.adding_new_manual_btn}>
+                            <TouchableOpacity style={styles.adding_new_manual_btn} onPress={() => {this.redirectToManual()}}>
                                 <Text style={styles.adding_new_manual_btn_text}>{this.state.language.manual}</Text>
                             </TouchableOpacity>
 
@@ -416,7 +430,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingRight: 21,
-        paddingLeft: 38,
+        paddingLeft: 19,
     },
     all_devices_general_page_header_title: {
         fontWeight: '400',
@@ -668,5 +682,12 @@ const styles = StyleSheet.create({
         top: 25,
         left: 25,
 
-    }
+    },
+    title_back_btn_wrapper2: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    back_btn:{
+        marginRight: 10,
+    },
 });

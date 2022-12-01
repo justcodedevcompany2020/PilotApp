@@ -918,13 +918,13 @@ const styles = StyleSheet.create({
         color: '#10BCCE',
         opacity: 0.6,
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 14,
     },
 
     test_report_status_end_time_info: {
         color: '#10BCCE',
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 14,
     },
 
     report_status_button: {
@@ -983,7 +983,7 @@ const styles = StyleSheet.create({
     report_chart_details_item_title: {
         marginLeft: 13,
         fontWeight: '400',
-        fontSize: 16,
+        fontSize: 15,
         color: '#4A4A4A',
     },
 

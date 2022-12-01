@@ -416,7 +416,7 @@ export default class App extends Component {
                                         onChangeText={(val) => this.setState({edit_name: val})}
                                         value={this.state.edit_name}
                                         // placeholder={this.state.device_data.name}
-                                        placeholderTextColor='#D3D3D3'
+                                        placeholderTextColor='#4A4A4A'
                                     />
                                 </View>
                                 <TouchableOpacity style={styles.save_btn} onPress={() => {this.editName()}}>
@@ -658,11 +658,11 @@ const styles = StyleSheet.create({
     },
     edit_name_popup: {
         backgroundColor:  'rgba(255, 255, 255, 0.80)',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 999,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 4,
+        // elevation: 10,
         zIndex: 999999,
         height: windowHeight + 40,
         width: '100%',
@@ -671,7 +671,8 @@ const styles = StyleSheet.create({
         top: 0,
         alignSelf: 'center',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 100,
     },
 
     edit_name_popup_wrapper: {
@@ -680,7 +681,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        elevation: 999,
+        elevation: 10,
         width: '90%',
         paddingHorizontal: 25,
         paddingTop: 80,
@@ -701,10 +702,12 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 13,
         height: 45,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },
+
 
      edit_name_input: {
         marginBottom: 40,

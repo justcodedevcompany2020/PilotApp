@@ -164,6 +164,7 @@ export default class App extends Component {
 
     }
     redirectToManual = () => {
+        this.props.closeMenu();
         this.props.navigation.navigate("Manual");
     }
 

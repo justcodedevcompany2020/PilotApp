@@ -1399,9 +1399,10 @@ export default class App extends Component {
 
                 if (response.result) {
                     this.setState({
-                        SharedAccessPopup: false,
+                        email: '',
                         shared_popup_email_error: false,
-                        shared_popup_email_error_text:''
+                        shared_popup_email_error_text:'',
+                        SharedAccessPopup: false,
                     })
 
                     this.getDeviceData();
@@ -1575,21 +1576,23 @@ export default class App extends Component {
         // SharedAccessPopup
         if (this.state.SharedAccessPopup) {
             return (
-                <SafeAreaView style={styles.turn_off_the_load_switch_value_popup}>
+                <SafeAreaView style={styles.turn_off_the_load_switch_value_popup2}>
 
                     <View style={styles.turn_off_the_load_switch_value_popup_wrapper}>
 
                         <TouchableOpacity
-                            style={{position:'absolute', top: 5, right: 5}}
+                            style={{position:'absolute', top: 10, right: 20}}
                               onPress={() => {
                                   this.setState({
-                                      SharedAccessPopup: false,
+                                      email: '',
                                       shared_popup_email_error: false,
-                                      shared_popup_email_error_text:''
+                                      shared_popup_email_error_text:'',
+                                      SharedAccessPopup: false,
+
                                   })
                               }}
                         >
-                            <Svg width={30} height={30} viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <Svg width={25} height={25} viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <Path d="M4.024 5.351a.938.938 0 111.327-1.327l9.65 9.65 9.648-9.65a.938.938 0 111.328 1.327L16.326 15l9.65 9.649a.94.94 0 01-1.327 1.327L15 16.326l-9.649 9.65a.939.939 0 11-1.327-1.327L13.674 15l-9.65-9.649z" fill="#004B84"/>
                             </Svg>
                         </TouchableOpacity>
@@ -1607,6 +1610,7 @@ export default class App extends Component {
                             onChangeText={(val) => this.setState({email: val})}
                             value={this.state.email}
                             placeholder="Email address"
+                            placeholderTextColor='#4A4A4A'
                         />
                         <TouchableOpacity style={styles.turn_off_the_load_switch_value_popup_confirm_btn}
                               onPress={() => {
@@ -2379,7 +2383,7 @@ const styles = StyleSheet.create({
     },
     all_devices_general_page_header_title: {
         fontWeight: '400',
-        fontSize: 24,
+        fontSize: 20,
         color: '#004B84',
     },
 
@@ -2405,6 +2409,29 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingTop: 100,
     },
+
+    turn_off_the_load_switch_value_popup2: {
+        backgroundColor:  'rgba(0, 0, 0, 0.6)',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 999,
+        zIndex: 999999,
+        height: windowHeight + 40,
+        width: '100%',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 100,
+    },
+
+
+
+
     turn_off_the_load_switch_value_popup_wrapper: {
         width: '90%',
         backgroundColor: '#ffffff',
@@ -2792,7 +2819,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#10BCCE',
         paddingHorizontal: 13,
-        color: '#D3D3D3',
+        // color: '#D3D3D3',
+        color: '#4A4A4A',
         fontWeight: '400',
         fontSize: 12,
     },

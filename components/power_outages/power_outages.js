@@ -1066,8 +1066,10 @@ const styles = StyleSheet.create({
     },
     all_devices_general_page_header_title: {
         fontWeight: '400',
-        fontSize: 24,
+        fontSize: 22,
         color: '#004B84',
+        width: '85%',
+        paddingLeft: 10
     },
 
 

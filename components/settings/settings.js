@@ -60,7 +60,7 @@ export default class App extends Component {
             edit_password_popup: false,
 
 
-            selectedLanguage:  'en',
+            selectedLanguage:  '',
 
             old_password: '',
             new_password: '',
@@ -81,18 +81,25 @@ export default class App extends Component {
             language_name: 'en',
 
             languages: [
-                {label: 'English', value: 'en', selected: true, icon: () => <Image style={{width: 26, height: 16}} source={require('../../assets/images/flag_uk.png')}/>},
-                {label: 'Русский', value: 'ru', selected: true, icon: () => <Image style={{width: 26, height: 16}} source={require('../../assets/images/flag_russia.png')}/>},
+                {label: 'English', value: 'en', selected: false, icon: () => <Image style={{width: 26, height: 16}} source={require('../../assets/images/flag_uk.png')}/>},
+                {label: 'Русский', value: 'ru', selected: false, icon: () => <Image style={{width: 26, height: 16}} source={require('../../assets/images/flag_russia.png')}/>},
             ],
 
             openLanguages: false,
             openTimezones: false,
+
+            selected_languge_loaded: false
         };
 
     }
 
 
     setLanguageFromStorage = async ()=> {
+
+        await this.setState({
+            selectedLanguage: '',
+            selected_languge_loaded: false
+        })
 
         await AsyncStorage.getItem('language',(err,item) => {
 
@@ -108,10 +115,12 @@ export default class App extends Component {
                 // i18n.locale = language.language;
                 // i18n.locale = ru;
 
+                let selectedLanguage = language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en';
                 this.setState({
                     language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
                     language_name: language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en',
-                    selectedLanguage:  language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en'
+                    selectedLanguage: selectedLanguage,
+                    selected_languge_loaded: true
                 })
 
 
@@ -119,7 +128,9 @@ export default class App extends Component {
                 // i18n.locale = 'en';
                 this.setState({
                     language: en,
-                    language_name: 'en'
+                    language_name: 'en',
+                    selectedLanguage: 'en',
+                    selected_languge_loaded: true
                 })
             }
 
@@ -361,11 +372,8 @@ export default class App extends Component {
                 this.setState({
                     userInfo:  response,
                     switchValue:response.notification_enabled,
-                    selectedLanguage: response.language
+                    // selectedLanguage: response.language
                 })
-
-
-
 
 
             })
@@ -541,6 +549,8 @@ export default class App extends Component {
         })
     }
 
+
+
     render() {
 
         return (
@@ -712,62 +722,71 @@ export default class App extends Component {
 
                                 {/*/>*/}
 
-                                <DropDownPicker
-                                    listMode="SCROLLVIEW"
-                                    open={this.state.openLanguages}
-                                    value={this.state.selectedLanguage}
-                                    setOpen={() => {
-                                        this.setState({
-                                            openLanguages: !this.state.openLanguages
-                                        })
-                                    }}
-                                    items={this.state.languages}
-                                    setValue={this.chooseLanguage}
-                                    // setItems={setRegionsDropdownItems}/}
-                                    style={{
-                                        width: '100%',
-                                        height: 45,
-                                        backgroundColor: '#004B84',
-                                        borderRadius: 0,
-                                        borderColor: 'white'
-                                    }}
-                                    containerStyle={{
-                                        width: '100%',
-                                        height: 70,
-                                        borderRadius: 0,
-                                    }}
-                                    // listItemContainerStyle={{
-                                    //
-                                    //     borderRadius: 0
-                                    // }}
-                                    listItemLabelStyle={{
-                                      color: '#ffffff',
-                                      fontSize: 16,
-                                      fontWeight: '400'
-                                    }}
-                                    labelStyle={{
-                                        color: '#ffffff',
-                                        fontSize: 16,
-                                        fontWeight: '400'
-                                    }}
+                                {this.state.selected_languge_loaded &&
 
-                                    arrowIconStyle={{
-                                        width: 20,
-                                        height: 20,
+                                        <DropDownPicker
+                                            listMode="SCROLLVIEW"
+                                            open={this.state.openLanguages}
+                                            value={this.state.selectedLanguage}
+                                            theme="DARK"
 
+                                            showTickIcon={false}
+                                            setOpen={() => {
+                                                this.setState({
+                                                    openLanguages: !this.state.openLanguages
+                                                })
+                                            }}
+                                            items={this.state.languages}
+                                            setValue={this.chooseLanguage}
+                                            // setItems={setRegionsDropdownItems}/}
+                                            style={{
+                                                width: '100%',
+                                                height: 45,
+                                                backgroundColor: '#004B84',
+                                                borderRadius: 0,
+                                                borderColor: 'white'
+                                            }}
+                                            containerStyle={{
+                                                width: '100%',
+                                                height: 70,
+                                                borderRadius: 0,
+                                            }}
+                                            // listItemContainerStyle={{
+                                            //
+                                            //     borderRadius: 0
+                                            // }}
+                                            listItemLabelStyle={{
+                                                color: '#ffffff',
+                                                fontSize: 16,
+                                                fontWeight: '400'
+                                            }}
+                                            labelStyle={{
+                                                color: '#ffffff',
+                                                fontSize: 16,
+                                                fontWeight: '400'
+                                            }}
 
-                                    }}
-
-                                    dropDownContainerStyle={{
-                                        borderRadius: 0,
-                                        backgroundColor: '#004B84',
-                                        borderColor: 'white'
-                                    }}
+                                            arrowIconStyle={{
+                                                width: 20,
+                                                height: 20,
 
 
-                                    // keyExtractor={(item, index) => index+1}/}
+                                            }}
 
-                                />
+                                            dropDownContainerStyle={{
+                                                borderRadius: 0,
+                                                backgroundColor: '#004B84',
+                                                borderColor: 'white'
+                                            }}
+
+
+                                            // keyExtractor={(item, index) => index+1}/}
+
+                                        />
+
+
+                                }
+
 
 
                             </View>
@@ -778,17 +797,8 @@ export default class App extends Component {
                                 <TouchableOpacity style={styles.settings_item_btn} onPress={() => {this.deleteAccount()}}>
                                     <Text style={styles.settings_item_btn_text}>{this.state.language.delete}</Text>
                                     <View style={styles.settings_item_btn_icon}>
-                                        <Svg
-                                            width={12}
-                                            height={20}
-                                            viewBox="0 0 12 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <Path
-                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                fill="#004B84"
-                                            />
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
@@ -954,8 +964,10 @@ export default class App extends Component {
 
                                 <DropDownPicker
                                     listMode="SCROLLVIEW"
+                                    theme="DARK"
                                     open={this.state.openTimezones}
                                     value={this.state.selectedTimeZone}
+                                    showTickIcon={false}
                                     setOpen={() => {
                                         this.setState({
                                             openTimezones: !this.state.openTimezones
@@ -964,6 +976,11 @@ export default class App extends Component {
                                     items={this.state.timezones}
                                     setValue={this.chooseTimezone}
                                     // setItems={setRegionsDropdownItems}/}
+                                    arrowIconStyle={{
+                                        width: 20,
+                                        height: 20,
+
+                                    }}
                                     style={{
                                         width: '100%',
                                         height: 45,
@@ -990,12 +1007,7 @@ export default class App extends Component {
                                         fontWeight: '400'
                                     }}
 
-                                    arrowIconStyle={{
-                                        width: 20,
-                                        height: 20,
 
-
-                                    }}
                                     dropDownContainerStyle={{
                                         borderRadius: 0,
                                         backgroundColor: '#004B84',
