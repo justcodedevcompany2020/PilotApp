@@ -26,7 +26,7 @@ import PreferencesComponent from './components/preferences/preferences';
 import PreConfigurationComponent from './components/pre_configuration/pre_configuration';
 import SharedAccessComponent from './components/shared_access/shared_access';
 import TestReportComponent from './components/test_report/test_report';
-import ImpulseSurgesComponent from './components/impulse_ surges/impulse_ surges';
+import ImpulseSurgesComponent from './components/impulse_surges/impulse_surges';
 import UndervoltageComponent from './components/undervoltage/undervoltage';
 import OvervoltageComponent from './components/overvoltage/overvoltage';
 import PowerOutagesComponent from './components/power_outages/power_outages';

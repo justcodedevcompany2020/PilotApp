@@ -188,7 +188,7 @@ export default class App extends Component {
 
                 console.log(response, 'responsedwdwdw')
 
-                if (response.hasOwnProperty('statusCode') && response.statusCode == 400) {
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
                     await this.setState({
                         chartData: [],
                         peak_value: 0,
@@ -215,6 +215,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+         date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -288,6 +290,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -378,6 +381,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -494,11 +498,17 @@ export default class App extends Component {
     goToPrevDay = async () => {
 
         let {date_begin, chart_type, chart_show} = this.state;
+        console.log(chart_show, 'chart_show')
+
         if (!chart_show) {
             return false
         }
 
+        console.log(date_begin, 'UNDERVOLTAGE - date_begin')
+
         const date = new Date(date_begin);
+        console.log(date, 'UNDERVOLTAGE - date')
+
         const dateCopy = new Date(date.getTime());
         dateCopy.setDate(dateCopy.getDate() -1);
 
@@ -552,6 +562,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -576,6 +587,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -622,6 +634,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;

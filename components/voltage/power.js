@@ -87,7 +87,7 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            voltage_item_info: 'AVG 221.7 V',
+            voltage_item_info: 0,
             minimum_info: 0,
             maximum_info: 0,
             todayDate: '',
@@ -183,10 +183,11 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
-
+        let id = this.props.id; // 4
+        console.log(id, 'dqdqwdwq')
 
         try {
-            fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=power`, {
+            fetch(`https://apiv1.zis.ru/tests/avg_data/${id}?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=power`, {
                 method: 'GET',
                 headers: {
                     'Authorization': AuthStr,
@@ -199,9 +200,24 @@ export default class App extends Component {
 
                 console.log(response, 'response avg_data')
 
-                await this.setState({
-                    chartData: response
-                })
+                console.log(response.avg, 'vt')
+                console.log(response.avg/1000, 'kv')
+                // AVG 3500 Вт / 3.5 кВ
+
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
+                    await this.setState({
+                        chartData: []
+                    })
+                } else {
+                    await this.setState({
+                        chartData: response.data.length > 0 ? response.data : [],
+                        minimum_info: response.min,
+                        maximum_info: response.max,
+                        voltage_item_info: response.avg
+                    })
+                }
+
+
                 await callback()
             })
         } catch (e) {
@@ -212,6 +228,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -277,8 +295,8 @@ export default class App extends Component {
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels ,
-            minimum_info: minimum_info,
-            maximum_info: maximum_info,
+            // minimum_info: minimum_info,
+            // maximum_info: maximum_info,
         })
 
     }
@@ -291,6 +309,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -377,8 +396,8 @@ export default class App extends Component {
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels,
-            minimum_info: minimum_info,
-            maximum_info: maximum_info,
+            // minimum_info: minimum_info,
+            // maximum_info: maximum_info,
         })
 
     }
@@ -391,6 +410,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -462,8 +482,8 @@ export default class App extends Component {
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             chart_labels: chartLabels,
-            minimum_info:minimum_info,
-            maximum_info:maximum_info,
+            // minimum_info:minimum_info,
+            // maximum_info:maximum_info,
         })
 
     }
@@ -558,6 +578,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -582,6 +603,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -631,6 +653,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -677,6 +700,7 @@ export default class App extends Component {
                     <ScrollView style={styles.all_devices_general_page_main_wrapper}>
                         <View style={styles.impulse_surges_items_main_wrapper}>
                             <View style={styles.impulse_surges_items_second_wrapper}>
+
                                 <View style={styles.impulse_surges_item_icon_title_wrapper}>
                                     <View style={styles.impulse_surges_item_icon}>
                                         <Svg width={21} height={21} viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -684,15 +708,17 @@ export default class App extends Component {
                                             <Path d="M7.952 6l2.01 6.838h.077L12.052 6H14l-2.866 9H8.87L6 6h1.952z" fill="#fff"/>
                                         </Svg>
                                     </View>
-                                    <Text style={styles.impulse_surges_item_info1}>{this.state.voltage_item_info}</Text>
+                                    <Text style={styles.impulse_surges_item_info1}>AVG {this.state.voltage_item_info ? this.state.voltage_item_info : 0} {this.state.language.vt} / {this.state.voltage_item_info ? (this.state.voltage_item_info / 1000).toFixed(3) : 0} {this.state.language.kv}</Text>
                                 </View>
+
                                 <View style={styles.impulse_surges_item}>
                                     <Text style={styles.impulse_surges_item_title}>{this.state.language.minimum}</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.minimum_info} V</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.minimum_info} W</Text>
                                 </View>
+
                                 <View style={styles.impulse_surges_item}>
                                     <Text style={styles.impulse_surges_item_title}>{this.state.language.maximum}</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.maximum_info} V</Text>
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.maximum_info} W</Text>
                                 </View>
 
                             </View>
@@ -1044,7 +1070,7 @@ const styles = StyleSheet.create({
     impulse_surges_item_info1: {
         color: '#000000',
         fontWeight: '700',
-        fontSize: 32,
+        fontSize: 18,
         marginLeft: 9,
     },
     impulse_surges_item: {

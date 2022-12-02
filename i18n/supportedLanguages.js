@@ -140,10 +140,8 @@ const en = {
     incorrect_email: 'Incorrect email address',
     add_new: 'Add new',
     enter_device_number: 'Enter device number',
-
-
-
-
+    vt:'W',
+    kv:'kW'
 };
 
 const ru = {
@@ -285,7 +283,8 @@ const ru = {
     incorrect_email: 'Некорректный email',
     add_new: 'Добавить новое',
     enter_device_number: 'Введите номер устройства',
-
+    vt:'Вт',
+    kv:'кВт'
 };
 
 

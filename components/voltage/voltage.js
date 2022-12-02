@@ -87,7 +87,7 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            voltage_item_info: 'AVG '+this.props.voltage+' V',
+            voltage_item_info: 0,
             minimum_info: this.props.voltage_min,
             maximum_info: this.props.voltage_max,
             todayDate: '',
@@ -183,8 +183,9 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
+        let id = this.props.id; // 5
 
-        console.log(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=voltage`, 'userToken')
+        console.log(`https://apiv1.zis.ru/tests/avg_data/${id}?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=voltage`, 'userToken')
 
         try {
             // fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=2022-09-06&date_end=2022-09-07&period=day&data_type=consumption`, {
@@ -201,9 +202,20 @@ export default class App extends Component {
 
                 console.log(response, 'response')
 
-                await this.setState({
-                    chartData: response
-                })
+
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
+                    await this.setState({
+                        chartData: []
+                    })
+                } else{
+                    await this.setState({
+                        chartData: response.data.length > 0 ? response.data : [],
+                        voltage_item_info: response.avg ? response.avg : 0,
+                        minimum_info: response.min,
+                        maximum_info: response.max,
+                    })
+                }
+
                 await callback()
             })
         } catch (e) {
@@ -214,6 +226,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -288,6 +302,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -383,6 +399,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -543,6 +561,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -567,6 +587,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -613,6 +635,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -666,7 +690,7 @@ export default class App extends Component {
                                             <Path d="M7.952 6l2.01 6.838h.077L12.052 6H14l-2.866 9H8.87L6 6h1.952z" fill="#fff"/>
                                         </Svg>
                                     </View>
-                                    <Text style={styles.impulse_surges_item_info1}>{this.state.voltage_item_info}</Text>
+                                    <Text style={styles.impulse_surges_item_info1}>AVG {this.state.voltage_item_info} V</Text>
                                 </View>
                                 <View style={styles.impulse_surges_item}>
                                     <Text style={styles.impulse_surges_item_title}> {this.state.language.minimum}</Text>

@@ -87,7 +87,7 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            voltage_item_info: 'AVG 221.7 V',
+            voltage_item_info: 0,
             amperage_min: this.props.amperage_min,
             amperage_max: this.props.amperage_max,
             minimum_info: '214.4 V',
@@ -178,17 +178,17 @@ export default class App extends Component {
     }
     redirectToNewTest = () => {
         this.props.navigation.navigate("NewTest");
-
     }
     getChartData = async (callback) => {
 
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
+        let id = this.props.id; // 5
 
 
         try {
-            fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=amperage`, {
+            fetch(`https://apiv1.zis.ru/tests/avg_data/${id}?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=amperage`, {
                 method: 'GET',
                 headers: {
                     'Authorization': AuthStr,
@@ -199,11 +199,26 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
-                console.log(response, 'response')
+                console.log(response.avg, 'response avg')
+                console.log(response.min, 'response min')
+                console.log(response.max, 'response max')
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
 
-                await this.setState({
-                    chartData: response
-                })
+                    await this.setState({
+                        chartData: []
+                    })
+
+                } else {
+
+                    await this.setState({
+                        chartData: response.data.length > 0 ? response.data : [],
+                        voltage_item_info: response.avg ? response.avg : 0,
+                        amperage_min: response.min,
+                        amperage_max: response.max,
+                    })
+
+                }
+
                 await callback()
             })
         } catch (e) {
@@ -214,6 +229,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -296,6 +313,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -396,6 +414,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -562,6 +581,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -588,6 +608,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}`: date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -634,6 +655,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -690,8 +712,8 @@ export default class App extends Component {
                                     </View>
 
                                     <Text style={styles.impulse_surges_item_info1}>
-                                        {/*{this.state.voltage_item_info}*/}
-                                        AVG {this.state.amperage_min} - {this.state.amperage_max} V
+                                        AVG {this.state.voltage_item_info}
+                                        {/*AVG {this.state.amperage_min} - {this.state.amperage_max} V*/}
                                     </Text>
 
                                 </View>

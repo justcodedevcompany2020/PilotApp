@@ -289,13 +289,16 @@ export default class App extends Component {
             }
 
 
-            let undervoltage_limit = response.lower_voltage_trigger // Undervoltage limit желтый
+            let undervoltage_limit = parseFloat( response.lower_voltage_trigger ) // Undervoltage limit желтый
             let overvoltage_limit = response.upper_voltage_trigger // Overvoltage (Uppervoltage) limit красный
 
             let undervoltage  = response.undervoltage ? parseFloat(response.undervoltage) : 0;
             let overvoltage   = response.overvoltage ? parseFloat(response.overvoltage) : 0;
             let power_outages = response.power_outages ? parseFloat(response.power_outages) : 0;
             let blue_chart_data = (100 - (undervoltage + overvoltage + power_outages));
+
+            let power_min  = response.power_min ? parseFloat(response.power_min) : 0;
+            let power_max  = response.power_max ? parseFloat(response.power_max) : 0;
 
             await this.setState({
                 test_report_status: test_report_status,
@@ -304,19 +307,22 @@ export default class App extends Component {
                 undervoltage:  undervoltage,
                 overvoltage: overvoltage,
                 power_outages: power_outages,
-                impulse_surges:response.impulse_surges ? response.impulse_surges : 0,
-                consumption: response.consumption ? response.consumption : 0,
+                impulse_surges:response.impulse_surges ? parseFloat(response.impulse_surges) : 0,
+                consumption: response.consumption ? parseFloat(response.consumption) : 0,
                 voltage: response.upper_voltage_trigger,
-                voltage_max: response.voltage_max ? response.voltage_max : 0,
-                voltage_min: response.voltage_min ? response.voltage_min : 0,
+                voltage_max: response.voltage_max ? parseFloat(response.voltage_max) : 0,
+                voltage_min: response.voltage_min ? parseFloat(response.voltage_min) : 0,
                 amperage: response.amperage_max,
-                amperage_min: response.amperage_min ? response.amperage_min : 0,
-                amperage_max: response.amperage_max ? response.amperage_max : 0,
+                amperage_min: response.amperage_min ? parseFloat(response.amperage_min) : 0,
+                amperage_max: response.amperage_max ? parseFloat(response.amperage_max) : 0,
                 blue_chart_data: blue_chart_data,
                 loaded: true,
 
                 undervoltage_limit: undervoltage_limit,
-                overvoltage_limit: overvoltage_limit
+                overvoltage_limit: overvoltage_limit,
+
+                power_min: power_min,
+                power_max: power_max,
             })
 
         })
@@ -533,12 +539,16 @@ export default class App extends Component {
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.undervoltage}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button}
-                                              onPress={() => {
-                                                  this.redirectToUndervoltage()
-                                              }}
+
+                                        <TouchableOpacity
+                                            style={[styles.report_chart_details_item_button,]}
+                                            onPress={() => {
+                                                  if(this.state.undervoltage > 0) {
+                                                      this.redirectToUndervoltage()
+                                                  }
+                                            }}
                                         >
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.undervoltage ? this.state.undervoltage: 0 }%</Text>
+                                            <Text style={[styles.report_chart_details_item_button_text,  this.state.undervoltage > 0 ? {} : {opacity: 0.4}]}>{this.state.undervoltage}%</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -546,6 +556,7 @@ export default class App extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
+
                                     <View style={styles.report_chart_details_item}>
 
                                         <View style={styles.report_chart_details_item_icon_title_box}>
@@ -562,10 +573,14 @@ export default class App extends Component {
                                         <TouchableOpacity
                                             style={styles.report_chart_details_item_button}
                                             onPress={() => {
-                                                this.redirectToOvervoltage()
+                                                if(this.state.overvoltage > 0) {
+                                                    this.redirectToOvervoltage()
+                                                }
                                             }}
                                         >
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.overvoltage ? this.state.overvoltage : 0}%</Text>
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.overvoltage > 0 ? {} :{opacity: 0.4} ]}>
+                                                {this.state.overvoltage ? this.state.overvoltage : 0}%
+                                            </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -573,15 +588,29 @@ export default class App extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
+
                                     <View style={styles.report_chart_details_item}>
+
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
                                                 <Svg width={11} height={13} viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#BDBDBD" d="M0 0H4V13H0z" /><Path fill="#BDBDBD" d="M7 0H11V13H7z" /></Svg>
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.power_outages}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToPowerOutages()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.power_outages ? this.state.power_outages : 0}%</Text>
+
+                                        <TouchableOpacity
+                                            style={styles.report_chart_details_item_button}
+                                            onPress={() => {
+                                                if(this.state.power_outages > 0) {
+                                                    this.redirectToPowerOutages();
+                                                }
+                                            }}
+                                        >
+
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.power_outages > 0 ? {} :  {opacity: 0.4}]}>
+                                                {this.state.power_outages ? this.state.power_outages : 0}%
+                                            </Text>
+
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -589,7 +618,9 @@ export default class App extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
+
                                     <View style={styles.report_chart_details_item}>
+
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
                                                 <Svg width={15} height={12} viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -598,8 +629,15 @@ export default class App extends Component {
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.impulse_surges}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToImpulseSurges()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>
+
+                                        <TouchableOpacity
+                                            style={styles.report_chart_details_item_button}
+                                            onPress={() => {
+                                                if(this.state.impulse_surges > 0) {
+                                                    this.redirectToImpulseSurges()
+                                                }
+                                            }}>
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.impulse_surges > 0 ? {} : {opacity: 0.4}]}>
                                                 {this.state.impulse_surges ? this.state.impulse_surges : 0}
                                             </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
@@ -608,6 +646,7 @@ export default class App extends Component {
                                                 </Svg>
                                             </View>
                                         </TouchableOpacity>
+
                                     </View>
                                     <View style={styles.report_chart_details_item}>
 
@@ -621,8 +660,15 @@ export default class App extends Component {
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.consumption}</Text>
                                         </View>
 
-                                        <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToConsumption()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>{this.state.consumption ? this.state.consumption : 0} kWh</Text>
+                                        <TouchableOpacity
+                                            style={styles.report_chart_details_item_button}
+                                            onPress={() => {
+                                                if(this.state.consumption > 0) {
+                                                    this.redirectToConsumption();
+                                                }
+                                            }}
+                                        >
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.consumption > 0 ? {} : {opacity: 0.4}  ]}>{this.state.consumption ? this.state.consumption : 0} kWh</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -640,8 +686,15 @@ export default class App extends Component {
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.voltage}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button} onPress={() => {this.redirectToVoltage()}}>
-                                            <Text style={styles.report_chart_details_item_button_text}>
+                                        <TouchableOpacity
+                                            style={styles.report_chart_details_item_button}
+                                            onPress={() => {
+                                                if (this.state.voltage_min > 0 || this.state.voltage_max > 0) {
+                                                    this.redirectToVoltage();
+                                                }
+                                            }}
+                                        >
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.voltage_min == 0 && this.state.voltage_max == 0 ? {opacity: 0.4} : {}]}>
                                                 {/*{this.state.voltage ? this.state.voltage : 0}*/}
                                                 {this.state.voltage_min} - {this.state.voltage_max} V
                                             </Text>
@@ -655,28 +708,21 @@ export default class App extends Component {
                                     <View style={styles.report_chart_details_item}>
                                         <View style={styles.report_chart_details_item_icon_title_box}>
                                             <View style={styles.report_chart_details_item_icon}>
-                                                <Svg
-                                                    width={14}
-                                                    height={14}
-                                                    viewBox="0 0 14 14"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
+                                                <Svg width={14} height={14} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Circle cx={7} cy={7} r={7} fill="#10BCCE" />
-                                                    <Path
-                                                        d="M5.509 10H4.19L6.2 4.182h1.585L9.79 10H8.472L7.014 5.511H6.97L5.509 10zm-.083-2.287H8.54v.96H5.426v-.96z"
-                                                        fill="#fff"
-                                                    />
+                                                    <Path d="M5.509 10H4.19L6.2 4.182h1.585L9.79 10H8.472L7.014 5.511H6.97L5.509 10zm-.083-2.287H8.54v.96H5.426v-.96z" fill="#fff"/>
                                                 </Svg>
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.amperage}</Text>
                                         </View>
                                         <TouchableOpacity style={styles.report_chart_details_item_button}
                                               onPress={() => {
-                                                  this.redirectToAmperage()
+                                                  if (this.state.amperage_min > 0 || this.state.amperage_max > 0) {
+                                                      this.redirectToAmperage()
+                                                  }
                                               }}
                                         >
-                                            <Text style={styles.report_chart_details_item_button_text}>
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.amperage_min == 0 && this.state.amperage_max == 0 ? {opacity: 0.4} : {}]}>
                                                 {/*{this.state.amperage ? this.state.amperage : 0}*/}
                                                 {this.state.amperage_min} - {this.state.amperage_max} A
 
@@ -695,20 +741,19 @@ export default class App extends Component {
                                             <View style={styles.report_chart_details_item_icon}>
                                                 <Svg width={14} height={14} viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Circle cx={7} cy={7} r={7} fill="#10BCCE" />
-                                                    <Path
-                                                        d="M5.509 10H4.19L6.2 4.182h1.585L9.79 10H8.472L7.014 5.511H6.97L5.509 10zm-.083-2.287H8.54v.96H5.426v-.96z"
-                                                        fill="#fff"
-                                                    />
+                                                    <Path d="M5.509 10H4.19L6.2 4.182h1.585L9.79 10H8.472L7.014 5.511H6.97L5.509 10zm-.083-2.287H8.54v.96H5.426v-.96z" fill="#fff"/>
                                                 </Svg>
                                             </View>
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.power}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.report_chart_details_item_button}
+                                        <TouchableOpacity style={[styles.report_chart_details_item_button, ]}
                                               onPress={() => {
-                                                  this.redirectToPower()
+                                                  if(this.state.power_min > 0 || this.state.power_max > 0) {
+                                                      this.redirectToPower()
+                                                  }
                                               }}
                                         >
-                                            <Text style={styles.report_chart_details_item_button_text}></Text>
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.power_min == 0 && this.state.power_max == 0 ? {opacity: 0.4} : {}]}> { this.state.power_min} - { this.state.power_max} {this.state.language.vt}</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>

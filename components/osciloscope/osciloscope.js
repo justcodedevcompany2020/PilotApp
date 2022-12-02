@@ -110,6 +110,7 @@ export default class App extends Component {
     componentDidMount() {
 
         var date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         var month = new Date().getMonth() + 1;
         var year = new Date().getFullYear();
 

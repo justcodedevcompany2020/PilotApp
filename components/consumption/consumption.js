@@ -175,12 +175,13 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
+        let id = this.props.id; // 5
 
         console.log(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=consumption`, 'userToken')
 
         try {
             // fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=2022-09-06&date_end=2022-09-07&period=day&data_type=consumption`, {
-            fetch(`https://apiv1.zis.ru/tests/avg_data/5?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=consumption`, {
+            fetch(`https://apiv1.zis.ru/tests/avg_data/${id}?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=consumption`, {
                 method: 'GET',
                 headers: {
                     'Authorization': AuthStr,
@@ -193,9 +194,17 @@ export default class App extends Component {
 
                 console.log(response, 'response')
 
-                await this.setState({
-                    chartData: response
-                })
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
+                    await this.setState({
+                        chartData: []
+                    })
+                } else{
+                    await this.setState({
+                        chartData: response.data.length > 0 ? response.data : [],
+                        consumption_item_info: response.max
+                    })
+                }
+
                 await callback()
             })
         } catch (e) {
@@ -206,6 +215,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -283,6 +294,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -378,6 +391,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -524,6 +539,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -546,6 +563,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -588,6 +607,8 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;

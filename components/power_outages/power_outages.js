@@ -175,9 +175,10 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
+        let id = this.props.id; // 10
 
         // let url = `https://apiv1.zis.ru/tests/power_outages/${this.props.id}?date_begin=${date_begin}&date_end=${date_end}`;
-        let url = `https://apiv1.zis.ru/tests/power_outages/10?date_begin=${date_begin}&date_end=${date_end}`;
+        let url = `https://apiv1.zis.ru/tests/power_outages/${id}?date_begin=${date_begin}&date_end=${date_end}`;
         console.log(url, 'power outages url')
         try {
             fetch(url, {
@@ -190,15 +191,25 @@ export default class App extends Component {
             }).then((response) => {
                 return response.json()
             }).then(async (response)  => {
-                let total_duration =  response.hasOwnProperty('statusCode') && response.statusCode == 400 ? 0 : response.duration;
-                let minutes = Math.floor(total_duration / 60);
-                let seconds = total_duration - minutes * 60;
 
-                await this.setState({
-                    total_duration: `${minutes}m ${seconds}s`,
-                    power_stages_item_info: response.hasOwnProperty('statusCode') && response.statusCode == 400 ? 0 :  parseFloat(response.powerOutagesPercentage).toFixed(1),
-                    chartData: response.hasOwnProperty('statusCode') && response.statusCode == 400 ? [] :  response.data
-                })
+
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
+                    await this.setState({
+                        total_duration: `0m 0s`,
+                        power_stages_item_info: 0,
+                        chartData: []
+                    })
+                } else {
+                    let total_duration =  response.hasOwnProperty('statusCode') && response.statusCode == 400 ? 0 : response.duration;
+                    let minutes = Math.floor(total_duration / 60);
+                    let seconds = total_duration - minutes * 60;
+
+                    await this.setState({
+                        total_duration: `${minutes}m ${seconds}s`,
+                        power_stages_item_info:  parseFloat(response.powerOutagesPercentage).toFixed(1),
+                        chartData:  response.data
+                    })
+                }
 
                 await callback()
             })
@@ -210,6 +221,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -654,6 +667,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -678,6 +692,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;

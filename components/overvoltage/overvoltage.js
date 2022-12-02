@@ -173,10 +173,12 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type} = this.state;
+        let id = this.props.id; // 4
 
-        date_begin = '2022-09-01';
-        date_end = '2022-09-06';
-        let url = `https://apiv1.zis.ru/tests/voltage_problems/4?date_begin=${date_begin}&date_end=${date_end}&data_type=undervoltage&period=${chart_type}`;
+        // date_begin = '2022-09-01';
+        // date_end = '2022-09-06';
+
+        let url = `https://apiv1.zis.ru/tests/voltage_problems/${id}?date_begin=${date_begin}&date_end=${date_end}&data_type=undervoltage&period=${chart_type}`;
 
         try {
             fetch(url, {
@@ -192,7 +194,7 @@ export default class App extends Component {
 
                 console.log(response, 'responsedwdwdw')
 
-                if (response.hasOwnProperty('statusCode') && response.statusCode == 400) {
+                if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
                     await this.setState({
                         chartData: [],
                         peak_value: 0,
@@ -219,6 +221,8 @@ export default class App extends Component {
 
     pressToDay = async () => {
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
+
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let todayDate =  year + '-' + month + '-' + date;
@@ -279,7 +283,7 @@ export default class App extends Component {
         console.log(chartLabels, 'chartLabels')
         // console.log([... new Set(chartLabels)], 'chartLabelschartLabels')
 
-        this.setState({
+       await this.setState({
             chart_show:true,
             chartData: chartData1.length > 0 ? chartData1 : [0],
             // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
@@ -296,6 +300,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -391,6 +396,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -485,11 +491,16 @@ export default class App extends Component {
     goToPrevDay = async () => {
 
         let {date_begin, chart_type, chart_show} = this.state;
+
+        console.log(chart_show, 'chart_show')
         if (!chart_show) {
             return false
         }
 
+        console.log(date_begin, 'date_begin')
         const date = new Date(date_begin);
+        console.log(date, 'date')
+
         const dateCopy = new Date(date.getTime());
         dateCopy.setDate(dateCopy.getDate() -1);
 
@@ -543,6 +554,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -567,6 +579,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
@@ -613,6 +626,7 @@ export default class App extends Component {
         firstday = moment(firstday).format('YYYY-MM-DD')
 
         let date = new Date().getDate();
+        date = date < 10 ? `0${date}` : date;
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
         let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
