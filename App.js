@@ -122,61 +122,61 @@ function TestReportScreen({route, navigation }) {
 
 function ImpulseSurgesScreen({ route, navigation }) {
 
-    const {params, params2, impulse_surges} = route.params
+    const {params, params2, impulse_surges,test_report_start_time} = route.params
     return (
-        <ImpulseSurgesComponent id={params} device_id={params2} impulse_surges={impulse_surges} navigation={navigation}  />
+        <ImpulseSurgesComponent id={params} device_id={params2} impulse_surges={impulse_surges} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 
 function UndervoltageScreen({route, navigation }) {
-    const {params, params2, params3} = route.params
+    const {params, params2, params3, test_report_start_time} = route.params
 
     return (
-        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} navigation={navigation}  />
+        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 
 function OvervoltageScreen({route, navigation }) {
-    const {params, params2, params3} = route.params
+    const {params, params2, params3, test_report_start_time} = route.params
 
     return (
-        <OvervoltageComponent id={params} device_id={params2} overvoltage_limit={params3} navigation={navigation}  />
+        <OvervoltageComponent id={params} device_id={params2} overvoltage_limit={params3} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 
 function PowerOutagesScreen({ route, navigation }) {
-    const {params, params2} = route.params
+    const {params, params2, test_report_start_time} = route.params
 
     return (
-        <PowerOutagesComponent id={params} device_id={params2} navigation={navigation}  />
+        <PowerOutagesComponent id={params} device_id={params2} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 function VoltageScreen({route, navigation }) {
-    const {params, params2, params3, voltage_min, voltage_max} = route.params
+    const {params, params2, params3, voltage_min, voltage_max, test_report_start_time} = route.params
 
     return (
-        <VoltageComponent id={params} device_id={params2} voltage={params3} voltage_min={voltage_min} voltage_max={voltage_max} navigation={navigation}  />
+        <VoltageComponent id={params} device_id={params2} voltage={params3} voltage_min={voltage_min} voltage_max={voltage_max} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 function AmperageScreen({route, navigation }) {
-    const {params, params2,amperage_min, amperage_max} = route.params
+    const {params, params2,amperage_min, amperage_max, test_report_start_time} = route.params
 
     return (
-        <AmperageComponent id={params} device_id={params2} amperage_min={amperage_min} amperage_max={amperage_max} navigation={navigation}  />
+        <AmperageComponent id={params} device_id={params2} amperage_min={amperage_min} amperage_max={amperage_max} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 
 function ConsumptionScreen({ route, navigation }) {
-    const {params, params2, params3} = route.params
+    const {params, params2, params3, test_report_start_time} = route.params
     return (
-        <ConsumptionComponent id={params} device_id={params2} kwh={params3} navigation={navigation}  />
+        <ConsumptionComponent id={params} device_id={params2} kwh={params3} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 
 function PowerScreen({ route, navigation }) {
-    const {params, params2} = route.params
+    const {params, params2, test_report_start_time} = route.params
     return (
-        <PowerComponent id={params} device_id={params2} navigation={navigation}  />
+        <PowerComponent id={params} device_id={params2} test_report_start_time={test_report_start_time} navigation={navigation}  />
     );
 }
 

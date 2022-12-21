@@ -214,18 +214,21 @@ export default class App extends Component {
 
 
     pressToDay = async () => {
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}` : date;
 
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let todayDate =  year + '-' + month + '-' + date;
+        let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
 
-        console.log(todayDate, 'setDayData')
+        // let date = new Date().getDate();
+        // date = date < 10 ? `0${date}` : date;
+        //
+        // let month = new Date().getMonth() + 1;
+        // let year = new Date().getFullYear();
+        // let todayDate =  year + '-' + month + '-' + date;
+        //
+        // console.log(todayDate, 'setDayData')
 
         await this.setState({
-            date_begin: todayDate,
-            date_end: todayDate,
+            date_begin: test_start_date,
+            date_end: test_start_date,
             chart_type: 'day',
             chart_show: false
         })
@@ -255,6 +258,7 @@ export default class App extends Component {
             chartData[item].timestamp2 = hours.slice(0,2);
         }
 
+
         chartData.sort(function(a, b) {
             return a.timestamp2 - b.timestamp2;
         })
@@ -273,38 +277,59 @@ export default class App extends Component {
 
         chartLabels = [... new Set(chartLabels)] // get uniques value;
 
+        console.log(chartData1, 'chartData1')
+        console.log(chartLabels, 'chartLabels')
+        // return false;
+
+
         // console.log(chartData1, 'chartData1chartData1chartData1')
         // console.log(chartLabels, 'chartLabels')
         // console.log([... new Set(chartLabels)], 'chartLabelschartLabels')
 
-        this.setState({
-            chart_show:true,
-            chartData: chartData1.length > 0 ? chartData1 : [0],
-            // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
-            chart_labels: chartLabels ,
-        })
+        console.log(chartData1 , 'chartData1');
+        console.log(chartLabels, 'chart_labels')
+
+
+        try {
+            // Тут ошибка
+            this.setState({
+                chartData: chartData1,
+                // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
+                chart_labels: chartLabels ,
+                // chart_show:chartData1.length > 0 ? true : false ,
+                chart_show: true
+            })
+
+        } catch (e) {
+            console.log(e, 'setDay')
+        }
 
     }
 
 
     pressToWeek = async () => {
-        let dateOffset = (24*60*60*1000) * 7; //6 days
-        let firstday = new Date();
-        firstday.setTime(firstday.getTime() - dateOffset);
-        firstday = moment(firstday).format('YYYY-MM-DD')
+        // let dateOffset = (24*60*60*1000) * 7; //6 days
+        // let firstday = new Date();
+        // firstday.setTime(firstday.getTime() - dateOffset);
+        // firstday = moment(firstday).format('YYYY-MM-DD')
+        //
+        // let date = new Date().getDate();
+        // date = date < 10 ? `0${date}` : date;
+        //
+        // let month = new Date().getMonth() + 1;
+        // let year = new Date().getFullYear();
+        // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
 
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}` : date;
+        let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
+        let futureMonth =  moment(test_start_date).add(1, 'W');
+        let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
 
+        console.log(test_start_date, 'test_start_date');
         console.log(lastday, 'lastday');
-        console.log(firstday, 'firstday');
 
         await this.setState({
-            date_begin: firstday,
+            date_begin: test_start_date,
             date_end: lastday,
             chart_type: 'week',
             chart_show: false
@@ -384,24 +409,28 @@ export default class App extends Component {
     }
 
     pressToMonth = async () => {
+        //
+        // let dateOffset = (24*60*60*1000) * 30; //6 days
+        // let firstday = new Date();
+        // firstday.setTime(firstday.getTime() - dateOffset);
+        // firstday = moment(firstday).format('YYYY-MM-DD')
+        //
+        // let date = new Date().getDate();
+        // date = date < 10 ? `0${date}` : date;
+        //
+        // let month = new Date().getMonth() + 1;
+        // let year = new Date().getFullYear();
+        // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+        //
+        // console.log(lastday, 'lastday');
+        // console.log(firstday, 'firstday');
 
-        let dateOffset = (24*60*60*1000) * 30; //6 days
-        let firstday = new Date();
-        firstday.setTime(firstday.getTime() - dateOffset);
-        firstday = moment(firstday).format('YYYY-MM-DD')
-
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}` : date;
-
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-
-        console.log(lastday, 'lastday');
-        console.log(firstday, 'firstday');
+        let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
+        let futureMonth =  moment(test_start_date).add(1, 'M');
+        let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
         this.setState({
-            date_begin: firstday,
+            date_begin: test_start_date,
             date_end: lastday,
             chart_type: 'month',
             chart_show: false
@@ -469,8 +498,8 @@ export default class App extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
-        this.setLanguageFromStorage();
-        this.pressToDay()
+        // this.setLanguageFromStorage();
+        // this.pressToDay()
         this.focusListener = navigation.addListener("focus", () => {
             this.setLanguageFromStorage();
             this.pressToDay()
@@ -583,16 +612,26 @@ export default class App extends Component {
 
         let {date_begin, date_end, chart_type} = this.state;
 
-        let dateOffset = (24*60*60*1000) * 30; //6 days
-        let firstday = new Date(date_begin);
-        firstday.setTime(firstday.getTime() - dateOffset);
-        firstday = moment(firstday).format('YYYY-MM-DD')
+        // let dateOffset = (24*60*60*1000) * 30; //6 days
+        // let firstday = new Date(date_begin);
+        // firstday.setTime(firstday.getTime() - dateOffset);
+        // firstday = moment(firstday).format('YYYY-MM-DD')
+        //
+        // console.log(firstday, 'firstday')
+        // console.log(date_begin, 'lastday');
+        //
+        // await this.setState({
+        //     date_begin:firstday,
+        //     date_end:date_begin
+        // })
 
-        console.log(firstday, 'firstday')
-        console.log(date_begin, 'lastday');
+        let lastday = moment(date_begin).format('YYYY-MM-DD');
+        lastday = moment(lastday).add(-1, 'M');
+        lastday = moment(lastday).format('YYYY-MM-DD')
+
 
         await this.setState({
-            date_begin:firstday,
+            date_begin:lastday,
             date_end:date_begin
         })
         await this.pressToMonthAfterPressToArrow();
@@ -601,23 +640,32 @@ export default class App extends Component {
 
         let {date_begin, date_end, chart_type} = this.state;
 
-        let dateOffset = (24*60*60*1000) * 30; //6 days
-        let firstday = new Date(date_end);
-        firstday.setTime(firstday.getTime() + dateOffset);
-        firstday = moment(firstday).format('YYYY-MM-DD')
+        // let dateOffset = (24*60*60*1000) * 30; //6 days
+        // let firstday = new Date(date_end);
+        // firstday.setTime(firstday.getTime() + dateOffset);
+        // firstday = moment(firstday).format('YYYY-MM-DD')
+        //
+        // let date = new Date().getDate();
+        // date = date < 10 ? `0${date}` : date;
+        //
+        // let month = new Date().getMonth() + 1;
+        // let year = new Date().getFullYear();
+        // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+        //
+        // console.log(date_end, 'date_end')
+        // console.log(firstday, 'firstday')
+        // await this.setState({
+        //     date_begin:date_end,
+        //     date_end:firstday
+        // })
 
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}` : date;
+        let lastday = moment(date_end).format('YYYY-MM-DD');
+        lastday = moment(lastday).add(1, 'M');
+        lastday = moment(lastday).format('YYYY-MM-DD')
 
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-
-        console.log(date_end, 'date_end')
-        console.log(firstday, 'firstday')
         await this.setState({
             date_begin:date_end,
-            date_end:firstday
+            date_end:lastday
         })
         await this.pressToMonthAfterPressToArrow();
 

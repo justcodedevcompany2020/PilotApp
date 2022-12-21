@@ -269,7 +269,8 @@ export default class App extends Component {
                 {label: '19', value: '19'},
                 {label: '19.5', value: '19.5'},
                 {label: '20', value: '20'},
-            ]
+            ],
+            settingsInfo: []
 
         };
 
@@ -315,13 +316,16 @@ export default class App extends Component {
     powerProtectionToggleSwitch = (value) => {
         this.setState({ powerProtectionSwitchValue: value });
     };
-    useScheduleToggleSwitch = async (value) => {
 
+    useScheduleToggleSwitch = async (value) => {
+        // alert( typeof  value.toString())
+        // alert(   value.toString())
         await this.setState({ useScheduleSwitchValue: value });
 
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
         let id = this.props.id;
+        let bool = value;
 
         try {
             fetch(`https://apiv1.zis.ru/devices/`+ id, {
@@ -332,13 +336,13 @@ export default class App extends Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    use_schedule: value,
+                    use_schedule: bool ? true : false,
                 })
             }).then((response) => {
                 return response.json()
             }).then((response) => {
                 console.log(response, ' DEVICE Data')
-                this.getDeviceData();
+                // this.getDeviceData();
             })
         } catch (e) {
             console.log(e)
@@ -414,7 +418,7 @@ export default class App extends Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    schedule_days: week_days_switch_values_quantity.toString(),
+                        schedule_days: week_days_switch_values_quantity.toString(),
                 })
 
             }).then((response) => {
@@ -684,19 +688,56 @@ export default class App extends Component {
     }
 
 
+    getProfileSettings = async () =>
+    {
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr = 'Bearer ' + userToken;
 
+        try {
+            fetch(`https://apiv1.zis.ru/account`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': AuthStr,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+
+
+            }).then((response) => {
+                return response.json()
+            }).then((response) => {
+
+                console.log(response, 'settingsInfo')
+
+                this.setState({
+                    settingsInfo:  response,
+                    timeZone:  response.timezone,
+                    // selectedLanguage: response.language
+                })
+
+
+            })
+        } catch (e) {
+            console.log(e)
+        }
+
+    }
+
+
+    startFunction = async () =>
+    {
+        await this.setLanguageFromStorage();
+        await this.getProfileSettings()
+        await this.getDeviceData();
+    }
 
 
     componentDidMount() {
+
         const { navigation } = this.props;
-        this.setLanguageFromStorage();
-        this.getDeviceData();
+        this.startFunction()
         this.focusListener = navigation.addListener("focus", () => {
-
-            this.setLanguageFromStorage();
-            this.getDeviceData();
-
-
+            this.startFunction()
         });
 
     }
@@ -1572,6 +1613,129 @@ export default class App extends Component {
     }
 
 
+
+    turnOnnTimeWithTimeZone = () =>
+    {
+        let {schedule_time_on,timeZone } = this.state;
+        const withTimeZone = moment(schedule_time_on, 'HH:mm:ss').add(timeZone, 'hours').format('HH:mm');
+        console.log(withTimeZone, 'withTimeZone')
+        return withTimeZone;
+    }
+
+    turnOffTimeWithTimeZone = () =>
+    {
+        let {schedule_time_off,timeZone } = this.state;
+        const withTimeZone = moment(schedule_time_off, 'HH:mm:ss').add(timeZone, 'hours').format('HH:mm');
+        console.log(withTimeZone, 'endTime')
+        return withTimeZone;
+    }
+
+    printWeekDays = () =>
+    {
+        let {schedule_days, language_name} = this.state;
+        let schedule_days_new = '';
+        let schedule_days_arr = schedule_days.split('');
+
+        if (schedule_days_arr.length > 0)
+        {
+
+            if (schedule_days_arr.length == 7)
+            {
+                if (language_name == 'ru')
+                {
+                    schedule_days_new = 'ежедневно'
+
+                } else if(language_name == 'en') {
+                    schedule_days_new = 'daily'
+                }
+            } else {
+
+                for (const schedule_day of schedule_days_arr) {
+
+                    if (schedule_day == '1')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Пн'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'Mo'
+                        }
+                    }
+
+                    if (schedule_day == '2')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Вт'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'Tu'
+                        }
+                    }
+
+                    if (schedule_day == '3')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Ср'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'We'
+                        }
+                    }
+
+                    if (schedule_day == '4')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Чт'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'Th'
+                        }
+                    }
+
+                    if (schedule_day == '5')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Пт'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'Fr'
+                        }
+                    }
+
+
+                    if (schedule_day == '6')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Сб'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'Sa'
+                        }
+                    }
+
+                    if (schedule_day == '7')
+                    {
+                        if (language_name == 'ru')
+                        {
+                            schedule_days_new += 'Вс'
+                        } else if(language_name == 'en') {
+                            schedule_days_new += 'Su'
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        console.log(this.state.language_name)
+        console.log(schedule_days.split(''), 'schedule_days')
+        console.log(schedule_days_new, 'schedule_days_new')
+        return schedule_days_new;
+
+    }
+
     render() {
         // SharedAccessPopup
         if (this.state.SharedAccessPopup) {
@@ -1837,13 +2001,15 @@ export default class App extends Component {
                             </View>
 
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
-                                <Text style={styles.new_test_item_title}>{this.state.language.week_days}</Text>
-                                <TouchableOpacity style={styles.preferences_item_btn}
+                                <Text style={[styles.new_test_item_title, {flex:1}]}>{this.state.language.week_days}</Text>
+                                <TouchableOpacity style={[styles.preferences_item_btn, { flex:1, justifyContent: 'flex-end' }]}
                                     onPress={() => {
                                         this.openWeekDaysPopUp()
                                     }}
                                 >
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.schedule_days}</Text>
+                                    <Text style={styles.preferences_item_btn_text}>
+                                        {this.printWeekDays()}
+                                    </Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -1855,7 +2021,11 @@ export default class App extends Component {
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.turn_on_time}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOn()}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_on}</Text>
+                                    <Text style={styles.preferences_item_btn_text}>
+                                        {this.turnOnnTimeWithTimeZone()}
+
+                                        {/*{this.state.schedule_time_on}*/}
+                                    </Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -1867,7 +2037,11 @@ export default class App extends Component {
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.turn_of_time}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOff()}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.schedule_time_off}</Text>
+                                    <Text style={styles.preferences_item_btn_text}>
+                                        {this.turnOffTimeWithTimeZone()}
+
+                                        {/* Turn-off   */}
+                                    </Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>

@@ -148,8 +148,35 @@ export default class App extends Component {
     }
 
 
-    toggleSwitch = (value) => {
-        this.setState({ status_switch: value });
+    toggleSwitch = async (value) => {
+        this.setState({
+            status_switch: value
+        })
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr = 'Bearer ' + userToken;
+        let id = this.props.id;
+
+        try {
+            fetch(`https://apiv1.zis.ru/devices/power_on/${id}/${value}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': AuthStr,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                return response.json()
+            }).then((response) => {
+
+                console.log(response, 'switch')
+
+
+                // this.getDeviceData();
+
+            })
+        } catch (e) {
+            console.log(e)
+        }
     };
 
 
@@ -177,7 +204,7 @@ export default class App extends Component {
 
                 this.setState({
                     device_data: response,
-                    status_switch: response.status,
+                    status_switch: response.power_on,
                     edit_name: response.name,
                     name: response.name,
                 })
@@ -331,7 +358,7 @@ export default class App extends Component {
                         <View style={styles.details_general_page_items_main_wrapper}>
                             <View style={styles.details_general_page_item}>
 
-                                <Text style={styles.details_general_page_item_title}>{this.state.language.status}</Text>
+                                {/*<Text style={styles.details_general_page_item_title}>{this.state.language.status}</Text>*/}
 
                                 {this.state.device_data.status   &&
                                 <Text style={styles.details_general_page_item_info}>{this.state.language.online}</Text>
@@ -344,12 +371,26 @@ export default class App extends Component {
                             </View>
                             <View style={styles.details_general_page_item}>
                                 <Text style={styles.details_general_page_item_title}>{this.state.language.status}</Text>
-                                <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
-                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.status_switch}
-                                />
+
+                                {this.state.device_data.status &&
+                                    <Switch
+                                        trackColor={{ false: '#767577', true: '#004B84' }}
+                                        // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                        onValueChange={this.toggleSwitch}
+                                        value={this.state.status_switch}
+                                    />
+                                }
+
+                                {!this.state.device_data.status &&
+                                    <Switch
+                                        trackColor={{ false: '#767577', true: '#004B84' }}
+                                        // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                        // onValueChange={this.toggleSwitch}
+                                        value={false}
+                                    />
+                                }
+
+
                             </View>
                             <View style={styles.details_general_page_item}>
                                 <Text style={styles.details_general_page_item_title}>{this.state.language.consumption}</Text>

@@ -141,7 +141,11 @@ const en = {
     add_new: 'Add new',
     enter_device_number: 'Enter device number',
     vt:'W',
-    kv:'kW'
+    kv:'kW',
+    stop_test: 'Stop test',
+    remove_test: 'Delete test',
+    start_date_is_less_than_current: 'Start date is less than current'
+
 };
 
 const ru = {
@@ -243,7 +247,7 @@ const ru = {
     wednesday: 'Среда',
     thursday: 'Четверг',
     friday: 'Пятница',
-    saturday: 'Saturday',
+    saturday: 'Субота',
     sunday: 'Воскресенье',
     test_mode: 'Режим тестирования',
     test_not_found: 'Тест не найден',
@@ -284,8 +288,13 @@ const ru = {
     add_new: 'Добавить новое',
     enter_device_number: 'Введите номер устройства',
     vt:'Вт',
-    kv:'кВт'
+    kv:'кВт',
+
+    stop_test: 'Остановить тест',
+    remove_test: 'Удалить тест',
+    start_date_is_less_than_current: 'Дата старта меньше текущей'
 };
+
 
 
 

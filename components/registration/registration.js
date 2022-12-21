@@ -21,7 +21,7 @@ import {
     ScrollView,
     Dimensions,
     Switch,
-    Keyboard
+    Keyboard, Linking
 } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
@@ -448,7 +448,12 @@ export default class App extends Component {
                         <TouchableOpacity style={styles.registration_btn} onPress={() => {this.redirectToPasswordRecovery()}}>
                             <Text style={styles.registration_btn_text}>{this.state.language.password_recovery}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.rules_btn}>
+                        <TouchableOpacity
+                            style={styles.rules_btn}
+                            onPress={() => {
+                                Linking.openURL('https://zis.ru/rules');
+                            }}
+                        >
                             <Text style={styles.rules_btn_text}>{this.state.language.rules}</Text>
                         </TouchableOpacity>
                     </View>

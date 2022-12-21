@@ -48,6 +48,7 @@ import {
 import TopMenu from "../includes/header_menu";
 
 import { DonutChart } from "react-native-circular-chart";
+import moment from "moment";
 const chartConfig = {
     color: (opacity = 1) => `silver`,
 };
@@ -124,15 +125,16 @@ export default class App extends Component {
         this.props.navigation.navigate("ImpulseSurges", {
             params: this.props.id,
             params2: this.props.device_id,
-            impulse_surges: this.state.impulse_surges
+            impulse_surges: this.state.impulse_surges,
+            test_report_start_time : this.state.report_start_time
         });
-
     }
 
     redirectToPower = () => {
         this.props.navigation.navigate("Power", {
             params: this.props.id,
-            params2: this.props.device_id
+            params2: this.props.device_id,
+            test_report_start_time : this.state.report_start_time
         });
     }
 
@@ -149,7 +151,8 @@ export default class App extends Component {
         this.props.navigation.navigate("Undervoltage", {
             params: this.props.id,
             params2: this.props.device_id,
-            params3: this.state.undervoltage_limit
+            params3: this.state.undervoltage_limit,
+            test_report_start_time : this.state.report_start_time
         });
     }
 
@@ -157,7 +160,9 @@ export default class App extends Component {
         this.props.navigation.navigate("Overvoltage", {
             params: this.props.id,
             params2: this.props.device_id,
-            params3: this.state.overvoltage_limit
+            params3: this.state.overvoltage_limit,
+            test_report_start_time : this.state.report_start_time
+
         });
 
     }
@@ -166,6 +171,8 @@ export default class App extends Component {
         this.props.navigation.navigate("PowerOutages", {
             params: this.props.id,
             params2: this.props.device_id,
+            test_report_start_time : this.state.report_start_time
+
         });
 
     }
@@ -176,7 +183,9 @@ export default class App extends Component {
             params2: this.props.device_id,
             params3: this.state.voltage ? this.state.voltage : 0,
             voltage_min: this.state.voltage_min ? this.state.voltage_min : 0,
-            voltage_max: this.state.voltage_max ? this.state.voltage_max : 0
+            voltage_max: this.state.voltage_max ? this.state.voltage_max : 0,
+            test_report_start_time : this.state.report_start_time
+
         });
     }
 
@@ -186,7 +195,9 @@ export default class App extends Component {
             params: this.props.id,
             params2: this.props.device_id,
             amperage_min: this.state.amperage_min,
-            amperage_max: this.state.amperage_max
+            amperage_max: this.state.amperage_max,
+            test_report_start_time : this.state.report_start_time
+
         });
     }
 
@@ -194,7 +205,8 @@ export default class App extends Component {
         this.props.navigation.navigate("Consumption", {
             params: this.props.id,
             params2: this.props.device_id,
-            params3: this.state.consumption ? this.state.consumption : 0
+            params3: this.state.consumption ? this.state.consumption : 0,
+            test_report_start_time : this.state.report_start_time
         });
 
     }
@@ -252,15 +264,54 @@ export default class App extends Component {
         }
     }
 
+    stopTest = async () =>
+    {
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr   = 'Bearer ' + userToken;
+        let id        = this.props.id;
+
+        fetch(`https://apiv1.zis.ru/tests/stop/`+ id, {
+            method: 'POST',
+            headers: {
+                'Authorization': AuthStr,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then((response) => {
+            return response.json()
+        }).then( async (response) => {
+
+            console.log(response, 'stopTest')
+            this.redirectToTestMode()
+        })
+    }
+
+    removeTest = async () =>
+    {
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr   = 'Bearer ' + userToken;
+        let id        = this.props.id;
+
+        fetch(`https://apiv1.zis.ru/tests/`+ id, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': AuthStr,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }).then((response) => {
+            return response.json()
+        }).then( async (response) => {
+            console.log(response, 'stopTest')
+            this.redirectToTestMode()
+        })
+    }
+
     getTestReportInfo = async () => {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let id        = this.props.id;
 
-        try {
-        } catch (e) {
-            console.log(e)
-        }
         fetch(`https://apiv1.zis.ru/tests/`+ id, {
             method: 'GET',
             headers: {
@@ -373,6 +424,10 @@ export default class App extends Component {
         return  new_date
     }
 
+    convertDateFormat = (date) =>
+    {
+        return moment(date).format('YYYY-MM-DD HH:mm:ss');
+    }
 
     render() {
         return (
@@ -458,12 +513,17 @@ export default class App extends Component {
 
                                 <View style={styles.test_report_status_start_end_time_info_item}>
                                     <Text style={styles.test_report_status_start_end_time_info_item_title}>{this.state.language.start_time}</Text>
-                                    <Text style={styles.test_report_status_start_time_info}>{this.state.report_start_time}</Text>
+                                    <Text style={styles.test_report_status_start_time_info}>
+                                        {this.convertDateFormat(this.state.report_start_time)}
+                                    </Text>
                                 </View>
 
                                 <View style={styles.test_report_status_start_end_time_info_item}>
                                     <Text style={styles.test_report_status_start_end_time_info_item_title}>{this.state.language.end_time}</Text>
-                                    <Text style={styles.test_report_status_end_time_info}>{this.state.report_end_time}</Text>
+                                    <Text style={styles.test_report_status_end_time_info}>
+                                        {this.convertDateFormat(this.state.report_end_time)}
+
+                                    </Text>
                                 </View>
 
                                 {/*<TouchableOpacity style={styles.report_status_button} onPress={() => {this.redirectToOsciloscope()}}>*/}
@@ -568,8 +628,8 @@ export default class App extends Component {
                                             </View>
 
                                             <Text style={styles.report_chart_details_item_title}>{this.state.language.overvoltage}</Text>
-
                                         </View>
+
                                         <TouchableOpacity
                                             style={styles.report_chart_details_item_button}
                                             onPress={() => {
@@ -763,12 +823,41 @@ export default class App extends Component {
                                     </View>
 
 
+                                    {/*{this.state.test_report_status != 'will_be_deleted' &&*/}
+
+                                    {/*    */}
+
+                                    {/*}*/}
 
                                     <View style={styles.report_stop_now_button_box}>
-                                        <TouchableOpacity style={styles.report_stop_now_button}>
-                                            <Text style={styles.report_stop_now_button_text}>{this.state.language.stop_now}</Text>
+                                        <TouchableOpacity
+                                            onPress={() => {
+
+                                                if(this.state.test_report_status == 'in_progress')
+                                                {
+                                                    this.stopTest()
+
+                                                } else {
+                                                    this.removeTest()
+                                                }
+
+                                            }}
+                                            style={styles.report_stop_now_button}
+                                        >
+                                            <Text style={styles.report_stop_now_button_text}>
+                                                {this.state.test_report_status == 'scheduled' && this.state.language.remove_test}
+                                                {this.state.test_report_status == 'in_progress' && this.state.language.stop_test}
+                                                {this.state.test_report_status == 'will_be_deleted' && this.state.language.remove_test}
+                                            </Text>
+
                                         </TouchableOpacity>
                                     </View>
+
+                                    {/*in_progress*/}
+                                    {/*scheduled*/}
+                                    {/*will_be_deleted*/}
+
+
 
                                 </View>
                             </View>

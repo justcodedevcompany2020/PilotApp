@@ -102,19 +102,8 @@ export default class App extends Component {
         })
 
         await AsyncStorage.getItem('language',(err,item) => {
-
             let language = item ? JSON.parse(item) : {};
-
-
             if (language.hasOwnProperty('language')) {
-                //
-                // console.log(language, 'language')
-                //
-                // return false;
-
-                // i18n.locale = language.language;
-                // i18n.locale = ru;
-
                 let selectedLanguage = language.language == 'ru' ? 'ru' : language.language == 'en' ?  'en'  : 'en';
                 this.setState({
                     language: language.language == 'ru' ? ru : language.language == 'en' ?  en : en ,
@@ -122,10 +111,7 @@ export default class App extends Component {
                     selectedLanguage: selectedLanguage,
                     selected_languge_loaded: true
                 })
-
-
             } else {
-                // i18n.locale = 'en';
                 this.setState({
                     language: en,
                     language_name: 'en',
@@ -133,10 +119,7 @@ export default class App extends Component {
                     selected_languge_loaded: true
                 })
             }
-
-
         })
-
     }
 
 
@@ -161,12 +144,10 @@ export default class App extends Component {
 
     redirectToAllDevices = () => {
         this.props.navigation.navigate("AllDevices");
-
     }
 
     redirectToDeviceSetup = () => {
         this.props.navigation.navigate("DeviceSetup");
-
     }
 
     toggleSwitch = async (value) => {
@@ -199,8 +180,6 @@ export default class App extends Component {
         }
     };
 
-
-
     deleteAccount = async () => {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
@@ -223,12 +202,15 @@ export default class App extends Component {
 
                     console.log(response, 'delete')
 
-                    if (response.hasOwnProperty('result')) {
-                        if (response.result == 'success') {
+                    if (response.hasOwnProperty('result'))
+                    {
+                        if (response.result == 'success')
+                        {
                             this.context.signOut(() => {
                                 this.props.navigation.navigate('Login')
 
-                            }).then(r => console.log("logOut"));                  }
+                            }).then(r => console.log("logOut"));
+                        }
                     }
 
 
@@ -348,9 +330,7 @@ export default class App extends Component {
     getProfileInfo = async () => {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
-
         // console.log(user)
-
 
         try {
             fetch(`https://apiv1.zis.ru/account`, {
@@ -444,6 +424,28 @@ export default class App extends Component {
 
 
         console.log(selectedTimeZone, 'selectedTimeZone');
+    }
+
+
+    printSelectedTimeZone = () =>
+    {
+        let {timezones,userInfo} = this.state;
+        let time_zone_name = '';
+
+        for (const timezone of timezones)
+        {
+            if (userInfo.timezone = timezone.value)
+            {
+                time_zone_name = timezone.label
+            }
+        }
+
+
+
+        console.log(this.state.timezones, 'timezones')
+        console.log(this.state.userInfo.timezone, 'this.state.userInfo.timezone')
+        // return this.state.userInfo.timezone;
+        return time_zone_name;
     }
 
 
@@ -618,7 +620,10 @@ export default class App extends Component {
                             <View style={[styles.settings_item, {marginBottom: 25}]}>
                                 <Text style={styles.settings_item_title}>{this.state.language.time_zone}</Text>
                                 <TouchableOpacity style={styles.settings_item_btn} onPress={() => {this.openTimeZonesPopup()}}>
-                                    <Text style={styles.settings_item_btn_text}>{this.state.userInfo.timezone}</Text>
+                                    <Text style={[styles.settings_item_btn_text, {fontSize: 12}]}>
+                                        {this.printSelectedTimeZone()}
+                                        {/*{this.state.userInfo.timezone}*/}
+                                    </Text>
                                     <View style={styles.settings_item_btn_icon}>
                                         <Svg
                                             width={12}
@@ -875,9 +880,6 @@ export default class App extends Component {
                                         secureTextEntry={true}
                                         placeholder={this.state.language.confirm_password}
                                         placeholderTextColor='#4A4A4A'
-
-
-
                                     />
 
                                 </View>
@@ -895,147 +897,89 @@ export default class App extends Component {
                     }
 
                     {this.state.timeZonesPopup &&
-                    <View style={styles.timezone_popup}>
-                        <View style={styles.timezone_popup_wrapper}>
-                            <TouchableOpacity style={styles.timezone_popup_close_btn} onPress={() => {this.setState({timeZonesPopup:false})}}>
-                                <Svg
-                                    width={35}
-                                    height={35}
-                                    viewBox="0 0 35 35"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <Path
-                                        d="M17.499 17.78L9.141 9.36m-.063 16.779l8.421-8.358-8.421 8.358zm8.421-8.358l8.421-8.359L17.5 17.78zm0 0l8.358 8.42-8.358-8.42z"
-                                        stroke="#004B84"
-                                        strokeWidth={2}
-                                        strokeLinecap="round"
+                        <View style={styles.timezone_popup}>
+                            <View style={styles.timezone_popup_wrapper}>
+                                <TouchableOpacity style={styles.timezone_popup_close_btn} onPress={() => {this.setState({timeZonesPopup:false})}}>
+                                    <Svg width={35} height={35} viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M17.499 17.78L9.141 9.36m-.063 16.779l8.421-8.358-8.421 8.358zm8.421-8.358l8.421-8.359L17.5 17.78zm0 0l8.358 8.42-8.358-8.42z" stroke="#004B84" strokeWidth={2} strokeLinecap="round"/>
+                                    </Svg>
+                                </TouchableOpacity>
+                                <View style={[styles.timezone_dropDown_wrapper, {zIndex: 999999999, borderRadius: 0,}]}>
+
+                                    <DropDownPicker
+                                        listMode="SCROLLVIEW"
+                                        theme="DARK"
+                                        open={this.state.openTimezones}
+                                        value={this.state.selectedTimeZone}
+                                        showTickIcon={false}
+                                        setOpen={() => {
+                                            this.setState({
+                                                openTimezones: !this.state.openTimezones
+                                            })
+                                        }}
+                                        items={this.state.timezones}
+                                        setValue={this.chooseTimezone}
+                                        // setItems={setRegionsDropdownItems}/}
+                                        arrowIconStyle={{
+                                            width: 20,
+                                            height: 20,
+
+                                        }}
+                                        style={{
+                                            width: '100%',
+                                            height: 45,
+                                            backgroundColor: '#004B84',
+                                            borderRadius: 0,
+                                            borderColor: 'white'
+                                        }}
+                                        containerStyle={{
+                                            width: '100%',
+                                            height: 200,
+                                            borderRadius: 0,
+                                        }}
+                                        listItemContainerStyle={{
+                                            borderRadius: 0,
+                                        }}
+                                        listItemLabelStyle={{
+                                            color: '#ffffff',
+                                            fontSize: 14,
+                                            fontWeight: '400'
+                                        }}
+                                        labelStyle={{
+                                            color: '#ffffff',
+                                            fontSize: 16,
+                                            fontWeight: '400'
+                                        }}
+
+
+                                        dropDownContainerStyle={{
+                                            borderRadius: 0,
+                                            backgroundColor: '#004B84',
+                                            borderColor: 'white',
+                                            paddingBottom: 20,
+                                        }}
+
+                                        placeholder={this.state.language.time_zone}
+                                        placeholderStyle={{
+                                            color: '#ffffff',
+                                            fontSize: 14,
+                                            fontWeight: '400'
+                                        }}
+
+
+
+                                        // keyExtractor={(item, index) => index+1}/}
+
                                     />
-                                </Svg>
-                            </TouchableOpacity>
-                            <View style={[styles.timezone_dropDown_wrapper, {zIndex: 999999999, borderRadius: 0,}]}>
-
-                                {/*<DropDownPicker*/}
-                                {/*    items={this.state.timezones}*/}
-                                {/*    placeholder={this.state.language.time_zone}*/}
-                                {/*    containerStyle={{ height: 45, width: '100%',  zIndex: 999999, borderRadius: 0, }}*/}
-                                {/*    style={[styles.phone_code_dropdown,*/}
-                                {/*        {backgroundColor: '#004B84', height: 45, borderRadius: 0}*/}
-                                {/*    ]}*/}
-                                {/*    itemStyle={{*/}
-                                {/*        justifyContent: 'flex-start',*/}
-                                {/*        width: 160,*/}
-                                {/*        zIndex: 15*/}
-                                {/*    }}*/}
-                                {/*    selectedLabelStyle={{*/}
-                                {/*        fontSize: 16,*/}
-                                {/*        color: "#ffffff",*/}
-                                {/*        fontWeight: '400',*/}
-                                {/*        // width: 150,*/}
-                                {/*    }}*/}
-                                {/*    labelStyle={{*/}
-                                {/*        fontSize: 16,*/}
-                                {/*        color: "#ffffff",*/}
-                                {/*        fontWeight: '400',*/}
-
-                                {/*    }}*/}
-                                {/*    placeholderStyle={{*/}
-                                {/*        fontSize: 14,*/}
-                                {/*        color: "#ffffff",*/}
-                                {/*        fontWeight: '400',*/}
-                                {/*    }}*/}
-
-
-                                {/*    dropDownStyle={{backgroundColor: '#004B84',  width: '100%',  zIndex: 999999, borderRadius: 0,}}*/}
-                                {/*    value={this.state.selectedTimeZone}*/}
-                                {/*    // defaultValue={this.state.userInfo.language}*/}
-
-
-                                {/*    // selectedLabel='English'*/}
-                                {/*    arrowColor={'white'}*/}
-                                {/*    // onChangeItem={this.onChangeDropDownItem}*/}
-                                {/*    onChangeItem={item => {*/}
-                                {/*        this.chooseTimezone(item);*/}
-                                {/*    }}*/}
-
-
-                                {/*/>*/}
-
-
-                                <DropDownPicker
-                                    listMode="SCROLLVIEW"
-                                    theme="DARK"
-                                    open={this.state.openTimezones}
-                                    value={this.state.selectedTimeZone}
-                                    showTickIcon={false}
-                                    setOpen={() => {
-                                        this.setState({
-                                            openTimezones: !this.state.openTimezones
-                                        })
-                                    }}
-                                    items={this.state.timezones}
-                                    setValue={this.chooseTimezone}
-                                    // setItems={setRegionsDropdownItems}/}
-                                    arrowIconStyle={{
-                                        width: 20,
-                                        height: 20,
-
-                                    }}
-                                    style={{
-                                        width: '100%',
-                                        height: 45,
-                                        backgroundColor: '#004B84',
-                                        borderRadius: 0,
-                                        borderColor: 'white'
-                                    }}
-                                    containerStyle={{
-                                        width: '100%',
-                                        height: 200,
-                                        borderRadius: 0,
-                                    }}
-                                    listItemContainerStyle={{
-                                        borderRadius: 0,
-                                    }}
-                                    listItemLabelStyle={{
-                                        color: '#ffffff',
-                                        fontSize: 14,
-                                        fontWeight: '400'
-                                    }}
-                                    labelStyle={{
-                                        color: '#ffffff',
-                                        fontSize: 16,
-                                        fontWeight: '400'
-                                    }}
-
-
-                                    dropDownContainerStyle={{
-                                        borderRadius: 0,
-                                        backgroundColor: '#004B84',
-                                        borderColor: 'white',
-                                        paddingBottom: 20,
-                                    }}
-
-                                    placeholder={this.state.language.time_zone}
-                                    placeholderStyle={{
-                                        color: '#ffffff',
-                                        fontSize: 14,
-                                        fontWeight: '400'
-                                    }}
+                                </View>
 
 
 
-                                    // keyExtractor={(item, index) => index+1}/}
-
-                                />
+                                <TouchableOpacity style={styles.timezone_popup_confirm_btn} onPress={() => {this.changeTimeZones()}}>
+                                    <Text style={styles.timezone_popup_confirm_btn_text}>{this.state.language.confirm}</Text>
+                                </TouchableOpacity>
                             </View>
-
-
-
-                            <TouchableOpacity style={styles.timezone_popup_confirm_btn} onPress={() => {this.changeTimeZones()}}>
-                                <Text style={styles.timezone_popup_confirm_btn_text}>{this.state.language.confirm}</Text>
-                            </TouchableOpacity>
                         </View>
-                    </View>
                     }
                 </View>
 

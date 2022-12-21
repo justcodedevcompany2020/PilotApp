@@ -41,6 +41,7 @@ import {
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import TopMenu from "../includes/header_menu";
+import moment from "moment";
 
 
 
@@ -196,12 +197,10 @@ export default class App extends Component {
         const { navigation } = this.props;
         this.setLanguageFromStorage();
         this.getTestModeInfo();
+
         this.focusListener = navigation.addListener("focus", () => {
-        this.setLanguageFromStorage();
-        this.getTestModeInfo();
-
-
-
+            this.setLanguageFromStorage();
+            this.getTestModeInfo();
         });
 
     }
@@ -235,13 +234,18 @@ export default class App extends Component {
                 return response.json()
             }).then((response) => {
 
-                console.log(response, 'test mode')
+               console.log(response, 'test mode')
 
+                if (response.length > 0)
+                {
+                    response.sort(function(a,b){
+                        return new Date(b.start_date) - new Date(a.start_date);
+                    });
+                }
 
-
-               this.setState({
+                this.setState({
                    test_mode_info: response,
-               })
+                })
 
             })
         } catch (e) {
@@ -279,8 +283,6 @@ export default class App extends Component {
         let report_end_time   = new Date(item.end_date);
         let current_date      = new Date();
 
-        console.log(report_start_time, report_end_time, current_date)
-
         let test_report_status = '';
 
         if(this.checkInProgress(report_start_time,report_end_time,current_date)) {
@@ -296,10 +298,16 @@ export default class App extends Component {
     }
 
 
-    closeMenu = () => {
+    closeMenu = () =>
+    {
         this.setState({
             headerMenuPopup: false
         })
+    }
+
+    convertDateFormat = (date) =>
+    {
+        return moment(date).format('YYYY-MM-DD HH:mm:ss');
     }
 
     render() {
@@ -371,7 +379,6 @@ export default class App extends Component {
                                                             <Path d="M6 3.5L.75 6.531V.47L6 3.5z" fill="#10BCCE" />
                                                         </Svg>
                                                         <Text style={styles.report_item_info_title}>{this.state.language.in_progress}</Text>
-
                                                     </View>
 
                                                 }
@@ -387,18 +394,17 @@ export default class App extends Component {
 
                                                 }
 
-
                                                 <Text style={styles.report_item_info_title}>{report.report_status_text}</Text>
 
                                             </View>
                                             <View style={styles.report_item_date_info_box}>
-                                                <Text style={styles.report_item_date_info}>From {report.start_date}</Text>
-                                                <Text style={styles.report_item_date_info}>To {report.end_date}</Text>
+                                                <Text style={styles.report_item_date_info}>From {this.convertDateFormat(report.start_date)}   </Text>
+                                                <Text style={styles.report_item_date_info}>To  {this.convertDateFormat(report.end_date)} </Text>
                                             </View>
                                             <View style={styles.report_item_details_second_main_wrapper}>
-                                                <Text style={styles.report_item_details_second_info}>{report.consumption  ? report.consumption : 0 }</Text>
-                                                <Text style={styles.report_item_details_second_info}>{report.voltage_min  ? report.voltage_min : 0 } - {report.voltage_max  ? report.voltage_max : 0 }</Text>
-                                                <Text style={styles.report_item_details_second_info}>{report.amperage_min  ? report.amperage_min : 0 } - {report.amperage_max  ? report.amperage_max : 0 }</Text>
+                                                <Text style={styles.report_item_details_second_info}>{report.consumption  ? parseFloat(report.consumption).toFixed(2) : 0 }W</Text>
+                                                <Text style={styles.report_item_details_second_info}>{report.voltage_min  ? parseFloat(report.voltage_min).toFixed(2) : 0 } - {report.voltage_max  ? parseFloat(report.voltage_max).toFixed(2) : 0 }V</Text>
+                                                <Text style={styles.report_item_details_second_info}>{report.amperage_min  ? parseFloat(report.amperage_min).toFixed(2) : 0 } - {report.amperage_max  ? parseFloat(report.amperage_max).toFixed(2) : 0 }A</Text>
 
                                             </View>
 

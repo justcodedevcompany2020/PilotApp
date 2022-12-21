@@ -78,7 +78,7 @@ export default class App extends Component {
             upper_voltage_delay_popup: false,
             upper_voltage_delay: '',
             selectedUpperVoltageDelay: '',
-            protection_upper_voltage_input: '',
+            protection_upper_voltage_input: '250',
 
             protection_lower_voltage_input_error: false,
             protection_lower_voltage_input: '',
@@ -430,7 +430,7 @@ export default class App extends Component {
                          if (response.description.ru == 'Сочетание дат начала и окончания теста некорректно') {
                              this.setState({
                                  date_error: true,
-                                 date_error_text: 'Дата старта меньше текущей',
+                                 date_error_text: this.state.language.start_date_is_less_than_current, //'Дата старта меньше текущей',
                              })
                          } else {
                              this.setState({
@@ -790,7 +790,7 @@ export default class App extends Component {
         await this.setState({
             startCompletedDate: moment(time).format("YYYY-MM-DD HH:mm:ss"),
             isOpenStartTimePicker: false
-        })
+        });
 
     }
 
@@ -832,7 +832,7 @@ export default class App extends Component {
         return (
             <SafeAreaView style={styles.container} >
                 {this.state.headerMenuPopup &&
-                 <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
+                    <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
                 }
 
                 <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
@@ -863,7 +863,6 @@ export default class App extends Component {
                     <KeyboardAwareScrollView
                         style={styles.all_devices_general_page_main_wrapper}
                         enableOnAndroid={true}
-                        // enableAutoAutomaticScrol='true'
                         keyboardOpeningTime={0}>
                         <View style={styles.new_test_items_wrapper}>
 
@@ -966,7 +965,7 @@ export default class App extends Component {
                                         })
                                      }}
                                 >
-                                    <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedUpperVoltageDelay_error === true ? 'red' : '#4A4A4A'}]}>{this.state.selectedUpperVoltageDelay}</Text>
+                                    <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedUpperVoltageDelay_error === true ? 'red' : '#10BCCE'}]}>{this.state.selectedUpperVoltageDelay}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {"#004B84"}/>
@@ -997,7 +996,7 @@ export default class App extends Component {
                                         lower_voltage_delay_popup: true
                                     })
                                 }}>
-                                    <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedLowerVoltageDelay_error === true ? 'red' : '#4A4A4A'}]}>{this.state.selectedLowerVoltageDelay}</Text>
+                                    <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedLowerVoltageDelay_error === true ? 'red' : '#10BCCE'}]}>{this.state.selectedLowerVoltageDelay}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {"#004B84"}/>
@@ -1188,7 +1187,7 @@ export default class App extends Component {
                        <View style={styles.turn_off_the_load_switch_value_popup}>
                             <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {height: 300}]}>
 
-                                <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
+                                <TouchableOpacity style={[styles.title_back_btn_wrapper, { position: 'absolute', left: 10, top: 5, width: 40, height: 40}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
                                     <View>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
@@ -1196,7 +1195,7 @@ export default class App extends Component {
                                     </View>
                                 </TouchableOpacity>
 
-                                <ScrollView style={{flex:1, width: '100%',  marginTop: 30}}>
+                                <ScrollView style={{flex:1, width: '100%',  marginTop: 0}}>
                                       {this.state.upper_voltage_delay_data.map((item, index) => {
                                           return (
                                               <TouchableOpacity style={{width:'100%', paddingVertical: 10, backgroundColor:'white', borderBottomColor: '#10BCCE', borderBottomWidth: 1,  alignItems:'center'}} key={index} onPress={() => {this.chooseUpperVoltageDelay(item)}}>
@@ -1214,7 +1213,7 @@ export default class App extends Component {
                     {this.state.lower_voltage_delay_popup  &&
                        <View style={styles.turn_off_the_load_switch_value_popup}>
                         <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {height: 300}]}>
-                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {width: '100%', position: 'absolute', left: 20, top: 20}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
+                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {position: 'absolute', left: 10, top: 5, width: 40, height: 40}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
                                 <View>
                                     <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
@@ -1222,7 +1221,7 @@ export default class App extends Component {
                                 </View>
                             </TouchableOpacity>
 
-                            <ScrollView style={{flex:1, width: '100%',  marginTop: 30}}>
+                            <ScrollView style={{flex:1, width: '100%',  marginTop: 0}}>
                                 {this.state.upper_voltage_delay_data.map((item, index) => {
                                     return (
                                         <TouchableOpacity style={{width:'100%', paddingVertical: 10, backgroundColor:'white', borderBottomColor: '#10BCCE', borderBottomWidth: 1,  alignItems:'center'}} key={index} onPress={() => {this.chooseLowerVoltageDelay(item)}}>
@@ -1539,7 +1538,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 40,
         paddingHorizontal: 8,
-        color: '#10bcce4d',
+        color: '#10BCCE',
         fontWeight: '600',
         fontSize: 16,
         // alignItems: 'flex-end',

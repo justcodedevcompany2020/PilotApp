@@ -192,6 +192,7 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
+                console.log(response, 'response getChartData')
 
                 if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
                     await this.setState({
@@ -220,18 +221,20 @@ export default class App extends Component {
 
 
     pressToDay = async () => {
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}` : date;
+        // let date = new Date().getDate();
+        // date = date < 10 ? `0${date}` : date;
+        //
+        // let month = new Date().getMonth() + 1;
+        // let year = new Date().getFullYear();
+        // let todayDate =  year + '-' + month + '-' + date;
+        //
+        // console.log(todayDate, 'setDayData')
 
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let todayDate =  year + '-' + month + '-' + date;
-
-        console.log(todayDate, 'setDayData')
+        let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
 
         await this.setState({
-            date_begin: todayDate,
-            date_end: todayDate,
+            date_begin: test_start_date,
+            date_end: test_start_date,
             // date_begin: '2022-09-06',
             // date_end: '2022-09-06',
             chart_type: 'day',
@@ -348,17 +351,21 @@ export default class App extends Component {
 
     pressToWeek = async () => {
 
-        let curr = new Date; // get current date
-        let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 6; // last day is the first day + 6
+        // let curr = new Date; // get current date
+        // let first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+        // let last = first + 6; // last day is the first day + 6
+        //
+        // let firstday = new Date(curr.setDate(first));
+        // let lastday  = new Date(curr.setDate(last));
+        //     firstday = moment(firstday).format('YYYY-MM-DD');
+        //     lastday  = moment(lastday).format('YYYY-MM-DD');
 
-        let firstday = new Date(curr.setDate(first));
-        let lastday  = new Date(curr.setDate(last));
-            firstday = moment(firstday).format('YYYY-MM-DD');
-            lastday  = moment(lastday).format('YYYY-MM-DD');
+        let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
+        let futureMonth =  moment(test_start_date).add(1, 'W');
+        let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
         await this.setState({
-            date_begin: firstday,
+            date_begin: test_start_date,
             date_end: lastday,
             // date_begin: '2022-09-06',
             // date_end: '2022-09-07',
@@ -467,16 +474,21 @@ export default class App extends Component {
     }
 
     pressToMonth = async () => {
-        const now = new Date();
-        let firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        let lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        // const now = new Date();
+        // let firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        // let lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        //
+        // firstDay = moment(firstDay).format('YYYY-MM-DD');
+        // lastDay  = moment(lastDay).format('YYYY-MM-DD');
 
-        firstDay = moment(firstDay).format('YYYY-MM-DD');
-        lastDay  = moment(lastDay).format('YYYY-MM-DD');
+        let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
+        let futureMonth =  moment(test_start_date).add(1, 'M');
+        let lastday = moment(futureMonth).format('YYYY-MM-DD')
+
 
         this.setState({
-            date_begin: firstDay,
-            date_end: lastDay,
+            date_begin: test_start_date,
+            date_end: lastday,
             // date_begin: '2022-09-06',
             // date_end: '2022-09-07',
 
@@ -591,8 +603,8 @@ export default class App extends Component {
 
     componentDidMount() {
         const { navigation } = this.props;
-        this.setLanguageFromStorage();
-        this.pressToDay()
+        // this.setLanguageFromStorage();
+        // this.pressToDay()
 
         this.focusListener = navigation.addListener("focus", () => {
             this.setLanguageFromStorage();
@@ -657,6 +669,7 @@ export default class App extends Component {
     goToPrevWeek = async () => {
 
         let {date_begin, date_end, chart_type, chart_show} = this.state;
+
         if (!chart_show) {
             return false
         }
@@ -714,16 +727,26 @@ export default class App extends Component {
             return false
         }
 
-        let now = new Date(date_begin);
-        let firstDay = new Date(now.getFullYear(), now.getMonth()-1, 1);
-        let lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+        // let now = new Date(date_begin);
+        // let firstDay = new Date(now.getFullYear(), now.getMonth()-1, 1);
+        // let lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+        //
+        // firstDay = moment(firstDay).format('YYYY-MM-DD');
+        // lastDay  = moment(lastDay).format('YYYY-MM-DD');
+        //
+        // await this.setState({
+        //     date_begin:firstDay,
+        //     date_end:lastDay
+        // })
 
-        firstDay = moment(firstDay).format('YYYY-MM-DD');
-        lastDay  = moment(lastDay).format('YYYY-MM-DD');
+        let lastday = moment(date_begin).format('YYYY-MM-DD');
+        lastday = moment(lastday).add(-1, 'M');
+        lastday = moment(lastday).format('YYYY-MM-DD')
+
 
         await this.setState({
-            date_begin:firstDay,
-            date_end:lastDay
+            date_begin:lastday,
+            date_end:date_begin
         })
         await this.pressToMonthAfterPressToArrow();
     }
@@ -734,16 +757,20 @@ export default class App extends Component {
             return false
         }
 
-        let now = new Date(date_end);
-        let firstDay = new Date(now.getFullYear(), now.getMonth()+1, 1);
-        let lastDay = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+        // let now = new Date(date_end);
+        // let firstDay = new Date(now.getFullYear(), now.getMonth()+1, 1);
+        // let lastDay = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+        //
+        // firstDay = moment(firstDay).format('YYYY-MM-DD');
+        // lastDay  = moment(lastDay).format('YYYY-MM-DD');
 
-        firstDay = moment(firstDay).format('YYYY-MM-DD');
-        lastDay  = moment(lastDay).format('YYYY-MM-DD');
+        let lastday = moment(date_end).format('YYYY-MM-DD');
+            lastday = moment(lastday).add(1, 'M');
+            lastday = moment(lastday).format('YYYY-MM-DD')
 
         await this.setState({
-            date_begin:firstDay,
-            date_end:lastDay
+            date_begin:date_end,
+            date_end:lastday
         })
         await this.pressToMonthAfterPressToArrow();
 
