@@ -312,7 +312,7 @@ export default function App() {
             } else {
                 setInet(true)
             }
-            console.log('check internet',await checkInternet())
+            console.log('check internet!',await checkInternet())
 
         }, 2000)
 
