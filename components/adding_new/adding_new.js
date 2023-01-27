@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import  TopMenu from '../includes/header_menu';
 import * as Network from 'expo-network';
 import i18n from "i18n-js";
@@ -48,13 +47,17 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            enterNewDevice: '',
+            // enterNewDevice: '',
+            enterNewDevice: '06AB90781234',
+            // enterNewDevice: '06AB90781235',
             inetAvalaibel: true,
             add_device_info: [],
             addDeviceSuccess: false,
+            deviceIsAlreadyLinked: false,
             language: en,
             language_name: 'en',
-            search: true
+            search: true,
+            search_by_mac:false
         };
 
     }
@@ -163,7 +166,8 @@ export default class App extends Component {
         this.interval = setInterval(async () => {
 
             await this.setState({
-                search:true
+                search:true,
+                search_by_mac: false
             })
 
             let inet = await Network.getNetworkStateAsync()
@@ -186,12 +190,11 @@ export default class App extends Component {
                         return response.json()
                     }).then((response) => {
 
-                        console.log(response, 'search device interval' )
+                        // console.log(response, 'search device interval' )
 
                         this.setState({
                             add_device_info: response,
-                            search:false
-
+                            // search:false
                         })
 
                     })
@@ -266,7 +269,17 @@ export default class App extends Component {
 
                 console.log(response, 'search device');
 
-                  if  (response.hasOwnProperty('result')) {
+                    if (response.hasOwnProperty('error')) {
+
+                        if (response.error == 'device_is_already_linked')
+                        {
+                            this.setState({
+                                deviceIsAlreadyLinked: true
+                            })
+                        }
+                    }
+
+                   if(response.hasOwnProperty('result')) {
                         if (response.result == 'success') {
                             this.setState({
                                 addDeviceSuccess: true
@@ -280,6 +293,66 @@ export default class App extends Component {
         } catch (e) {
             console.log(e)
         }
+    }
+
+
+
+    searchDeviceByMacAddress = async () => {
+
+        let {enterNewDevice} = this.state;
+        console.log(enterNewDevice, 'enterNewDevice')
+
+
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr = 'Bearer ' + userToken;
+
+        try {
+            fetch(`https://apiv1.zis.ru/devices/mac/` + enterNewDevice, {
+                method: 'GET',
+                headers: {
+                    'Authorization': AuthStr,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+
+
+            }).then((response) => {
+                return response.json()
+            }).then((response) => {
+
+                console.log(response, 'searchDeviceByMacAddress');
+
+
+
+                // if  (response.hasOwnProperty('result')) {
+                //     if (response.result == 'success') {
+                //         this.setState({
+                //             addDeviceSuccess: true
+                //         })
+                //         this.refreshDevices();
+                //     }
+                // }
+
+                clearInterval(this.interval);
+
+                this.setState({
+                    add_device_info: [response],
+                    search_by_mac: true
+                })
+
+            }).catch((error) => {
+                console.log('Error:', error);
+                clearInterval(this.interval);
+
+                this.setState({
+                    add_device_info: [],
+                    search_by_mac: true
+                })
+            });
+        } catch (e) {
+            console.log(e)
+        }
+
     }
 
     render() {
@@ -332,17 +405,18 @@ export default class App extends Component {
                                         </Svg>
                                     </View>
 
-                                    {this.state.search && this.state.add_device_info.length == 0 &&
+                                    { this.state.add_device_info.length == 0 && this.state.search_by_mac === false &&
 
-                                    <Text style={styles.adding_new_page_icon_title}>{this.state.language.searching}...</Text>
-
-                                    }
-
-                                    {this.state.add_device_info.length == 0 && !this.state.search &&
-
-                                    <Text style={styles.adding_new_page_icon_title}>"Devices are not discovered</Text>
+                                        <Text style={styles.adding_new_page_icon_title}>{this.state.language.searching}...</Text>
 
                                     }
+
+                                    {/*{this.state.add_device_info.length == 0 &&*/}
+
+                                    {/*    <Text style={styles.adding_new_page_icon_title}>"Devices are not discovered</Text>*/}
+
+                                    {/*}*/}
+
                                 </View>
 
                                 {this.state.add_device_info.map((item, index) => {
@@ -365,6 +439,22 @@ export default class App extends Component {
                                     )
                                 })}
 
+                                <View>
+                                    {this.state.search_by_mac &&
+
+                                        <TouchableOpacity
+                                            style={styles.remove_filter}
+                                            onPress={() => {
+                                                this.searchDevices();
+
+                                            }}
+                                        >
+                                            <Text style={styles.remove_filter_text}>{this.state.language.remove_filter}</Text>
+                                        </TouchableOpacity>
+
+                                    }
+                                </View>
+
                                 <View style={styles.enter_new_device_number_input_search_btn_wrapper}>
 
                                     <TextInput
@@ -375,7 +465,7 @@ export default class App extends Component {
                                         placeholderTextColor='#4A4A4A'
                                     />
 
-                                    <TouchableOpacity style={styles.enter_new_device_number_search_btn}>
+                                    <TouchableOpacity style={styles.enter_new_device_number_search_btn} onPress={() => this.searchDeviceByMacAddress() }>
                                         <Svg width={25} height={25} viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M10.82 18.398c-4.18 0-7.617-3.398-7.617-7.617 0-4.18 3.399-7.617 7.617-7.617a7.602 7.602 0 017.617 7.617C18.398 15 15 18.398 10.82 18.398zm0-14.101c-3.593 0-6.523 2.93-6.523 6.523 0 3.594 2.93 6.524 6.523 6.524 3.594 0 6.524-2.93 6.524-6.524-.04-3.593-2.969-6.523-6.524-6.523z" fill="#fff"/>
                                             <Path d="M20.977 21.797l-5.313-5.274.86-.859 5.273 5.313-.82.82z" fill="#fff"/>
@@ -416,6 +506,19 @@ export default class App extends Component {
                                     </Svg>
                                 </TouchableOpacity>
                                 <Text style={styles.add_device_success_info}>{this.state.language.add_device_success_info}</Text>
+                            </View>
+                        </View>
+                    }
+
+                    {this.state.deviceIsAlreadyLinked &&
+                        <View style={styles.add_device_success_popup}>
+                            <View style={styles.add_device_success_popup_wrapper}>
+                                <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({deviceIsAlreadyLinked: false})}}>
+                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
+                                    </Svg>
+                                </TouchableOpacity>
+                                <Text style={[styles.add_device_success_info, {color: 'red'}]}>{this.state.language.device_is_already_linked}</Text>
                             </View>
                         </View>
                     }
@@ -726,5 +829,17 @@ const styles = StyleSheet.create({
     footer: {
         width: '100%',
         paddingHorizontal: 29,
+    },
+
+    remove_filter: {
+        width: '100%',
+        height: 50,
+        flexDirection:'row'
+    },
+
+    remove_filter_text: {
+        width: '100%',
+        textAlign: 'center',
+        color: '#004B84'
     }
 });

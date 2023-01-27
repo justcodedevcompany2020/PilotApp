@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask, Pattern, Use} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
 // import DropDownPicker from "react-native-custom-dropdown";
-// import * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 
 import DropDownPicker from 'react-native-dropdown-picker';
 import md5 from 'md5';
@@ -124,6 +124,24 @@ export default class App extends Component {
     // };
 
 
+     registerForPushNotificationsAsync = async () => {
+        try {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync()
+            let finalStatus = existingStatus
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync()
+                finalStatus = status
+            }
+            if (finalStatus !== 'granted') {
+                throw new Error('Permission not granted!')
+            }
+            const token = (await Notifications.getExpoPushTokenAsync()).data
+            return token
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     loginHandler = async () => {
 
     let {email, password, selectedLanguage} = this.state;
@@ -178,6 +196,10 @@ export default class App extends Component {
             })
         }
 
+        //
+        //
+        // let pushtoken = await this.registerForPushNotificationsAsync();
+        // console.log(pushtoken, 'pushtoken')
         let pushTokenRes = 'f65f1f1232f123e51f35ef1we35f1we351fw35';
 
         // await this.getPushToken().then((pushToken) => {
@@ -185,12 +207,14 @@ export default class App extends Component {
         //     console.log(pushToken, 'pushTokenpushToken');
         //
         //     if (pushToken) {
-        //         console.log('1')
-        //         pushTokenRes = pushToken;
+        //         console.log(pushToken, 'pushToken')
+        //         let pushTokenRes = pushToken;
         //         //   retrieveWeatherSubscription(pushToken, setIsSubscribed);
         //     }
         // });
 
+
+        // return false;
 
         let hash_password = email.toLowerCase() + password;
         let hash_password_result = md5(hash_password);
@@ -224,7 +248,8 @@ export default class App extends Component {
 
                 if (response.hasOwnProperty('accessToken')) {
                         let foundUser = {
-                            token: response.accessToken
+                            token: response.accessToken,
+                            login: email
                         }
                         this.context.signIn(foundUser, () => { }).then(r => console.log("success"));
                 }  else {

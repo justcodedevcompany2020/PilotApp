@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  TopMenu from '../includes/header_menu';
@@ -38,6 +37,7 @@ import {
     useSafeAreaInsets,
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
+import * as Network from "expo-network";
 
 
 
@@ -112,9 +112,19 @@ export default class App extends Component {
 
     }
 
-    redirectToAllDevices = () => {
+    checkInternet = async () => {
 
-        this.props.navigation.navigate("AllDevices");
+        let inet = await Network.getNetworkStateAsync()
+        return inet.isConnected;
+    }
+
+    redirectToAllDevices = async () => {
+        let inetAvalaible = await this.checkInternet();
+        if (inetAvalaible) {
+            this.props.navigation.navigate("AllDevices");
+        } else {
+            this.props.navigation.navigate("NointernetScreen");
+        }
 
     }
 

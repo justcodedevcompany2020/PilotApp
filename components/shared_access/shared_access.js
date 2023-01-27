@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import DatePicker from 'react-native-datepicker';

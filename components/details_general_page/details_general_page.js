@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  TopMenu from '../includes/header_menu';
@@ -38,6 +37,7 @@ import {
     useSafeAreaInsets,
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
+import moment from "moment";
 
 
 
@@ -293,7 +293,10 @@ export default class App extends Component {
     }
 
 
-
+    convertDateFormat = (date) =>
+    {
+        return moment(date).format('YYYY-MM-DD HH:mm');
+    }
 
     render() {
 
@@ -358,7 +361,7 @@ export default class App extends Component {
                         <View style={styles.details_general_page_items_main_wrapper}>
                             <View style={styles.details_general_page_item}>
 
-                                {/*<Text style={styles.details_general_page_item_title}>{this.state.language.status}</Text>*/}
+                                <Text style={styles.details_general_page_item_title}>{this.state.language.status}</Text>
 
                                 {this.state.device_data.status   &&
                                 <Text style={styles.details_general_page_item_info}>{this.state.language.online}</Text>
@@ -370,12 +373,12 @@ export default class App extends Component {
 
                             </View>
                             <View style={styles.details_general_page_item}>
-                                <Text style={styles.details_general_page_item_title}>{this.state.language.status}</Text>
+                                <Text style={styles.details_general_page_item_title}>{this.state.language.load}</Text>
 
                                 {this.state.device_data.status &&
                                     <Switch
-                                        trackColor={{ false: '#767577', true: '#004B84' }}
-                                        // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                        trackColor={{ false: 'silver', true: '#004B84' }}
+                                        thumbColor={'white'}
                                         onValueChange={this.toggleSwitch}
                                         value={this.state.status_switch}
                                     />
@@ -383,8 +386,8 @@ export default class App extends Component {
 
                                 {!this.state.device_data.status &&
                                     <Switch
-                                        trackColor={{ false: '#767577', true: '#004B84' }}
-                                        // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                        trackColor={{ false: 'silver', true: '#004B84' }}
+                                        thumbColor={'white'}
                                         // onValueChange={this.toggleSwitch}
                                         value={false}
                                     />
@@ -413,13 +416,21 @@ export default class App extends Component {
                                 <Text style={styles.details_general_page_item_info}>{this.state.device_data.protection_triggered}</Text>
 
                             </View>
-                            <View style={[styles.details_general_page_item, {flexDirection: 'column', alignItems: 'flex-start'}]}>
+                            <View style={[styles.details_general_page_item, {flexDirection: 'row', alignItems: 'flex-start'}]}>
                                 <Text style={[styles.details_general_page_item_title, {marginBottom: 5}]}>{this.state.language.last_data}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.last_data}</Text>
+                                <Text style={styles.details_general_page_item_info}>
+
+                                    {this.convertDateFormat(this.state.device_data.last_data)}
+
+                                </Text>
                             </View>
-                            <View style={[styles.details_general_page_item, {flexDirection: 'column', alignItems: 'flex-start'}]}>
+                            <View style={[styles.details_general_page_item, {flexDirection: 'row', alignItems: 'flex-start'}]}>
                                 <Text style={[styles.details_general_page_item_title, {marginBottom: 5}]}>{this.state.language.started_time}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.start_time}</Text>
+                                <Text style={styles.details_general_page_item_info}>
+
+                                    {this.convertDateFormat(this.state.device_data.start_time)}
+
+                                </Text>
                             </View>
                         </View>
 
@@ -427,7 +438,9 @@ export default class App extends Component {
 
                     <View style={styles.details_general_page_preferences_test_buttons_wrapper}>
                         <TouchableOpacity style={styles.details_general_page_preferences_button} onPress={() => {this.redirectToPreferences()}}>
-                            <Text  style={styles.details_general_page_preferences_button_text}>{this.state.language.preferences}</Text>
+                            <Text  style={styles.details_general_page_preferences_button_text}>
+                                {this.state.language.preferences}
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity  style={styles.details_general_page_test_button} onPress={() => {this.redirectToTestMode()}}>
                             <View  style={styles.details_general_page_test_button_icon}>
@@ -436,7 +449,10 @@ export default class App extends Component {
                                     <Path fillRule="evenodd" clipRule="evenodd" d="M11.535 4.74c-.334 1.303-1.044 2.043-1.839 2.52-1.044.653-2.257.653-2.967.566l1.505-5.609c.585-.087 1.797-.087 2.59.435.628.391 1.004 1 .711 2.087zM4.89 2.26L2.09 12.61H.293L0 13.652h6.938l.293-1.043H5.474l1.003-3.783c2.466.044 4.138-.26 5.392-.826 1.212-.565 1.922-1.304 2.34-2.13.251-.479.418-1.044.502-1.653.042-.478 0-.913-.21-1.304-.417-.74-1.002-1.174-1.796-1.391-.962-.305-2.174-.348-3.553-.348h-5.81L3.052 2.26H4.89zM28.964 2.043C28.964.913 28.086 0 27 0c-1.087 0-1.965.913-1.965 2.043 0 1.13.878 2.044 1.965 2.044 1.086 0 1.964-.913 1.964-2.044zm-.334 0C28.63 3 27.877 3.74 27 3.74c-.92 0-1.63-.782-1.63-1.696 0-.956.71-1.695 1.63-1.695.92 0 1.63.739 1.63 1.695zm-2.132-.782h.543c.21 0 .376.13.376.304 0 .218-.167.348-.418.348h-.501v-.652zm-.334 1.913h.334v-.957h.209c.25 0 .376.087.627.566l.167.347h.418l-.25-.434c-.168-.305-.293-.479-.502-.566.376 0 .627-.217.627-.565 0-.26-.168-.565-.71-.565h-.92v2.174z" fill="#fff"/>
                                 </Svg>
                             </View>
-                            <Text style={styles.details_general_page_test_button_text}>Test</Text>
+                            <Text style={styles.details_general_page_test_button_text}>
+                                {/*Test*/}
+                                {this.state.language.test}
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
@@ -461,7 +477,10 @@ export default class App extends Component {
                                     />
                                 </View>
                                 <TouchableOpacity style={styles.save_btn} onPress={() => {this.editName()}}>
-                                    <Text style={styles.save_btn_text}>{this.state.language.save}</Text>
+                                    <Text style={styles.save_btn_text}>
+                                        OK
+                                        {/*{this.state.language.save}*/}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -760,13 +779,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: 44,
-        backgroundColor: '#0080DE',
-        borderRadius: 20,
+        // backgroundColor: '#0080DE',
+        // borderRadius: 20,
+       // width: '100%',
+       // height: 40,
+       flexDirection: 'row',
+       // alignItems: 'center',
+       // alignSelf: 'center',
+       // justifyContent: 'center',
+       backgroundColor: '#004B84',
     },
    save_btn_text: {
         color: '#ffffff',
-        fontWeight: '700',
-        fontSize: 18,
+        // fontWeight: '700',
+        fontSize: 16,
     },
     details_general_page_preferences_test_buttons_wrapper: {
         width: '100%',

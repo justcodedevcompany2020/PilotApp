@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import {
     LineChart,
     BarChart,
@@ -152,7 +151,8 @@ export default class App extends Component {
             params: this.props.id,
             params2: this.props.device_id,
             params3: this.state.undervoltage_limit,
-            test_report_start_time : this.state.report_start_time
+            test_report_start_time : this.state.report_start_time,
+            test_report_end_time : this.state.report_end_time,
         });
     }
 
@@ -344,6 +344,7 @@ export default class App extends Component {
             let overvoltage_limit = response.upper_voltage_trigger // Overvoltage (Uppervoltage) limit красный
 
             let undervoltage  = response.undervoltage ? parseFloat(response.undervoltage) : 0;
+            let uppervoltage  = response.uppervoltage ? parseFloat(response.uppervoltage) : 0;
             let overvoltage   = response.overvoltage ? parseFloat(response.overvoltage) : 0;
             let power_outages = response.power_outages ? parseFloat(response.power_outages) : 0;
             let blue_chart_data = (100 - (undervoltage + overvoltage + power_outages));
@@ -356,6 +357,7 @@ export default class App extends Component {
                 report_start_time: response.start_date,
                 report_end_time: response.end_date,
                 undervoltage:  undervoltage,
+                uppervoltage:  uppervoltage,
                 overvoltage: overvoltage,
                 power_outages: power_outages,
                 impulse_surges:response.impulse_surges ? parseFloat(response.impulse_surges) : 0,
@@ -426,7 +428,7 @@ export default class App extends Component {
 
     convertDateFormat = (date) =>
     {
-        return moment(date).format('YYYY-MM-DD HH:mm:ss');
+        return moment(date).format('YYYY-MM-DD HH:mm');
     }
 
     render() {
@@ -502,7 +504,7 @@ export default class App extends Component {
                                                     </Defs>
                                                 </Svg>
                                                 <Text style={styles.test_report_status_start_end_time_info_item_text}>
-                                                    Will be delete at {this.getWillBeDeletedDate()}
+                                                    {this.state.language.will_be_deleted_at} {this.getWillBeDeletedDate()}
                                                 </Text>
                                             </View>
                                         }
@@ -633,13 +635,13 @@ export default class App extends Component {
                                         <TouchableOpacity
                                             style={styles.report_chart_details_item_button}
                                             onPress={() => {
-                                                if(this.state.overvoltage > 0) {
+                                                if(this.state.uppervoltage > 0) {
                                                     this.redirectToOvervoltage()
                                                 }
                                             }}
                                         >
-                                            <Text style={[styles.report_chart_details_item_button_text, this.state.overvoltage > 0 ? {} :{opacity: 0.4} ]}>
-                                                {this.state.overvoltage ? this.state.overvoltage : 0}%
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.uppervoltage > 0 ? {} :{opacity: 0.4} ]}>
+                                                {this.state.uppervoltage ? this.state.uppervoltage : 0}%
                                             </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import md5 from 'md5';
 import i18n from "i18n-js";
 import {en, ru} from "../../i18n/supportedLanguages";
@@ -429,9 +428,8 @@ export default class App extends Component {
                     <View style={styles.agreement_info_btn_wrapper}>
                         <Text style={styles.agreement_info}>{this.state.language.agree_text}</Text>
                         <Switch
-
-                            trackColor={{ false: '#767577', true: '#004B84' }}
-                            // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                            trackColor={{ false: 'silver', true: '#004B84' }}
+                            thumbColor={'white'}
                             onValueChange={this.toggleSwitch}
                             value={this.state.switchValue}
                         />

@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
-import PieChart from 'react-native-expo-pie-chart';
-import { VictoryPie } from "victory-native";
-import DatePicker from 'react-native-datepicker';
-// import { LineChart, YAxis, Grid } from 'react-native-svg-charts'
 import {AuthContext} from "../AuthContext/context";
 import i18n from "i18n-js";
 import {en, ru} from "../../i18n/supportedLanguages";
@@ -49,6 +44,7 @@ import {
 import TopMenu from "../includes/header_menu";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
+import {WebView} from "react-native-webview";
 
 
 const data = [190, 200, 210, 240, 245]
@@ -106,9 +102,12 @@ export default class App extends Component {
 
         };
 
+        this.webviewRef = React.createRef()
+
     }
 
     static contextType = AuthContext;
+
     setLanguageFromStorage = async ()=> {
 
         await AsyncStorage.getItem('language',(err,item) => {
@@ -186,6 +185,7 @@ export default class App extends Component {
         let {date_begin, date_end, chart_type} = this.state;
         let id = this.props.id; // 5
 
+        console.log(`https://apiv1.zis.ru/tests/avg_data/${id}?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=amperage`)
 
         try {
             fetch(`https://apiv1.zis.ru/tests/avg_data/${id}?date_begin=${date_begin}&date_end=${date_end}&period=${chart_type}&data_type=amperage`, {
@@ -199,9 +199,12 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
+
+                console.log(response, 'response response')
                 console.log(response.avg, 'response avg')
                 console.log(response.min, 'response min')
                 console.log(response.max, 'response max')
+
                 if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
 
                     await this.setState({
@@ -262,11 +265,9 @@ export default class App extends Component {
     setDayData = async () => {
 
         let {chartData} = this.state;
-
+        console.log(chartData, 'chartData')
         for (const item in chartData) {
             let timestamp = chartData[item].timestamp
-            // let new_timestamp = new Date(timestamp);
-            // let time = new_timestamp.getHours();
             let hours = timestamp.split('T')[1];
             chartData[item].timestamp2 = hours.slice(0,2);
         }
@@ -274,38 +275,91 @@ export default class App extends Component {
         chartData.sort(function(a, b) {
             return a.timestamp2 - b.timestamp2;
         })
-
-        // console.log(chartData, 'chartData');
+        // console.log(chartData,'chartData1')
 
         let chartData1 = [];
-        for (const item in chartData) {
-            chartData1.push(parseFloat(chartData[item].amperage));
+        for (let i = 1; i <= 24; i++) {
+            chartData1.push( [i.toString(), 0])
         }
 
-        let chartLabels = [];
-        for (const item in chartData) {
-            chartLabels.push(chartData[item].timestamp2);
+        for (const item in chartData)
+        {
+            let day = chartData[item].timestamp2;
+            let day_without_zero = day < 10 ? parseInt(day) : day;
+            console.log(day_without_zero, 'day_without_zero')
+            if(day_without_zero == 0) {
+                chartData1[day_without_zero][1] = parseFloat(chartData[item].amperage);
+            } else {
+                chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+            }
         }
 
-        chartLabels = [... new Set(chartLabels)] // get uniques value;
 
-        // console.log(chartData1, 'chartData1chartData1chartData1')
-        // console.log(chartLabels, 'chartLabels')
-        // console.log([... new Set(chartLabels)], 'chartLabelschartLabels')
+        let newChartData1 = chartData1.slice();
+        newChartData1.unshift(['Year', 'Sales']);
+        chartData1 = newChartData1;
+        console.log(chartData1, 'chartData1')
 
-        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
-        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+
+        let jsonChartData1 = JSON.stringify(chartData1);
+        this.webviewRef.current.postMessage(jsonChartData1);
+
+        console.log(jsonChartData1, 'jsonChartData1jsonChartData1')
 
         this.setState({
             chart_show:true,
-            chartData: chartData1.length > 0 ? chartData1 : [0],
-            // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
-            chart_labels: chartLabels ,
-            minimum_info: minimum_info,
-            maximum_info: maximum_info,
+            chartData: chartData1,
         })
 
     }
+    // setDayData = async () => {
+    //
+    //     let {chartData} = this.state;
+    //     console.log(chartData, 'chartData')
+    //
+    //     for (const item in chartData) {
+    //         let timestamp = chartData[item].timestamp
+    //         // let new_timestamp = new Date(timestamp);
+    //         // let time = new_timestamp.getHours();
+    //         let hours = timestamp.split('T')[1];
+    //         chartData[item].timestamp2 = hours.slice(0,2);
+    //     }
+    //
+    //     chartData.sort(function(a, b) {
+    //         return a.timestamp2 - b.timestamp2;
+    //     })
+    //
+    //     // console.log(chartData, 'chartData');
+    //
+    //     let chartData1 = [];
+    //     for (const item in chartData) {
+    //         chartData1.push(parseFloat(chartData[item].amperage));
+    //     }
+    //
+    //     let chartLabels = [];
+    //     for (const item in chartData) {
+    //         chartLabels.push(chartData[item].timestamp2);
+    //     }
+    //
+    //     chartLabels = [... new Set(chartLabels)] // get uniques value;
+    //
+    //     console.log(chartData1, 'chartData1chartData1chartData1')
+    //     // console.log(chartLabels, 'chartLabels')
+    //     // console.log([... new Set(chartLabels)], 'chartLabelschartLabels')
+    //
+    //     let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
+    //     let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+    //
+    //     this.setState({
+    //         chart_show:true,
+    //         chartData: chartData1.length > 0 ? chartData1 : [0],
+    //         // chart_labels: ['10', '11','12','13','14','15','16','17','18','19','20'],
+    //         chart_labels: chartLabels ,
+    //         minimum_info: minimum_info,
+    //         maximum_info: maximum_info,
+    //     })
+    //
+    // }
 
 
     pressToWeek = async () => {
@@ -351,6 +405,7 @@ export default class App extends Component {
         })
 
     }
+
     setWeekData = async () => {
 
         let {chartData} = this.state;
@@ -366,49 +421,112 @@ export default class App extends Component {
             return a.timestamp2 - b.timestamp2;
         })
 
+
         console.log(chartData, 'chartData');
 
         let chartData1 = [];
-        for (const item in chartData) {
-            chartData1.push(chartData[item].amperage);
-        }
 
-        let chartLabels = [];
-        for (const item in chartData) {
-            chartLabels.push(chartData[item].timestamp2);
-        }
-        chartLabels = [... new Set(chartLabels)] // get uniques value;
+        for (let i = 1; i <= 7; i++) {
 
-        for (const chartLabelsItem in chartLabels) {
+            let week_name = '';
 
-            if(chartLabels[chartLabelsItem] == 1) {
-                chartLabels[chartLabelsItem] = 'ПН'
-            } else if(chartLabels[chartLabelsItem] == 2) {
-                chartLabels[chartLabelsItem] = 'ВТ'
-            } else if(chartLabels[chartLabelsItem] == 3) {
-                chartLabels[chartLabelsItem] = 'СР'
-            } else if(chartLabels[chartLabelsItem] == 4) {
-                chartLabels[chartLabelsItem] = 'ЧТ'
-            } else if(chartLabels[chartLabelsItem] == 5) {
-                chartLabels[chartLabelsItem] = 'ПТ'
-            } else if(chartLabels[chartLabelsItem] == 6) {
-                chartLabels[chartLabelsItem] = 'СБ'
-            } else if(chartLabels[chartLabelsItem] == 0) {
-                chartLabels[chartLabelsItem] = 'ВС'
+            if(i == 1) {
+                week_name = 'ПН'
+            } else if(i == 2) {
+                week_name = 'ВТ'
+            } else if(i == 3) {
+                week_name = 'СР'
+            } else if(i == 4) {
+                week_name = 'ЧТ'
+            } else if(i == 5) {
+                week_name = 'ПТ'
+            } else if(i == 6) {
+                week_name = 'СБ'
+            } else if(i == 7) {
+                week_name = 'ВС'
             }
 
+            chartData1.push( [week_name, 0])
         }
 
-        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
-        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+        console.log(chartData1, 'chartData1');
+
+
+        for (const item in chartData)
+        {
+            let day = chartData[item].timestamp2;
+            let day_without_zero = day == 0 ? 7 : day;
+
+            chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+        }
+        console.log(chartData1, 'chartData1');
+
+
+        console.log(chartData, 'chartData');
+
+        let newChartData1 = chartData1.slice();
+        newChartData1.unshift(['Year', 'Sales']);
+        chartData1 = newChartData1;
+
+        console.log(chartData1, 'chartData1')
+        console.log(chartData, 'chartDatachartData')
+
+        let jsonChartData1 = JSON.stringify(chartData1);
+        this.webviewRef.current.postMessage(jsonChartData1);
 
         this.setState({
             chart_show:true,
-            chartData: chartData1.length > 0 ? chartData1 : [0],
-            chart_labels: chartLabels,
-            minimum_info:minimum_info,
-            maximum_info:maximum_info,
+            chartData: chartData1,
         })
+
+
+
+
+
+        //
+        // console.log(chartData, 'chartData');
+        //
+        // let chartData1 = [];
+        // for (const item in chartData) {
+        //     chartData1.push(chartData[item].amperage);
+        // }
+        //
+        // let chartLabels = [];
+        // for (const item in chartData) {
+        //     chartLabels.push(chartData[item].timestamp2);
+        // }
+        // chartLabels = [... new Set(chartLabels)] // get uniques value;
+        //
+        // for (const chartLabelsItem in chartLabels) {
+        //
+        //     if(chartLabels[chartLabelsItem] == 1) {
+        //         chartLabels[chartLabelsItem] = 'ПН'
+        //     } else if(chartLabels[chartLabelsItem] == 2) {
+        //         chartLabels[chartLabelsItem] = 'ВТ'
+        //     } else if(chartLabels[chartLabelsItem] == 3) {
+        //         chartLabels[chartLabelsItem] = 'СР'
+        //     } else if(chartLabels[chartLabelsItem] == 4) {
+        //         chartLabels[chartLabelsItem] = 'ЧТ'
+        //     } else if(chartLabels[chartLabelsItem] == 5) {
+        //         chartLabels[chartLabelsItem] = 'ПТ'
+        //     } else if(chartLabels[chartLabelsItem] == 6) {
+        //         chartLabels[chartLabelsItem] = 'СБ'
+        //     } else if(chartLabels[chartLabelsItem] == 0) {
+        //         chartLabels[chartLabelsItem] = 'ВС'
+        //     }
+        //
+        // }
+        //
+        // let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
+        // let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+        //
+        // this.setState({
+        //     chart_show:true,
+        //     chartData: chartData1.length > 0 ? chartData1 : [0],
+        //     chart_labels: chartLabels,
+        //     minimum_info:minimum_info,
+        //     maximum_info:maximum_info,
+        // })
 
     }
 
@@ -458,19 +576,14 @@ export default class App extends Component {
 
     }
     setMonthData = async () => {
+
         let {chartData} = this.state;
 
         for (const item in chartData) {
             let timestamp = chartData[item].timestamp
             let new_timestamp = new Date(timestamp);
-
             let hours = timestamp.split('T')[0];
             chartData[item].timestamp2 = hours.slice(-2);
-
-            console.log(timestamp + '==d==' + hours.slice(-2));
-
-            // let hours = new_timestamp.getDay();
-            // chartData[item].timestamp2 = hours;
 
         }
 
@@ -480,29 +593,104 @@ export default class App extends Component {
 
 
         let chartData1 = [];
-        for (const item in chartData) {
-            chartData1.push(parseFloat(chartData[item].amperage));
-        }
-        console.log(chartData1, 'chartData');
 
-        let chartLabels = [];
-        for (const item in chartData) {
-            chartLabels.push(chartData[item].timestamp2);
+        for (let i = 1; i <= 30; i++) {
+            chartData1.push( [i.toString(), 0, ])
         }
-        chartLabels = [... new Set(chartLabels)] // get uniques value;
 
-        let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
-        let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+        for (const item in chartData)
+        {
+            let day = chartData[item].timestamp2;
+            let day_without_zero = day < 10 ? day.slice(1) :  day;
+            chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+        }
+
+        let newChartData1 = chartData1.slice();
+        newChartData1.unshift(['Year', 'Sales']);
+        chartData1 = newChartData1;
+
+        console.log(chartData1, 'chartData1')
+        console.log(chartData, 'chartDatachartData')
+
+        let jsonChartData1 = JSON.stringify(chartData1);
+        this.webviewRef.current.postMessage(jsonChartData1);
 
         this.setState({
             chart_show:true,
-            chartData: chartData1.length > 0 ? chartData1 : [0],
-            chart_labels: chartLabels,
-            minimum_info:minimum_info,
-            maximum_info:maximum_info,
+            chartData: chartData1,
         })
 
+        //
+        // let chartData1 = [];
+        // for (const item in chartData) {
+        //     chartData1.push(parseFloat(chartData[item].amperage));
+        // }
+        // console.log(chartData1, 'chartData');
+        //
+        // let chartLabels = [];
+        // for (const item in chartData) {
+        //     chartLabels.push(chartData[item].timestamp2);
+        // }
+        // chartLabels = [... new Set(chartLabels)] // get uniques value;
+        //
+        // let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
+        // let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+        //
+        // this.setState({
+        //     chart_show:true,
+        //     chartData: chartData1.length > 0 ? chartData1 : [0],
+        //     chart_labels: chartLabels,
+        //     minimum_info:minimum_info,
+        //     maximum_info:maximum_info,
+        // })
+
     }
+    // setMonthData = async () => {
+    //     let {chartData} = this.state;
+    //
+    //     for (const item in chartData) {
+    //         let timestamp = chartData[item].timestamp
+    //         let new_timestamp = new Date(timestamp);
+    //
+    //         let hours = timestamp.split('T')[0];
+    //         chartData[item].timestamp2 = hours.slice(-2);
+    //
+    //         console.log(timestamp + '==d==' + hours.slice(-2));
+    //
+    //         // let hours = new_timestamp.getDay();
+    //         // chartData[item].timestamp2 = hours;
+    //
+    //     }
+    //
+    //     chartData.sort(function(a, b) {
+    //         return a.timestamp2 - b.timestamp2;
+    //     })
+    //
+    //
+    //     let chartData1 = [];
+    //     for (const item in chartData) {
+    //         chartData1.push(parseFloat(chartData[item].amperage));
+    //     }
+    //     console.log(chartData1, 'chartData');
+    //
+    //     let chartLabels = [];
+    //     for (const item in chartData) {
+    //         chartLabels.push(chartData[item].timestamp2);
+    //     }
+    //     chartLabels = [... new Set(chartLabels)] // get uniques value;
+    //
+    //     let minimum_info = chartData1.length > 0 ? Math.min(...chartData1) : 0;
+    //     let maximum_info = chartData1.length > 0 ? Math.max(...chartData1) : 0;
+    //
+    //     this.setState({
+    //         chart_show:true,
+    //         chartData: chartData1.length > 0 ? chartData1 : [0],
+    //         chart_labels: chartLabels,
+    //         minimum_info:minimum_info,
+    //         maximum_info:maximum_info,
+    //     })
+    //
+    // }
 
 
 
@@ -749,11 +937,13 @@ export default class App extends Component {
                                 </View>
                                 <View style={styles.impulse_surges_item}>
                                     <Text style={styles.impulse_surges_item_title}>{this.state.language.minimum}</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.minimum_info} V</Text>
+                                    {/*<Text style={styles.impulse_surges_item_info}>{this.state.minimum_info} V</Text>*/}
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.amperage_min} V</Text>
                                 </View>
                                 <View style={styles.impulse_surges_item}>
                                     <Text style={styles.impulse_surges_item_title}>{this.state.language.maximum}</Text>
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.maximum_info} V</Text>
+                                    {/*<Text style={styles.impulse_surges_item_info}>{this.state.maximum_info} V</Text>*/}
+                                    <Text style={styles.impulse_surges_item_info}>{this.state.amperage_max} V</Text>
                                 </View>
 
                             </View>
@@ -763,7 +953,7 @@ export default class App extends Component {
                                     onPress={() => {
                                         this.pressToDay()
                                     }}
-                                    style={styles.impulse_surges_dates_info_button}
+                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'day' ? styles.active_impulse_surges_dates_info_button : {}]}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>
                                 </TouchableOpacity>
@@ -771,7 +961,7 @@ export default class App extends Component {
                                     onPress={() => {
                                         this.pressToWeek()
                                     }}
-                                    style={styles.impulse_surges_dates_info_button}
+                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'week' ? styles.active_impulse_surges_dates_info_button : {}]}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>
                                 </TouchableOpacity>
@@ -779,7 +969,7 @@ export default class App extends Component {
                                     onPress={() => {
                                         this.pressToMonth()
                                     }}
-                                    style={styles.impulse_surges_dates_info_button}
+                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'month' ? styles.active_impulse_surges_dates_info_button : {}]}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>
                                 </TouchableOpacity>
@@ -787,54 +977,109 @@ export default class App extends Component {
 
                             <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
 
+                                <View style={{height: 300, backgroundColor:'red', width: '100%'}}>
+
+                                    <WebView
+                                        // onLoadStart={() => setVisible(true)}
+                                        onLoad={() => this.pressToDay()}
+                                        mixedContentMode="compatibility"
+                                        ref={this.webviewRef}
+                                        source={{ html: `
+                                        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+                                        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                                        
+                                          <script type="text/javascript">
+                                                document.addEventListener("message", message => {
+
+                                                  google.charts.load('current', {'packages': ['corechart']});
+                                                  google.charts.setOnLoadCallback(drawChart);
+                                            
+                                                  function drawChart() {
+                                                    var chartData1 =  JSON.parse(message.data)     
+                                                    // alert(chartData1)
+                                                    // alert(message.data)
+                                                    //  var data = google.visualization.arrayToDataTable([
+                                                    //   ['', ''],
+                                                    //   ['2004',  1000],
+                                                    //   ['2005',  1170],
+                                                    //   ['2006',  660,],
+                                                    //   ['2007',  1030]
+                                                    // ]);
+
+                                                    var data = google.visualization.arrayToDataTable(chartData1);
+                                            
+                                                    var options = {
+                                                        isStacked: false,
+
+                                                      hAxis: {title: '',  titleTextStyle: {color: '#333'}},
+                                                      vAxis: {minValue: 0},
+                                                      legend: 'none'
+
+                                                    };
+                                            
+                                                      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+                                                       chart.draw(data, options);
+                                                  }
+
+                                                });
+
+                                                 
+                                          
+                                          
+                                          </script>
+                                        <div id="curve_chart" style="width: 100%; height: 300px;"></div>` }}
+                                    />
+
+
+                                </View>
                                 {/*<View style={[styles.impulse_surges_item_img]}>*/}
                                 {/*    <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img5.png')}/>*/}
                                 {/*</View>*/}
 
-                                <View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>
+                                {/*<View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>*/}
 
-                                    {this.state.chart_show ?
+                                {/*    {this.state.chart_show ?*/}
 
-                                        <LineChart
-                                            data={{
-                                                labels:  this.state.chart_labels,
-                                                datasets: [
-                                                    // {
-                                                    //     data: [130, 135, 140, 145,  260,130, 135, 140, 145, 260, 220 ],
-                                                    //     // color: (opacity = 1) => `silver`, // optional
-                                                    //     strokeWidth: 2, // optional
-                                                    //     withDots: false, //a flage to make it hidden
-                                                    // },
+                                {/*        <LineChart*/}
+                                {/*            data={{*/}
+                                {/*                labels:  this.state.chart_labels,*/}
+                                {/*                datasets: [*/}
+                                {/*                    // {*/}
+                                {/*                    //     data: [130, 135, 140, 145,  260,130, 135, 140, 145, 260, 220 ],*/}
+                                {/*                    //     // color: (opacity = 1) => `silver`, // optional*/}
+                                {/*                    //     strokeWidth: 2, // optional*/}
+                                {/*                    //     withDots: false, //a flage to make it hidden*/}
+                                {/*                    // },*/}
 
-                                                    {
-                                                        data: this.state.chartData, //, [210, 215, 240, 220, 210],
-                                                        // color: (opacity = 1) => `silver`, // optional
-                                                        // strokeWidth: 2 // optional
-                                                        withDots: false, //a flage to make it hidden
-                                                    },
-                                                ],
-                                            }}
-                                            width={screenWidth}
-                                            height={220}
-                                            chartConfig={chartConfig}
-                                            // bezier
-                                            withDots={true}
-                                            withInnerLines={true}
-                                            withOuterLines={false}
-                                            withVerticalLines={false}
-                                            withHorizontalLines={true}
-                                            // yAxisSuffix={'V'}
-                                            // fromNumber={260}
-                                            // fromZero={false}
-                                        />
+                                {/*                    {*/}
+                                {/*                        data: this.state.chartData, //, [210, 215, 240, 220, 210],*/}
+                                {/*                        // color: (opacity = 1) => `silver`, // optional*/}
+                                {/*                        // strokeWidth: 2 // optional*/}
+                                {/*                        withDots: false, //a flage to make it hidden*/}
+                                {/*                    },*/}
+                                {/*                ],*/}
+                                {/*            }}*/}
+                                {/*            width={screenWidth}*/}
+                                {/*            height={220}*/}
+                                {/*            chartConfig={chartConfig}*/}
+                                {/*            // bezier*/}
+                                {/*            withDots={true}*/}
+                                {/*            withInnerLines={true}*/}
+                                {/*            withOuterLines={false}*/}
+                                {/*            withVerticalLines={false}*/}
+                                {/*            withHorizontalLines={true}*/}
+                                {/*            // yAxisSuffix={'V'}*/}
+                                {/*            // fromNumber={260}*/}
+                                {/*            // fromZero={false}*/}
+                                {/*        />*/}
 
-                                        :
+                                {/*        :*/}
 
-                                        <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>
-                                            <ActivityIndicator size="large" color="#0000ff"/>
-                                        </View>
-                                    }
-                                </View>
+                                {/*        <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>*/}
+                                {/*            <ActivityIndicator size="large" color="#0000ff"/>*/}
+                                {/*        </View>*/}
+                                {/*    }*/}
+                                {/*</View>*/}
 
 
 
@@ -1131,7 +1376,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 44,
+        // marginBottom: 44,
         paddingLeft: 18,
         paddingRight: 21,
     },
@@ -1174,4 +1419,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         fontSize: 16,
     },
+    active_impulse_surges_dates_info_button: {
+        backgroundColor:'#05365a'
+    }
 });

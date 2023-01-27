@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
-import PieChart from 'react-native-expo-pie-chart';
-import { VictoryPie } from "victory-native";
-import DatePicker from 'react-native-datepicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from "moment";
 
@@ -701,7 +697,6 @@ export default class App extends Component {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-
 
             }).then((response) => {
                 return response.json()
@@ -1761,7 +1756,7 @@ export default class App extends Component {
                             </Svg>
                         </TouchableOpacity>
 
-                        <Text style={styles.turn_off_the_load_switch_value_popup_title}>Share</Text>
+                        <Text style={styles.turn_off_the_load_switch_value_popup_title}>{this.state.language.share}</Text>
 
                         {this.state.shared_popup_email_error &&
                             <Text style={{width: '100%', textAlign:'left', fontSize: 13, color: 'red', marginBottom: 5}}>
@@ -1773,7 +1768,7 @@ export default class App extends Component {
                             style={styles.login_input_field}
                             onChangeText={(val) => this.setState({email: val})}
                             value={this.state.email}
-                            placeholder="Email address"
+                            placeholder="E-mail"
                             placeholderTextColor='#4A4A4A'
                         />
                         <TouchableOpacity style={styles.turn_off_the_load_switch_value_popup_confirm_btn}
@@ -1781,7 +1776,9 @@ export default class App extends Component {
                                   this.sharedNewAccount()
                               }}
                         >
-                            <Text style={styles.turn_off_the_load_switch_value_popup_confirm_btn_text}>Ok</Text>
+                            <Text style={styles.turn_off_the_load_switch_value_popup_confirm_btn_text}>
+                                {this.state.language.share_button}
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
@@ -1830,12 +1827,13 @@ export default class App extends Component {
                                     {this.state.language.power_protection}
                                 </Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
-                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.powerProtectionToggleSwitch}
                                     value={this.state.powerProtectionSwitchValue}
                                 />
                             </View>
+
                             <View style={styles.new_test_item}>
                                 <Text style={styles.new_test_item_title}>
                                     {/*Pre-configuration*/}
@@ -1850,19 +1848,20 @@ export default class App extends Component {
                                     </View>
                                 </TouchableOpacity>
                             </View>
+
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>
-                                    {this.state.language.protection_upper_voltage_title}
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                    {this.state.language.protection_upper_voltage_title2}
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE',  }]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE',  }]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionUpperVoltage(val)
                                         }}
                                         value={this.state.protection_upper_voltage_input}
                                         // placeholder='3.43'
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
                                         editable={this.state.protection_preset != 'Manual setup' ? false : true}
                                         // keyboardType = 'numeric'
                                         // keyboardType="numeric"
@@ -1871,8 +1870,15 @@ export default class App extends Component {
                                 </View>
 
                             </View>
+
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>{this.state.language.upper_voltage_sec}</Text>
+
+                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+
+                                    {this.state.language.upper_voltage_sec2}
+
+                                </Text>
+
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
                                     if (this.state.protection_preset != 'Manual setup') {
                                         return false
@@ -1882,32 +1888,46 @@ export default class App extends Component {
                                         })
                                     }
                                 }}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.upper_voltage_delay}</Text>
+                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                        {this.state.upper_voltage_delay}
+                                    </Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'Manual setup' ? "#004b8469" : "#004B84"}/>
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'Manual setup' ? "silver" : "#004B84"}/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
                             </View>
+
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.protection_lower_voltage_title}</Text>
+
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'Manual setup' && {color: 'silver'} ]}>
+                                    {this.state.language.protection_lower_voltage_title2}
+                                </Text>
+
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionLowerVoltage(val);
                                         }}
                                         value={this.state.protection_lower_voltage_input}
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
                                         editable={this.state.protection_preset != 'Manual setup' ? false : true}
                                     />
                                 </View>
 
                             </View>
+
+
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>{this.state.language.lower_voltage_delay_sec}</Text>
+
+                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                    {this.state.language.lower_voltage_delay_sec2}
+                                </Text>
+
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
+
                                     if (this.state.protection_preset != 'Manual setup') {
                                         return false
                                     } else  {
@@ -1916,42 +1936,50 @@ export default class App extends Component {
                                         })
                                     }
                                 }}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.lower_voltage_delay}</Text>
+                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>{this.state.lower_voltage_delay}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'Manual setup' ? "#004b8469" : "#004B84"}/>
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'Manual setup' ? "silver" : "#004B84"}/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
                             </View>
 
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.power_restore_delay_sec}</Text>
+                                <Text
+                                    style={[
+                                        styles.new_test_item_title,
+                                        {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'},
+                                        this.state.protection_preset != 'Manual setup' && {color: 'silver'}
+                                    ]}
+                                >
+                                    {this.state.language.power_restore_delay_sec}
+                                </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.choosePowerRestoreDelay(val);
                                         }}
                                         value={this.state.power_restore_delay_input}
                                         // placeholder="3500"
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
                                         editable={this.state.protection_preset != 'Manual setup' ? false : true}
                                     />
                                 </View>
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.startup_delay_sec}</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>{this.state.language.startup_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'Manual setup' ?  '#10bcce4d' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.chooseStartupDelay(val);
                                         }}
                                         value={this.state.startup_delay_input}
                                         // placeholder="3500"
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? '#10bcce4d' : '#10BCCE'}
+                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
                                         editable={this.state.protection_preset != 'Manual setup' ? false : true}
                                     />
                                 </View>
@@ -1992,9 +2020,8 @@ export default class App extends Component {
                             <View style={styles.new_test_item}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.use_schedule}</Text>
                                 <Switch
-
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
-                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useScheduleToggleSwitch}
                                     value={this.state.useScheduleSwitchValue}
                                 />
@@ -2053,8 +2080,8 @@ export default class App extends Component {
                             <View style={styles.new_test_item}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.push_notifications}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
-                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.pushNotificationsToggleSwitch}
                                     value={this.state.pushNotificationsSwitchValue}
                                 />
@@ -2063,7 +2090,7 @@ export default class App extends Component {
                             <View style={[styles.new_test_item, {marginBottom: 25}]}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.shared_access}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({shared_access_popup: true})}}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.shared_accounts.length} account</Text>
+                                    <Text style={styles.preferences_item_btn_text}>{this.state.shared_accounts.length} {this.state.language.account}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -2087,17 +2114,8 @@ export default class App extends Component {
                                     <View style={styles.all_devices_general_page_header_child}>
                                         <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.setState({pre_configuration_popup: false})}}>
                                             <View style={styles.back_btn}>
-                                                <Svg
-                                                    width={12}
-                                                    height={20}
-                                                    viewBox="0 0 12 20"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <Path
-                                                        d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z"
-                                                        fill="#004B84"
-                                                    />
+                                                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
                                                 </Svg>
                                             </View>
                                             <Text style={styles.all_devices_general_page_header_title}>{this.state.language.pre_configuration}</Text>
@@ -2129,7 +2147,9 @@ export default class App extends Component {
                                                 </View>
                                                 }
                                             </TouchableOpacity>
-                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>AV</Text>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>
+                                                {this.state.language.av}
+                                            </Text>
 
                                         </View>
                                         <View style={styles.sort_by_pre_configuration_radio_input}>
@@ -2151,7 +2171,10 @@ export default class App extends Component {
                                                 </View>
                                                 }
                                             </TouchableOpacity>
-                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Air conditioner</Text>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>
+                                                {this.state.language.air_conditioner}
+                                                {/*Air conditioner*/}
+                                            </Text>
 
                                         </View>
                                         <View style={styles.sort_by_pre_configuration_radio_input}>
@@ -2167,13 +2190,17 @@ export default class App extends Component {
                                                     })
                                                     this.chooseNewPreConfiguration('sort_by_pre_configuration3')
                                                 }}>
-                                                {this.state.sort_by_pre_configuration3 &&
-                                                <View style={styles.activeRadioRound}>
 
-                                                </View>
+                                                {this.state.sort_by_pre_configuration3 &&
+                                                    <View style={styles.activeRadioRound}>
+
+                                                    </View>
                                                 }
                                             </TouchableOpacity>
-                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Refrigerator</Text>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>
+                                                {this.state.language.refrigerator}
+                                                {/*Refrigerator*/}
+                                            </Text>
 
                                         </View>
                                         <View style={styles.sort_by_pre_configuration_radio_input}>
@@ -2195,7 +2222,12 @@ export default class App extends Component {
                                                 </View>
                                                 }
                                             </TouchableOpacity>
-                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Other home  appliance</Text>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>
+                                                {this.state.language.other_home_appliance}
+
+                                                {/*Other home  appliance*/}
+
+                                            </Text>
 
                                         </View>
                                         <View style={styles.sort_by_pre_configuration_radio_input}>
@@ -2217,7 +2249,11 @@ export default class App extends Component {
                                                 </View>
                                                 }
                                             </TouchableOpacity>
-                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>Manual setup</Text>
+                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>
+                                                {this.state.language.manual_setup}
+
+                                                {/*Manual setup*/}
+                                            </Text>
 
                                         </View>
 
@@ -2388,7 +2424,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.monday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDayMondayToggleSwitch}
                                     value={this.state.useWeekDayMondaySwitchValue}
                                 />
@@ -2396,7 +2433,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.tuesday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDayTuesdayToggleSwitch}
                                     value={this.state.useWeekDayTuesdaySwitchValue}
                                 />
@@ -2404,7 +2442,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.wednesday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDayWednesdayToggleSwitch}
                                     value={this.state.useWeekDayWednesdaySwitchValue}
                                 />
@@ -2412,7 +2451,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.thursday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDayThursdayToggleSwitch}
                                     value={this.state.useWeekDayThursdaySwitchValue}
                                 />
@@ -2420,7 +2460,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.friday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDayFridayToggleSwitch}
                                     value={this.state.useWeekDayFridaySwitchValue}
                                 />
@@ -2428,7 +2469,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.saturday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDaySaturdayToggleSwitch}
                                     value={this.state.useWeekDaySaturdaySwitchValue}
                                 />
@@ -2436,7 +2478,8 @@ export default class App extends Component {
                             <View style={styles.week_days_item}>
                                 <Text style={styles.week_day_name}>{this.state.language.sunday}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.useWeekDaySundayToggleSwitch}
                                     value={this.state.useWeekDaySundaySwitchValue}
                                 />

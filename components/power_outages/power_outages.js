@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
-import PieChart from 'react-native-expo-pie-chart';
-import { VictoryPie } from "victory-native";
-import DatePicker from 'react-native-datepicker';
 import {AuthContext} from "../AuthContext/context";
 import i18n from "i18n-js";
 import {en, ru} from "../../i18n/supportedLanguages";
@@ -843,7 +839,7 @@ export default class App extends Component {
                                     onPress={() => {
                                         this.pressToDay()
                                     }}
-                                    style={styles.impulse_surges_dates_info_button}
+                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'day' ? styles.active_impulse_surges_dates_info_button : {}]}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>
                                 </TouchableOpacity>
@@ -852,7 +848,7 @@ export default class App extends Component {
                                     onPress={() => {
                                         this.pressToWeek()
                                     }}
-                                    style={styles.impulse_surges_dates_info_button}
+                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'week' ? styles.active_impulse_surges_dates_info_button : {}]}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>
                                 </TouchableOpacity>
@@ -861,7 +857,7 @@ export default class App extends Component {
                                     onPress={() => {
                                         this.pressToMonth()
                                     }}
-                                    style={styles.impulse_surges_dates_info_button}
+                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'month' ? styles.active_impulse_surges_dates_info_button : {}]}
                                 >
                                     <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>
                                 </TouchableOpacity>
@@ -1327,6 +1323,9 @@ const styles = StyleSheet.create({
         position:'absolute',
         bottom:-20,
         alignSelf: 'center'
+    },
+    active_impulse_surges_dates_info_button: {
+        backgroundColor:'#05365a'
     }
 
 });

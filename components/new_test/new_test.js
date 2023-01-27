@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
-import PieChart from 'react-native-expo-pie-chart';
-import { VictoryPie } from "victory-native";
-import DatePicker from 'react-native-datepicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {AuthContext} from "../AuthContext/context";
@@ -56,6 +52,7 @@ export default class App extends Component {
             headerMenuPopup: false,
             turnOffTheLoadSwitchValue: false,
             settingNameSwitchValue: false,
+
             setting_name1: '',
             setting_name2: '',
             setting_name3: '',
@@ -75,21 +72,24 @@ export default class App extends Component {
             turnOffTheLoadSwitchValuePopup: false,
             turnOnnTheLoadSwitchValuePopup: false,
             protection_upper_voltage_input_error: false,
-            upper_voltage_delay_popup: false,
-            upper_voltage_delay: '',
+            // upper_voltage_delay_popup: false,
+            // upper_voltage_delay: '',
             selectedUpperVoltageDelay: '',
             protection_upper_voltage_input: '250',
 
             protection_lower_voltage_input_error: false,
-            protection_lower_voltage_input: '',
+            protection_lower_voltage_input: '0',
 
-            lower_voltage_delay_popup: false,
+            impulse_surges_limit_error: false,
+            impulse_surges_limit_input: '0',
+
+            // lower_voltage_delay_popup: false,
             selectedLowerVoltageDelay: null,
-            power_restore_delay_input_error: false,
-            power_restore_delay_input: '',
-            startup_delay_input_error: false,
-
-            startup_delay_input: '',
+            // power_restore_delay_input_error: false,
+            // power_restore_delay_input: '',
+            // startup_delay_input_error: false,
+            //
+            // startup_delay_input: '',
             selectedUpperVoltageDelay_error: false,
             selectedLowerVoltageDelay_error: false,
 
@@ -115,49 +115,49 @@ export default class App extends Component {
 
             date_error: false,
             date_error_text: '',
-            upper_voltage_delay_data: [
-                {label: '0', value: '0'},
-                {label: '0.5', value: '0.5'},
-                {label: '1', value: '1'},
-                {label: '1.5', value: '1.5'},
-                {label: '2', value: '2'},
-                {label: '2.5', value: '2.5'},
-                {label: '3', value: '3'},
-                {label: '3.5', value: '3.5'},
-                {label: '4', value: '4'},
-                {label: '4.5', value: '4.5'},
-                {label: '5', value: '5'},
-                {label: '5.5', value: '5.5'},
-                {label: '6', value: '6'},
-                {label: '6.5', value: '6.5'},
-                {label: '7', value: '7'},
-                {label: '7.5', value: '7.5'},
-                {label: '8', value: '8'},
-                {label: '8.5', value: '8.5'},
-                {label: '9', value: '9'},
-                {label: '9.5', value: '9.5'},
-                {label: '10', value: '10'},
-                {label: '10.5', value: '10.5'},
-                {label: '11', value: '11'},
-                {label: '11.5', value: '11.5'},
-                {label: '12', value: '12'},
-                {label: '12.5', value: '12.5'},
-                {label: '13', value: '13'},
-                {label: '13.5', value: '13.5'},
-                {label: '14', value: '14'},
-                {label: '14.5', value: '14.5'},
-                {label: '15', value: '15'},
-                {label: '15.5', value: '15.5'},
-                {label: '16', value: '16'},
-                {label: '16.5', value: '16.5'},
-                {label: '17', value: '17'},
-                {label: '17.5', value: '17.5'},
-                {label: '18', value: '18'},
-                {label: '18.5', value: '18.5'},
-                {label: '19', value: '19'},
-                {label: '19.5', value: '19.5'},
-                {label: '20', value: '20'},
-            ],
+            // upper_voltage_delay_data: [
+            //     {label: '0', value: '0'},
+            //     {label: '0.5', value: '0.5'},
+            //     {label: '1', value: '1'},
+            //     {label: '1.5', value: '1.5'},
+            //     {label: '2', value: '2'},
+            //     {label: '2.5', value: '2.5'},
+            //     {label: '3', value: '3'},
+            //     {label: '3.5', value: '3.5'},
+            //     {label: '4', value: '4'},
+            //     {label: '4.5', value: '4.5'},
+            //     {label: '5', value: '5'},
+            //     {label: '5.5', value: '5.5'},
+            //     {label: '6', value: '6'},
+            //     {label: '6.5', value: '6.5'},
+            //     {label: '7', value: '7'},
+            //     {label: '7.5', value: '7.5'},
+            //     {label: '8', value: '8'},
+            //     {label: '8.5', value: '8.5'},
+            //     {label: '9', value: '9'},
+            //     {label: '9.5', value: '9.5'},
+            //     {label: '10', value: '10'},
+            //     {label: '10.5', value: '10.5'},
+            //     {label: '11', value: '11'},
+            //     {label: '11.5', value: '11.5'},
+            //     {label: '12', value: '12'},
+            //     {label: '12.5', value: '12.5'},
+            //     {label: '13', value: '13'},
+            //     {label: '13.5', value: '13.5'},
+            //     {label: '14', value: '14'},
+            //     {label: '14.5', value: '14.5'},
+            //     {label: '15', value: '15'},
+            //     {label: '15.5', value: '15.5'},
+            //     {label: '16', value: '16'},
+            //     {label: '16.5', value: '16.5'},
+            //     {label: '17', value: '17'},
+            //     {label: '17.5', value: '17.5'},
+            //     {label: '18', value: '18'},
+            //     {label: '18.5', value: '18.5'},
+            //     {label: '19', value: '19'},
+            //     {label: '19.5', value: '19.5'},
+            //     {label: '20', value: '20'},
+            // ],
 
             language: en,
             language_name: 'en',
@@ -289,9 +289,25 @@ export default class App extends Component {
 
         // startCompletedDate
         // endCompletedDate
-        let {startCompletedDate, endCompletedDate, protection_upper_voltage_input, selectedUpperVoltageDelay, protection_lower_voltage_input, selectedLowerVoltageDelay, power_restore_delay_input, startup_delay_input} = this.state;
+        let {startCompletedDate, endCompletedDate, protection_upper_voltage_input, selectedUpperVoltageDelay, protection_lower_voltage_input, selectedLowerVoltageDelay, power_restore_delay_input, startup_delay_input, impulse_surges_limit_input} = this.state;
 
-        if (startCompletedDate.length == '' || endCompletedDate.length == '' || protection_upper_voltage_input < 230 || protection_upper_voltage_input > 280  || selectedUpperVoltageDelay == ''  || protection_lower_voltage_input < 150 || protection_lower_voltage_input > 220 || selectedLowerVoltageDelay == '' || power_restore_delay_input > 300 || startup_delay_input > 300 ) {
+        if (startCompletedDate.length == ''
+            || endCompletedDate.length == ''
+            || protection_upper_voltage_input < 230
+            || protection_upper_voltage_input > 280
+            // || selectedUpperVoltageDelay == ''
+            || protection_lower_voltage_input < 150
+            || protection_lower_voltage_input > 220
+
+            || impulse_surges_limit_input < 2
+            || impulse_surges_limit_input > 20
+            // || selectedLowerVoltageDelay == ''
+            // ||  power_restore_delay_input > 300
+            // || startup_delay_input > 300
+        ) {
+
+
+
             if (startCompletedDate.length == '') {
                 this.setState({
                     start_date_error: true
@@ -335,46 +351,56 @@ export default class App extends Component {
                 this.setState({
                     protection_lower_voltage_input_error: true
                 })
-                return false;
             } else {
                 this.setState({
                     protection_lower_voltage_input_error: false
                 })
             }
 
-            if (selectedLowerVoltageDelay == '') {
+
+            if (impulse_surges_limit_input < 2 || impulse_surges_limit_input > 20) {
                 this.setState({
-                    selectedLowerVoltageDelay_error: true
+                    impulse_surges_limit_error: true
                 })
             } else {
                 this.setState({
-                    selectedLowerVoltageDelay_error: false
+                    impulse_surges_limit_error: false
                 })
             }
 
-            if (power_restore_delay_input > 300) {
-                this.setState({
-                    power_restore_delay_input_error: true
-                })
+            // if (selectedLowerVoltageDelay == '') {
+            //     this.setState({
+            //         selectedLowerVoltageDelay_error: true
+            //     })
+            // } else {
+            //     this.setState({
+            //         selectedLowerVoltageDelay_error: false
+            //     })
+            // }
 
+            // if (power_restore_delay_input > 300) {
+            //     this.setState({
+            //         power_restore_delay_input_error: true
+            //     })
+            //
+            //
+            // } else {
+            //     this.setState({
+            //         power_restore_delay_input_error: false
+            //     })
+            // }
 
-            } else {
-                this.setState({
-                    power_restore_delay_input_error: false
-                })
-            }
-
-            if (startup_delay_input > 300) {
-                this.setState({
-                    startup_delay_input_error: true
-                })
-
-
-            } else {
-                this.setState({
-                    startup_delay_input_error: false
-                })
-            }
+            // if (startup_delay_input > 300) {
+            //     this.setState({
+            //         startup_delay_input_error: true
+            //     })
+            //
+            //
+            // } else {
+            //     this.setState({
+            //         startup_delay_input_error: false
+            //     })
+            // }
 
 
             return  false;
@@ -386,12 +412,12 @@ export default class App extends Component {
             start_date:  startCompletedDate,
             end_date: endCompletedDate,
             upper_voltage_trigger:  parseInt(protection_upper_voltage_input)  ,
-            upper_voltage_delay:  parseInt(selectedUpperVoltageDelay),
+            // upper_voltage_delay:  parseInt(selectedUpperVoltageDelay),
             lower_voltage_trigger:  parseInt(protection_lower_voltage_input),
-            lower_voltage_delay:  parseInt(selectedLowerVoltageDelay),
-            power_restore_delay:  parseInt(power_restore_delay_input),
-            startup_delay:  parseInt(startup_delay_input),
-
+            impulse_surges_limit:  parseInt(impulse_surges_limit_input),
+            // lower_voltage_delay:  parseInt(selectedLowerVoltageDelay),
+            // power_restore_delay:  parseInt(power_restore_delay_input),
+            // startup_delay:  parseInt(startup_delay_input),
         }, 'api')
 
         try {
@@ -403,21 +429,28 @@ export default class App extends Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+
                     device_id: id,
                     start_date:  startCompletedDate,
                     end_date: endCompletedDate,
+
                     upper_voltage_trigger:  parseInt(protection_upper_voltage_input),
-                    upper_voltage_delay:  parseInt(selectedUpperVoltageDelay),
                     lower_voltage_trigger:  parseInt(protection_lower_voltage_input),
-                    lower_voltage_delay:  parseInt(selectedLowerVoltageDelay),
-                    power_restore_delay:  parseInt(power_restore_delay_input),
-                    startup_delay:  parseInt(startup_delay_input),
+                    power_on: this.state.turnOffTheLoadSwitchValue,
+                    impulse_surges_limit:  parseInt(impulse_surges_limit_input),
+
+                    // upper_voltage_delay:  parseInt(selectedUpperVoltageDelay),
+                    // lower_voltage_delay:  parseInt(selectedLowerVoltageDelay),
+                    // power_restore_delay:  parseInt(power_restore_delay_input),
+                    // startup_delay:  parseInt(startup_delay_input),
 
                 })
 
             }).then((response) => {
                 return response.json()
             }).then((response) => {
+
+                console.log(response, 'responseeeeeeee')
 
                 if (response.hasOwnProperty('result')) {
                      if (response.result == 'success') {
@@ -473,53 +506,16 @@ export default class App extends Component {
         }
     }
 
+    //
+    // chooseUpperVoltageDelay = async (item) => {
+    //
+    //     this.setState({
+    //         selectedUpperVoltageDelay: item.value,
+    //         upper_voltage_delay_popup: false,
+    //     })
+    //
+    // }
 
-    chooseUpperVoltageDelay = async (item) => {
-
-        this.setState({
-            selectedUpperVoltageDelay: item.value,
-            upper_voltage_delay_popup: false,
-        })
-
-        // console.log( typeof item.value,item.value, 'fff');
-        //
-        // let userToken = await AsyncStorage.getItem('userToken');
-        // let AuthStr   = 'Bearer ' + userToken;
-        // let id        = this.props.id;
-        //
-        // console.log(`https://apiv1.zis.ru/devices/`+ id);
-        // console.log(AuthStr);
-        //
-        //
-        // try {
-        //     fetch(`https://apiv1.zis.ru/devices/`+ id, {
-        //         method: 'PATCH',
-        //         headers: {
-        //             'Authorization': AuthStr,
-        //             'Accept': 'application/json',
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({
-        //             upper_voltage_delay: parseInt(item.value),
-        //         })
-        //     }).then((response) => {
-        //         return response.json()
-        //     }).then((response) => {
-        //
-        //         console.log(response, ' DEVICE Data')
-        //
-        //         this.setState({
-        //             upper_voltage_delay_popup: false,
-        //         })
-        //         this.getDeviceData();
-        //
-        //
-        //     })
-        // } catch (e) {
-        //     console.log(e)
-        // }
-
-    }
     chooseProtectionLowerVoltage = async (val) => {
 
         val = val.replace(/\D/g, '');
@@ -536,227 +532,131 @@ export default class App extends Component {
             this.setState({
                 protection_lower_voltage_input_error: false
             })
-            // let userToken = await AsyncStorage.getItem('userToken');
-            // let AuthStr = 'Bearer ' + userToken;
-            // let id = this.props.id;
-            //
-            // try {
-            //     fetch(`https://apiv1.zis.ru/devices/`+ id, {
-            //         method: 'PATCH',
-            //         headers: {
-            //             'Authorization': AuthStr,
-            //             'Accept': 'application/json',
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({
-            //             lower_voltage_trigger: protection_lower_voltage_input,
-            //
-            //         })
-            //
-            //
-            //
-            //     }).then((response) => {
-            //         return response.json()
-            //     }).then((response) => {
-            //
-            //         console.log(response, ' DEVICE Data')
-            //
-            //         // this.setState({
-            //         //     // name: this.state.edit_name,
-            //         //     pre_configuration_popup: false,
-            //         // })
-            //
-            //         // this.getDeviceData();
-            //
-            //
-            //
-            //
-            //
-            //
-            //     })
-            // } catch (e) {
-            //     console.log(e)
-            // }
+
         }
 
-
-
-
     }
-    chooseLowerVoltageDelay = async (item) => {
 
-        this.setState({
-            selectedLowerVoltageDelay: item.value,
-            lower_voltage_delay_popup: false,
-        })
 
-        // console.log( typeof item.value,item.value, 'fff');
-        //
-        // let userToken = await AsyncStorage.getItem('userToken');
-        // let AuthStr   = 'Bearer ' + userToken;
-        // let id        = this.props.id;
-        //
-        // console.log(`https://apiv1.zis.ru/devices/`+ id);
-        // console.log(AuthStr);
-        //
-        //
-        // try {
-        //     fetch(`https://apiv1.zis.ru/devices/`+ id, {
-        //         method: 'PATCH',
-        //         headers: {
-        //             'Authorization': AuthStr,
-        //             'Accept': 'application/json',
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({
-        //             lower_voltage_delay: parseInt(item.value),
-        //         })
-        //     }).then((response) => {
-        //         return response.json()
-        //     }).then((response) => {
-        //
-        //         console.log(response, ' DEVICE Data')
-        //
-        //         this.setState({
-        //             lower_voltage_delay_popup: false,
-        //         })
-        //         this.getDeviceData();
-        //
-        //
-        //     })
-        // } catch (e) {
-        //     console.log(e)
-        // }
-
-    }
-    choosePowerRestoreDelay = async (val) => {
+    chooseImpulseSurgesLimit = async (val) => {
 
         val = val.replace(/\D/g, '');
 
-        this.setState({power_restore_delay_input: val});
+        this.setState({impulse_surges_limit_input: val});
 
-        let power_restore_delay_input = val;
-        if (power_restore_delay_input > 300 ) {
+        let impulse_surges_limit_input = val;
+        if (impulse_surges_limit_input < 2 || impulse_surges_limit_input > 20 ) {
             this.setState({
-                power_restore_delay_input_error: true
+                impulse_surges_limit_error: true
             })
             return false;
-
         } else  {
             this.setState({
-                power_restore_delay_input_error: false
+                impulse_surges_limit_error: false
             })
-            // let userToken = await AsyncStorage.getItem('userToken');
-            // let AuthStr = 'Bearer ' + userToken;
-            // let id = this.props.id;
-            //
-            // try {
-            //     fetch(`https://apiv1.zis.ru/devices/`+ id, {
-            //         method: 'PATCH',
-            //         headers: {
-            //             'Authorization': AuthStr,
-            //             'Accept': 'application/json',
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({
-            //             power_restore_delay: power_restore_delay_input,
-            //
-            //         })
-            //
-            //
-            //
-            //     }).then((response) => {
-            //         return response.json()
-            //     }).then((response) => {
-            //
-            //         console.log(response, ' DEVICE Data')
-            //
-            //         // this.setState({
-            //         //     // name: this.state.edit_name,
-            //         //     pre_configuration_popup: false,
-            //         // })
-            //
-            //         // this.getDeviceData();
-            //
-            //
-            //
-            //
-            //
-            //
-            //     })
-            // } catch (e) {
-            //     console.log(e)
-            // }
+
         }
 
-
-
-
     }
-    chooseStartupDelay = async (val) => {
-
-        val = val.replace(/\D/g, '');
-
-        this.setState({startup_delay_input: val});
-
-        let startup_delay_input = val;
-        if (startup_delay_input > 300 ) {
-            this.setState({
-                startup_delay_input_error: true
-            })
-            return false;
-
-        } else  {
-            this.setState({
-                startup_delay_input_error: false
-            })
-            // let userToken = await AsyncStorage.getItem('userToken');
-            // let AuthStr = 'Bearer ' + userToken;
-            // let id = this.props.id;
-            //
-            // try {
-            //     fetch(`https://apiv1.zis.ru/devices/`+ id, {
-            //         method: 'PATCH',
-            //         headers: {
-            //             'Authorization': AuthStr,
-            //             'Accept': 'application/json',
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({
-            //             startup_delay: startup_delay_input,
-            //
-            //         })
-            //
-            //
-            //
-            //     }).then((response) => {
-            //         return response.json()
-            //     }).then((response) => {
-            //
-            //         console.log(response, ' DEVICE Data')
-            //
-            //         // this.setState({
-            //         //     // name: this.state.edit_name,
-            //         //     pre_configuration_popup: false,
-            //         // })
-            //
-            //         // this.getDeviceData();
-            //
-            //
-            //
-            //
-            //
-            //
-            //     })
-            // } catch (e) {
-            //     console.log(e)
-            // }
-        }
 
 
+    // chooseLowerVoltageDelay = async (item) => {
+    //
+    //     this.setState({
+    //         selectedLowerVoltageDelay: item.value,
+    //         lower_voltage_delay_popup: false,
+    //     })
+    //
+    // }
+    // choosePowerRestoreDelay = async (val) => {
+    //
+    //     val = val.replace(/\D/g, '');
+    //
+    //     this.setState({power_restore_delay_input: val});
+    //
+    //     let power_restore_delay_input = val;
+    //     if (power_restore_delay_input > 300 ) {
+    //         this.setState({
+    //             power_restore_delay_input_error: true
+    //         })
+    //         return false;
+    //
+    //     } else  {
+    //         this.setState({
+    //             power_restore_delay_input_error: false
+    //         })
+    //
+    //     }
+    //
+    //
+    //
+    //
+    // }
 
-
-    }
+    // chooseStartupDelay = async (val) => {
+    //
+    //     val = val.replace(/\D/g, '');
+    //
+    //     this.setState({startup_delay_input: val});
+    //
+    //     let startup_delay_input = val;
+    //     if (startup_delay_input > 300 ) {
+    //         this.setState({
+    //             startup_delay_input_error: true
+    //         })
+    //         return false;
+    //
+    //     } else  {
+    //         this.setState({
+    //             startup_delay_input_error: false
+    //         })
+    //         // let userToken = await AsyncStorage.getItem('userToken');
+    //         // let AuthStr = 'Bearer ' + userToken;
+    //         // let id = this.props.id;
+    //         //
+    //         // try {
+    //         //     fetch(`https://apiv1.zis.ru/devices/`+ id, {
+    //         //         method: 'PATCH',
+    //         //         headers: {
+    //         //             'Authorization': AuthStr,
+    //         //             'Accept': 'application/json',
+    //         //             'Content-Type': 'application/json',
+    //         //         },
+    //         //         body: JSON.stringify({
+    //         //             startup_delay: startup_delay_input,
+    //         //
+    //         //         })
+    //         //
+    //         //
+    //         //
+    //         //     }).then((response) => {
+    //         //         return response.json()
+    //         //     }).then((response) => {
+    //         //
+    //         //         console.log(response, ' DEVICE Data')
+    //         //
+    //         //         // this.setState({
+    //         //         //     // name: this.state.edit_name,
+    //         //         //     pre_configuration_popup: false,
+    //         //         // })
+    //         //
+    //         //         // this.getDeviceData();
+    //         //
+    //         //
+    //         //
+    //         //
+    //         //
+    //         //
+    //         //     })
+    //         // } catch (e) {
+    //         //     console.log(e)
+    //         // }
+    //     }
+    //
+    //
+    //
+    //
+    // }
 
     onChangeStartDatePicker = async (event, timeOriginValue) => {
 
@@ -924,8 +824,8 @@ export default class App extends Component {
                             <View style={styles.new_test_item}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.turn_off_the_load}</Text>
                                 <Switch
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
-                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.turnOffTheLoadToggleSwitch}
                                     value={this.state.turnOffTheLoadSwitchValue}
                                 />
@@ -952,32 +852,35 @@ export default class App extends Component {
                                 </View>
 
                             </View>
+
                             {/*Upper voltage delay (sec)*/}
+                            {/*<View style={[styles.new_test_item]}>*/}
+                            {/*    <Text style={styles.new_test_item_title}>*/}
+                            {/*        {this.state.language.upper_voltage_sec} ddwdwd*/}
+                            {/*    </Text>*/}
+                            {/*    <TouchableOpacity*/}
+                            {/*         style={styles.preferences_item_btn}*/}
+                            {/*         onPress={() => {*/}
+                            {/*            this.setState({*/}
+                            {/*                upper_voltage_delay_popup: true*/}
+                            {/*            })*/}
+                            {/*         }}*/}
+                            {/*    >*/}
+                            {/*        <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedUpperVoltageDelay_error === true ? 'red' : '#10BCCE'}]}>{this.state.selectedUpperVoltageDelay}</Text>*/}
+                            {/*        <View style={styles.preferences_item_btn_icon}>*/}
+                            {/*            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                            {/*                <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {"#004B84"}/>*/}
+                            {/*            </Svg>*/}
+                            {/*        </View>*/}
+                            {/*    </TouchableOpacity>*/}
+                            {/*</View>*/}
+
+
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>
-                                    {this.state.language.upper_voltage_sec}
-                                </Text>
-                                <TouchableOpacity
-                                     style={styles.preferences_item_btn}
-                                     onPress={() => {
-                                        this.setState({
-                                            upper_voltage_delay_popup: true
-                                        })
-                                     }}
-                                >
-                                    <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedUpperVoltageDelay_error === true ? 'red' : '#10BCCE'}]}>{this.state.selectedUpperVoltageDelay}</Text>
-                                    <View style={styles.preferences_item_btn_icon}>
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {"#004B84"}/>
-                                        </Svg>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.protection_lower_voltage_title}</Text>
+                                <Text style={[styles.new_test_item_title, {color: '#4A4A4A' }]}>{this.state.language.protection_lower_voltage_title}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_lower_voltage_input_error === true ? 'red' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionLowerVoltage(val);
                                         }}
@@ -989,53 +892,75 @@ export default class App extends Component {
                                 </View>
 
                             </View>
+
+
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>{this.state.language.lower_voltage_delay_sec}</Text>
-                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
-                                    this.setState({
-                                        lower_voltage_delay_popup: true
-                                    })
-                                }}>
-                                    <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedLowerVoltageDelay_error === true ? 'red' : '#10BCCE'}]}>{this.state.selectedLowerVoltageDelay}</Text>
-                                    <View style={styles.preferences_item_btn_icon}>
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {"#004B84"}/>
-                                        </Svg>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.power_restore_delay_sec}</Text>
+                                <Text style={[styles.new_test_item_title, {color:  '#4A4A4A'}]}>{this.state.language.impulse_surges_limit_title}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.impulse_surges_limit_error === true ? 'red' : '#10BCCE'}]}
                                         onChangeText={(val) => {
-                                            this.choosePowerRestoreDelay(val);
+                                            // this.chooseProtectionLowerVoltage(val);
+                                            this.chooseImpulseSurgesLimit(val);
                                         }}
-                                        value={this.state.power_restore_delay_input}
-                                        placeholder={this.state.power_restore_delay_input}
+                                        value={this.state.impulse_surges_limit_input}
+                                        placeholder={this.state.impulse_surges_limit_input}
                                         placeholderTextColor={'#10BCCE'}
                                         // editable={this.state.protection_preset != 'Manual setup' ? false : true}
                                     />
                                 </View>
 
                             </View>
-                            <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.startup_delay_sec}</Text>
-                                <View style={styles.new_test_item_input_field_box}>
-                                    <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor:'#10BCCE'}]}
-                                        onChangeText={(val) => {
-                                            this.chooseStartupDelay(val);
-                                        }}
-                                        value={this.state.startup_delay_input}
-                                        placeholder={this.state.startup_delay_input}
-                                        placeholderTextColor={'#10BCCE'}
-                                        // editable={this.state.protection_preset != 'Manual setup' ? false : true}
-                                    />
-                                </View>
 
-                            </View>
+                            {/*<View style={[styles.new_test_item]}>*/}
+                            {/*    <Text style={styles.new_test_item_title}>{this.state.language.lower_voltage_delay_sec} dwdw</Text>*/}
+                            {/*    <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {*/}
+                            {/*        this.setState({*/}
+                            {/*            lower_voltage_delay_popup: true*/}
+                            {/*        })*/}
+                            {/*    }}>*/}
+                            {/*        <Text style={[styles.preferences_item_btn_text, {color: this.state.selectedLowerVoltageDelay_error === true ? 'red' : '#10BCCE'}]}>{this.state.selectedLowerVoltageDelay}</Text>*/}
+                            {/*        <View style={styles.preferences_item_btn_icon}>*/}
+                            {/*            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                            {/*                <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {"#004B84"}/>*/}
+                            {/*            </Svg>*/}
+                            {/*        </View>*/}
+                            {/*    </TouchableOpacity>*/}
+                            {/*</View>*/}
+
+                            {/*<View style={[styles.new_test_item]}>*/}
+                            {/*    <Text style={[styles.new_test_item_title, {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.power_restore_delay_sec}</Text>*/}
+                            {/*    <View style={styles.new_test_item_input_field_box}>*/}
+                            {/*        <TextInput*/}
+                            {/*            style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: '#10BCCE'}]}*/}
+                            {/*            onChangeText={(val) => {*/}
+                            {/*                this.choosePowerRestoreDelay(val);*/}
+                            {/*            }}*/}
+                            {/*            value={this.state.power_restore_delay_input}*/}
+                            {/*            placeholder={this.state.power_restore_delay_input}*/}
+                            {/*            placeholderTextColor={'#10BCCE'}*/}
+                            {/*            // editable={this.state.protection_preset != 'Manual setup' ? false : true}*/}
+                            {/*        />*/}
+                            {/*    </View>*/}
+
+                            {/*</View>*/}
+
+                            {/*<View style={[styles.new_test_item]}>*/}
+                            {/*    <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.startup_delay_sec} dwqdwq</Text>*/}
+                            {/*    <View style={styles.new_test_item_input_field_box}>*/}
+                            {/*        <TextInput*/}
+                            {/*            style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor:'#10BCCE'}]}*/}
+                            {/*            onChangeText={(val) => {*/}
+                            {/*                this.chooseStartupDelay(val);*/}
+                            {/*            }}*/}
+                            {/*            value={this.state.startup_delay_input}*/}
+                            {/*            placeholder={this.state.startup_delay_input}*/}
+                            {/*            placeholderTextColor={'#10BCCE'}*/}
+                            {/*            // editable={this.state.protection_preset != 'Manual setup' ? false : true}*/}
+                            {/*        />*/}
+                            {/*    </View>*/}
+
+                            {/*</View>*/}
 
                         </View>
                     </KeyboardAwareScrollView>
@@ -1183,56 +1108,56 @@ export default class App extends Component {
                     }
 
 
-                    {this.state.upper_voltage_delay_popup  &&
-                       <View style={styles.turn_off_the_load_switch_value_popup}>
-                            <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {height: 300}]}>
+                    {/*{this.state.upper_voltage_delay_popup  &&*/}
+                    {/*   <View style={styles.turn_off_the_load_switch_value_popup}>*/}
+                    {/*        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {height: 300}]}>*/}
 
-                                <TouchableOpacity style={[styles.title_back_btn_wrapper, { position: 'absolute', left: 10, top: 5, width: 40, height: 40}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>
-                                    <View>
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
-                                        </Svg>
-                                    </View>
-                                </TouchableOpacity>
+                    {/*            <TouchableOpacity style={[styles.title_back_btn_wrapper, { position: 'absolute', left: 10, top: 5, width: 40, height: 40}]} onPress={() => {this.setState({upper_voltage_delay_popup: false})}}>*/}
+                    {/*                <View>*/}
+                    {/*                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                    {/*                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>*/}
+                    {/*                    </Svg>*/}
+                    {/*                </View>*/}
+                    {/*            </TouchableOpacity>*/}
 
-                                <ScrollView style={{flex:1, width: '100%',  marginTop: 0}}>
-                                      {this.state.upper_voltage_delay_data.map((item, index) => {
-                                          return (
-                                              <TouchableOpacity style={{width:'100%', paddingVertical: 10, backgroundColor:'white', borderBottomColor: '#10BCCE', borderBottomWidth: 1,  alignItems:'center'}} key={index} onPress={() => {this.chooseUpperVoltageDelay(item)}}>
-                                                  <Text style={{color:'#10BCCE'}}>{item.value}</Text>
-                                              </TouchableOpacity>
-                                          )
-                                      })}
-                                </ScrollView>
+                    {/*            <ScrollView style={{flex:1, width: '100%',  marginTop: 0}}>*/}
+                    {/*                  {this.state.upper_voltage_delay_data.map((item, index) => {*/}
+                    {/*                      return (*/}
+                    {/*                          <TouchableOpacity style={{width:'100%', paddingVertical: 10, backgroundColor:'white', borderBottomColor: '#10BCCE', borderBottomWidth: 1,  alignItems:'center'}} key={index} onPress={() => {this.chooseUpperVoltageDelay(item)}}>*/}
+                    {/*                              <Text style={{color:'#10BCCE'}}>{item.value}</Text>*/}
+                    {/*                          </TouchableOpacity>*/}
+                    {/*                      )*/}
+                    {/*                  })}*/}
+                    {/*            </ScrollView>*/}
 
 
-                            </View>
-                        </View>
-                    }
+                    {/*        </View>*/}
+                    {/*    </View>*/}
+                    {/*}*/}
 
-                    {this.state.lower_voltage_delay_popup  &&
-                       <View style={styles.turn_off_the_load_switch_value_popup}>
-                        <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {height: 300}]}>
-                            <TouchableOpacity style={[styles.title_back_btn_wrapper, {position: 'absolute', left: 10, top: 5, width: 40, height: 40}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>
-                                <View>
-                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
-                                    </Svg>
-                                </View>
-                            </TouchableOpacity>
+                    {/*{this.state.lower_voltage_delay_popup  &&*/}
+                    {/*   <View style={styles.turn_off_the_load_switch_value_popup}>*/}
+                    {/*    <View style={[styles.turn_off_the_load_switch_value_popup_wrapper, {height: 300}]}>*/}
+                    {/*        <TouchableOpacity style={[styles.title_back_btn_wrapper, {position: 'absolute', left: 10, top: 5, width: 40, height: 40}]} onPress={() => {this.setState({lower_voltage_delay_popup: false})}}>*/}
+                    {/*            <View>*/}
+                    {/*                <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                    {/*                    <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>*/}
+                    {/*                </Svg>*/}
+                    {/*            </View>*/}
+                    {/*        </TouchableOpacity>*/}
 
-                            <ScrollView style={{flex:1, width: '100%',  marginTop: 0}}>
-                                {this.state.upper_voltage_delay_data.map((item, index) => {
-                                    return (
-                                        <TouchableOpacity style={{width:'100%', paddingVertical: 10, backgroundColor:'white', borderBottomColor: '#10BCCE', borderBottomWidth: 1,  alignItems:'center'}} key={index} onPress={() => {this.chooseLowerVoltageDelay(item)}}>
-                                            <Text style={{color:'#10BCCE'}}>{item.value}</Text>
-                                        </TouchableOpacity>
-                                    )
-                                })}
-                            </ScrollView>
-                        </View>
-                    </View>
-                    }
+                    {/*        <ScrollView style={{flex:1, width: '100%',  marginTop: 0}}>*/}
+                    {/*            {this.state.upper_voltage_delay_data.map((item, index) => {*/}
+                    {/*                return (*/}
+                    {/*                    <TouchableOpacity style={{width:'100%', paddingVertical: 10, backgroundColor:'white', borderBottomColor: '#10BCCE', borderBottomWidth: 1,  alignItems:'center'}} key={index} onPress={() => {this.chooseLowerVoltageDelay(item)}}>*/}
+                    {/*                        <Text style={{color:'#10BCCE'}}>{item.value}</Text>*/}
+                    {/*                    </TouchableOpacity>*/}
+                    {/*                )*/}
+                    {/*            })}*/}
+                    {/*        </ScrollView>*/}
+                    {/*    </View>*/}
+                    {/*</View>*/}
+                    {/*}*/}
 
 
                 </View>

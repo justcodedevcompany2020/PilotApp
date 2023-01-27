@@ -37,7 +37,15 @@ import PowerComponent from './components/voltage/power';
 import OsciloscopeComponent from './components/osciloscope/osciloscope';
 import SetNewPasswordComponent from './components/set_new_password/set_new_password';
 import ManualComponent from './components/manual/manual';
+import NointernetComponent from './components/includes/nointernet';
 
+import * as Network from "expo-network";
+
+function NointernetScreen({ navigation }) {
+  return (
+      <NointernetComponent navigation={navigation}  />
+  );
+}
 function LoginScreen({ navigation }) {
   return (
       <LoginComponent navigation={navigation}  />
@@ -129,10 +137,10 @@ function ImpulseSurgesScreen({ route, navigation }) {
 }
 
 function UndervoltageScreen({route, navigation }) {
-    const {params, params2, params3, test_report_start_time} = route.params
+    const {params, params2, params3, test_report_start_time, test_report_end_time} = route.params
 
     return (
-        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} test_report_start_time={test_report_start_time} navigation={navigation}  />
+        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} test_report_start_time={test_report_start_time} test_report_end_time={test_report_end_time} navigation={navigation}  />
     );
 }
 
@@ -204,6 +212,7 @@ export default function App() {
 
     const [isLoading, setIsLoading] = React.useState(true);
     const [userToken, setUserToken] = React.useState(null);
+    const [inet, setInet] = React.useState(true);
 
     const initialLoginState = {
         isLoading: true,
@@ -247,6 +256,7 @@ export default function App() {
         signIn: async (foundUser, callback) => {
             setIsLoading(true);
             const userToken = String(foundUser.token);
+            const userLogin = String(foundUser.login);
             // const userEmail = foundUser.email;
             // const userId = String(foundUser.user_id);
             // setUserToken(userToken);
@@ -254,7 +264,7 @@ export default function App() {
             //  console.log('AuthUser', foundUser);
             try {
                 await AsyncStorage.setItem('userToken', userToken);
-                // await AsyncStorage.setItem('userId', userId);
+                await AsyncStorage.setItem('userLogin', userLogin);
             } catch (e) {
                 console.log(e);
             }
@@ -278,10 +288,33 @@ export default function App() {
         }
     }), []);
 
+    const checkInternet = async () => {
+
+        let inet = await Network.getNetworkStateAsync()
+        return inet.isConnected;
+
+    }
 
 
+
+    let intervalID;
     // Проверка при входе в приложение.
     React.useEffect(() => {
+
+        clearInterval(intervalID);
+
+        intervalID = setInterval(async () => {
+
+            let inetAvalaibel = await checkInternet();
+
+            if (!inetAvalaibel) {
+                setInet(false)
+            } else {
+                setInet(true)
+            }
+            console.log('check internet',await checkInternet())
+
+        }, 2000)
 
         setTimeout(async () => {
             // await AsyncStorage.removeItem('userToken', userToken);
@@ -295,8 +328,22 @@ export default function App() {
             }
             dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
         }, 2000);
+
     }, []);
 
+    //
+    //
+    // if (!inet) {
+    //     return (
+    //         <View style={{flex:1, width: '100%'}}>
+    //
+    //             <TouchableOpacity onPress={() => {navigation.navigate('')}}>
+    //                 <Text>No internet</Text>
+    //
+    //             </TouchableOpacity>
+    //         </View>
+    //     )
+    // }
 
 
     if (isLoading) {
@@ -312,14 +359,57 @@ export default function App() {
 
         <AuthContext.Provider value={authContext}>
             <NavigationContainer>
-                {loginState.userToken !== null ?
+                {!inet ?
+                    <Stack.Navigator
+                        initialRouteName='NointernetScreen'
+                        screenOptions={{
+                            headerShown: false
+                        }}
+                    >
+
+                        <Stack.Screen name="NointernetScreen" component={NointernetScreen}
+                                      options={({route}) => ({
+                                          tabBarButton: () => null,
+                                          tabBarStyle: {display: 'none'},
+                                      })}
+                        />
+
+                        <Stack.Screen name="DeviceSetup" component={DeviceSetupScreen}
+                                      options={({route}) => ({
+                                          tabBarButton: () => null,
+                                          tabBarStyle: {display: 'none'},
+                                      })}
+                        />
+
+
+                        <Stack.Screen name="Manual" component={ManualScreen}
+                                      options={({route}) => ({
+                                          tabBarButton: () => null,
+                                          tabBarStyle: {display: 'none'},
+                                      })}
+                        />
+
+                    </Stack.Navigator>
+
+
+                :
+
+                loginState.userToken !== null ?
                     (
                         <Stack.Navigator
-                            initialRouteName='Catalog'
+                            initialRouteName='AllDevices'
+                            // initialRouteName='Catalog'
                             screenOptions={{
                                 headerShown: false
                             }}
                         >
+
+                            {/*<Stack.Screen name="NointernetScreen" component={NointernetScreen}*/}
+                            {/*      options={({route}) => ({*/}
+                            {/*          tabBarButton: () => null,*/}
+                            {/*          tabBarStyle: {display: 'none'},*/}
+                            {/*      })}*/}
+                            {/*/>*/}
 
                             <Stack.Screen name="AllDevices" component={AllDevicesScreen}
                                   options={({route}) => ({

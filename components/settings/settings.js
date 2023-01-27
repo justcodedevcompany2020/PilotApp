@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-// import DropDownPicker from "react-native-custom-dropdown";
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -88,7 +87,9 @@ export default class App extends Component {
             openLanguages: false,
             openTimezones: false,
 
-            selected_languge_loaded: false
+            selected_languge_loaded: false,
+            deleteAccountPopup: false,
+            reloadtimezone: true
         };
 
     }
@@ -184,7 +185,9 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
 
-
+        this.setState({
+            deleteAccountPopup: false
+        })
         console.log(AuthStr, 'AuthStr')
 
             try {
@@ -347,15 +350,12 @@ export default class App extends Component {
             }).then((response) => {
 
                 console.log(response, 'user_info')
-
-
                 this.setState({
                     userInfo:  response,
                     switchValue:response.notification_enabled,
                     // selectedLanguage: response.language
+                    reloadtimezone: false
                 })
-
-
             })
         } catch (e) {
             console.log(e)
@@ -416,14 +416,15 @@ export default class App extends Component {
     chooseTimezone = async (callback) => {
         await this.setState(state => ({
             selectedTimeZone: callback(state.value),
-
         }));
+        // alert('chooseTimezone')
 
-        let  {selectedTimeZone} = this.state;
-
-
-
-        console.log(selectedTimeZone, 'selectedTimeZone');
+        //
+        // let  {selectedTimeZone} = this.state;
+        //
+        //
+        //
+        // console.log(selectedTimeZone, 'selectedTimeZone');
     }
 
 
@@ -434,16 +435,15 @@ export default class App extends Component {
 
         for (const timezone of timezones)
         {
-            if (userInfo.timezone = timezone.value)
+            if (userInfo.timezone == timezone.value)
             {
-                time_zone_name = timezone.label
+                // console.log(userInfo.timezone,  timezone.value, 'dddddddddddddddd')
+                time_zone_name = timezone.label;
             }
         }
 
-
-
-        console.log(this.state.timezones, 'timezones')
-        console.log(this.state.userInfo.timezone, 'this.state.userInfo.timezone')
+        // console.log(this.state.timezones, 'timezones')
+        // console.log(this.state.userInfo, 'this.state.userInfo.timezone')
         // return this.state.userInfo.timezone;
         return time_zone_name;
     }
@@ -451,10 +451,15 @@ export default class App extends Component {
 
     changeTimeZones = async () => {
         let selectedTimeZone = this.state.selectedTimeZone;
-
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
+        await this.setState({
+            reloadtimezone: true
+        })
 
+        console.log(JSON.stringify({
+            timezone: selectedTimeZone,
+        }), 'selectedTimeZone JSON')
         try {
             fetch(`https://apiv1.zis.ru/account`, {
                 method: 'PATCH',
@@ -465,22 +470,21 @@ export default class App extends Component {
                 },
                 body: JSON.stringify({
                     timezone: selectedTimeZone,
-
                 })
 
             }).then((response) => {
                 return response.json()
-            }).then((response) => {
+            }).then( async (response) => {
 
                 console.log(response, 'selectedTimeZone')
 
                 if (response.hasOwnProperty('result')) {
                     if (response.result == 'success') {
-                        this.setState({
+                        await this.setState({
                             timeZonesPopup: false
                         })
+                       await this.getProfileInfo();
 
-                        this.getProfileInfo();
                     }
                 }
 
@@ -492,7 +496,12 @@ export default class App extends Component {
     }
 
     setTimeZone = () => {
-        let timezones = require('../timezones/timezones.json');
+        let timezones;
+        if(this.state.language_name == 'en') {
+             timezones = require('../timezones/timezones_en.json');
+        } else {
+             timezones = require('../timezones/timezones_ru.json');
+        }
         console.log(timezones, "timezone");
 
         this.setState({
@@ -500,17 +509,19 @@ export default class App extends Component {
         })
     }
 
+    loadFunction = async () => {
+        await this.setLanguageFromStorage();
+        await this.setTimeZone();
+        await this.getProfileInfo();
+    }
 
     componentDidMount() {
         const { navigation } = this.props;
-        this.setLanguageFromStorage();
-        this.setTimeZone();
-        this.getProfileInfo();
+
+        this.loadFunction()
 
         this.focusListener = navigation.addListener("focus", () => {
-            this.setLanguageFromStorage();
-            this.setTimeZone();
-            this.getProfileInfo();
+            this.loadFunction()
         });
 
     }
@@ -592,8 +603,8 @@ export default class App extends Component {
                                 <Text style={styles.settings_item_title}>{this.state.language.push_notifications}</Text>
                                 <Switch
 
-                                    trackColor={{ false: '#767577', true: '#004B84' }}
-                                    // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                    trackColor={{ false: 'silver', true: '#004B84' }}
+                                    thumbColor={'white'}
                                     onValueChange={this.toggleSwitch}
                                     value={this.state.switchValue}
                                 />
@@ -617,33 +628,33 @@ export default class App extends Component {
                                     <Text  style={styles.settings_input_field_text}>*********</Text>
                                 </TouchableOpacity>
                             </View>
+
                             <View style={[styles.settings_item, {marginBottom: 25}]}>
-                                <Text style={styles.settings_item_title}>{this.state.language.time_zone}</Text>
-                                <TouchableOpacity style={styles.settings_item_btn} onPress={() => {this.openTimeZonesPopup()}}>
-                                    <Text style={[styles.settings_item_btn_text, {fontSize: 12}]}>
-                                        {this.printSelectedTimeZone()}
+
+                                <Text style={[styles.settings_item_title, ]}>{this.state.language.time_zone}</Text>
+
+                                <TouchableOpacity style={[styles.settings_item_btn, {flex:1, paddingLeft:5, flexDirection:'row', justifyContent: 'flex-end'}]} onPress={() => {this.openTimeZonesPopup()}}>
+                                    <Text style={[styles.settings_item_btn_text, {fontSize: 12, flex:1, textAlign:'right'}]}>
+
+                                        {!this.state.reloadtimezone && this.printSelectedTimeZone()}
                                         {/*{this.state.userInfo.timezone}*/}
                                     </Text>
-                                    <View style={styles.settings_item_btn_icon}>
-                                        <Svg
-                                            width={12}
-                                            height={20}
-                                            viewBox="0 0 12 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <Path
-                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                fill="#004B84"
-                                            />
+                                    <View style={[styles.settings_item_btn_icon, {width: 30, alignItems:'flex-end' }]}>
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
+
                             </View>
+
                             <View style={[styles.settings_item, {marginBottom: 25}]}>
                                 <Text style={styles.settings_item_title}>{this.state.language.legal_information}</Text>
                                 <TouchableOpacity style={styles.settings_item_btn}>
-                                    <Text style={styles.settings_item_btn_text}>Read</Text>
+                                    <Text style={styles.settings_item_btn_text}>
+                                        {this.state.language.read}
+                                        {/*Read*/}
+                                    </Text>
                                     <View style={styles.settings_item_btn_icon}>
                                         <Svg
                                             width={12}
@@ -799,7 +810,12 @@ export default class App extends Component {
 
                             <View style={[styles.settings_item, {marginBottom: 25}]}>
                                 <Text style={styles.settings_item_title}>{this.state.language.delete_account}</Text>
-                                <TouchableOpacity style={styles.settings_item_btn} onPress={() => {this.deleteAccount()}}>
+                                <TouchableOpacity
+                                    style={styles.settings_item_btn}
+                                    onPress={() => {
+                                        this.setState({deleteAccountPopup:true})
+                                    }}
+                                >
                                     <Text style={styles.settings_item_btn_text}>{this.state.language.delete}</Text>
                                     <View style={styles.settings_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -965,11 +981,7 @@ export default class App extends Component {
                                             fontSize: 14,
                                             fontWeight: '400'
                                         }}
-
-
-
                                         // keyExtractor={(item, index) => index+1}/}
-
                                     />
                                 </View>
 
@@ -981,6 +993,42 @@ export default class App extends Component {
                             </View>
                         </View>
                     }
+
+
+                    {this.state.deleteAccountPopup &&
+                        <View style={styles.timezone_popup}>
+                        <View style={styles.timezone_popup_wrapper}>
+                            <TouchableOpacity style={[styles.timezone_popup_close_btn, {flexDirection:'row'}]} onPress={() => {this.setState({deleteAccountPopup:false})}}>
+                                <Text style={{textAlign:'center', width:'100%', fontSize:16, marginTop:5, color: '#004B84'}}>
+                                    {/*Delete account?*/}
+                                    {this.state.language.delete_account_title}
+                                </Text>
+                                <Svg style={{position:'absolute', right: 0, top:0}} width={35} height={35} viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <Path d="M17.499 17.78L9.141 9.36m-.063 16.779l8.421-8.358-8.421 8.358zm8.421-8.358l8.421-8.359L17.5 17.78zm0 0l8.358 8.42-8.358-8.42z" stroke="#004B84" strokeWidth={2} strokeLinecap="round"/>
+                                </Svg>
+                            </TouchableOpacity>
+
+
+
+                            <View style={{flexDirection:'row', justifyContent:'center', width:'100%'}}>
+
+                                <TouchableOpacity
+                                    style={[styles.timezone_popup_confirm_btn, {flex:1, marginRight:10, backgroundColor:'red', borderColor:'red'}]}
+                                    onPress={() => {
+                                        this.deleteAccount()
+                                    }}
+                                >
+                                    <Text style={[styles.timezone_popup_confirm_btn_text, {color: 'white'}]}>{this.state.language.delete_text}</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={[styles.timezone_popup_confirm_btn, {flex:1}]} onPress={() => {this.setState({deleteAccountPopup:false})}}>
+                                    <Text style={styles.timezone_popup_confirm_btn_text}>{this.state.language.cancel_delete}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                    }
+
                 </View>
 
 

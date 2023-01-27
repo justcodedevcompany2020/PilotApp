@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import PieChart from 'react-native-expo-pie-chart';
 import { VictoryPie } from "victory-native";
 import {AuthContext} from "../AuthContext/context";
@@ -279,6 +278,7 @@ export default class App extends Component {
     }
 
     checkTestReportStatus = (item) => {
+
         let report_start_time = new Date(item.start_date);
         let report_end_time   = new Date(item.end_date);
         let current_date      = new Date();
@@ -355,6 +355,7 @@ export default class App extends Component {
                                 <View style={styles.report_item}  key={index}>
 
                                     <View style={styles.chart_box_img_report_item_info_main_wrapper}>
+
                                         {/*<View style={styles.chart_box_img}>*/}
                                         {/*    <Image style={styles.chart_box_img_child} source={require('../../assets/images/chart_box_img.png')}/>*/}
                                         {/*</View>*/}
@@ -365,6 +366,14 @@ export default class App extends Component {
                                                 {this.checkTestReportStatus(report) == 'scheduled'  &&
 
                                                     <View style={styles.report_item_info_icon}>
+
+                                                        <Svg  width={10} height={10} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                                                            <G data-name="Layer 2" id="Layer_2" fill="#10BCCE">
+                                                                <Path d="M16 29a13 13 0 1113-13 13 13 0 01-13 13zm0-24a11 11 0 1011 11A11 11 0 0016 5z" />
+                                                                <Path d="M21.5 22.5a1 1 0 01-.71-.29l-5.5-5.5A1 1 0 0115 16V8a1 1 0 012 0v7.59l5.21 5.2a1 1 0 010 1.42 1 1 0 01-.71.29z" />
+                                                            </G>
+                                                            <Path id="frame" d="M0 0H32V32H0z" fill="none" />
+                                                        </Svg>
                                                         <Text style={styles.report_item_info_title}>{this.state.language.scheduled}</Text>
 
                                                     </View>
@@ -389,7 +398,9 @@ export default class App extends Component {
                                                         <Svg width={8} height={8} viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <Path d="M2 6.333c0 .369.298.667.667.667h2.666A.666.666 0 006 6.333v-4H2v4zm4.333-5H5.167L4.833 1H3.167l-.334.333H1.667V2h4.666v-.667z" fill="#EB5757"/>
                                                         </Svg>
-                                                        <Text style={styles.report_item_info_title}>Will be deleted {this.getWillBeDeletedDate(report)}</Text>
+                                                        <Text style={styles.report_item_info_title}>
+                                                            {this.state.language.will_be_deleted_at} {this.getWillBeDeletedDate(report)}
+                                                        </Text>
                                                     </View>
 
                                                 }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
-import DropDownPicker from "react-native-custom-dropdown";
 import {AuthContext} from "../AuthContext/context";
 import i18n from "i18n-js";
 import {en, ru} from "../../i18n/supportedLanguages";
