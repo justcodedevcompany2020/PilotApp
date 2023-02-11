@@ -86,8 +86,8 @@ export default class App extends Component {
             voltage_item_info: 0,
             amperage_min: this.props.amperage_min,
             amperage_max: this.props.amperage_max,
-            minimum_info: '214.4 V',
-            maximum_info: '244.9 V',
+            minimum_info: '0',
+            maximum_info: '0',
             todayDate: '',
 
             date_begin: '2022-09-06',
@@ -215,9 +215,9 @@ export default class App extends Component {
 
                     await this.setState({
                         chartData: response.data.length > 0 ? response.data : [],
-                        voltage_item_info: response.avg ? response.avg : 0,
-                        amperage_min: response.min,
-                        amperage_max: response.max,
+                        voltage_item_info: response.avg ? parseFloat(response.avg) : 0,
+                        amperage_min: parseFloat(response.min),
+                        amperage_max: parseFloat(response.max),
                     })
 
                 }
@@ -231,15 +231,7 @@ export default class App extends Component {
 
 
     pressToDay = async () => {
-        //
-        // let date = new Date().getDate();
-        // date = date < 10 ? `0${date}` : date;
-        //
-        // let month = new Date().getMonth() + 1;
-        // let year = new Date().getFullYear();
-        // let todayDate =  year + '-' + month + '-' + date;
-        //
-        // console.log(todayDate, 'setDayData')
+
         let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
 
         await this.setState({
@@ -264,52 +256,70 @@ export default class App extends Component {
     }
     setDayData = async () => {
 
-        let {chartData} = this.state;
-        console.log(chartData, 'chartData')
+        let {chartData, chart_type, language_name} = this.state;
+
         for (const item in chartData) {
-            let timestamp = chartData[item].timestamp
-            let hours = timestamp.split('T')[1];
-            chartData[item].timestamp2 = hours.slice(0,2);
+            let timestamp = chartData[item].timestamp.split('.')[0];
+            chartData[item].timestamp = timestamp;
+            chartData[item].amperage =  parseFloat(chartData[item].amperage);
         }
 
-        chartData.sort(function(a, b) {
-            return a.timestamp2 - b.timestamp2;
-        })
-        // console.log(chartData,'chartData1')
-
-        let chartData1 = [];
-        for (let i = 1; i <= 24; i++) {
-            chartData1.push( [i.toString(), 0])
-        }
-
-        for (const item in chartData)
-        {
-            let day = chartData[item].timestamp2;
-            let day_without_zero = day < 10 ? parseInt(day) : day;
-            console.log(day_without_zero, 'day_without_zero')
-            if(day_without_zero == 0) {
-                chartData1[day_without_zero][1] = parseFloat(chartData[item].amperage);
-            } else {
-                chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
-            }
-        }
-
-
-        let newChartData1 = chartData1.slice();
-        newChartData1.unshift(['Year', 'Sales']);
-        chartData1 = newChartData1;
-        console.log(chartData1, 'chartData1')
-
-
-        let jsonChartData1 = JSON.stringify(chartData1);
-        this.webviewRef.current.postMessage(jsonChartData1);
-
-        console.log(jsonChartData1, 'jsonChartData1jsonChartData1')
+        let jsonChartData1 = JSON.stringify({data: chartData, chart_type: chart_type,  language_name:language_name});
 
         this.setState({
             chart_show:true,
-            chartData: chartData1,
+            chartData: chartData,
         })
+
+        console.log(jsonChartData1, 'jsonChartData1 DAAAY')
+        this.webviewRef.current.postMessage(jsonChartData1);
+
+        // let {chartData} = this.state;
+        // console.log(chartData, 'chartData')
+        // for (const item in chartData) {
+        //     let timestamp = chartData[item].timestamp
+        //     let hours = timestamp.split('T')[1];
+        //     chartData[item].timestamp2 = hours.slice(0,2);
+        // }
+        //
+        // chartData.sort(function(a, b) {
+        //     return a.timestamp2 - b.timestamp2;
+        // })
+        // // console.log(chartData,'chartData1')
+        //
+        // let chartData1 = [];
+        // for (let i = 1; i <= 24; i++) {
+        //     chartData1.push( [i.toString(), 0])
+        // }
+        //
+        // for (const item in chartData)
+        // {
+        //     let day = chartData[item].timestamp2;
+        //     let day_without_zero = day < 10 ? parseInt(day) : day;
+        //     console.log(day_without_zero, 'day_without_zero')
+        //     if(day_without_zero == 0) {
+        //         chartData1[day_without_zero][1] = parseFloat(chartData[item].amperage);
+        //     } else {
+        //         chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+        //     }
+        // }
+        //
+        //
+        // let newChartData1 = chartData1.slice();
+        // newChartData1.unshift(['Year', 'Sales']);
+        // chartData1 = newChartData1;
+        // console.log(chartData1, 'chartData1')
+        //
+        //
+        // let jsonChartData1 = JSON.stringify(chartData1);
+        // this.webviewRef.current.postMessage(jsonChartData1);
+        //
+        // console.log(jsonChartData1, 'jsonChartData1jsonChartData1')
+        //
+        // this.setState({
+        //     chart_show:true,
+        //     chartData: chartData1,
+        // })
 
     }
     // setDayData = async () => {
@@ -363,22 +373,9 @@ export default class App extends Component {
 
 
     pressToWeek = async () => {
-        // let dateOffset = (24*60*60*1000) * 7; //6 days
-        // let firstday = new Date();
-        // firstday.setTime(firstday.getTime() - dateOffset);
-        // firstday = moment(firstday).format('YYYY-MM-DD')
-        //
-        // let date = new Date().getDate();
-        // date = date < 10 ? `0${date}` : date;
-        // let month = new Date().getMonth() + 1;
-        // let year = new Date().getFullYear();
-        // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-        //
-        // console.log(lastday, 'lastday');
-        // console.log(firstday, 'firstday');
 
         let test_start_date = moment(this.props.test_report_start_time).format('YYYY-MM-DD');
-        let futureMonth =  moment(test_start_date).add(1, 'W');
+        let futureMonth =  moment(test_start_date).add(1, 'W').subtract(1, "days");
         let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
         await this.setState({
@@ -406,78 +403,107 @@ export default class App extends Component {
 
     }
 
-    setWeekData = async () => {
-
-        let {chartData} = this.state;
-
-        for (const item in chartData) {
-            let timestamp = chartData[item].timestamp
-            let new_timestamp = new Date(timestamp);
-            let hours = new_timestamp.getDay();
-            chartData[item].timestamp2 = hours;
-        }
-
-        chartData.sort(function(a, b) {
-            return a.timestamp2 - b.timestamp2;
-        })
+    setWeekData = async () =>
+    {
 
 
-        console.log(chartData, 'chartData');
+        let {chartData,chart_type, language_name} = this.state;
 
-        let chartData1 = [];
-
-        for (let i = 1; i <= 7; i++) {
-
-            let week_name = '';
-
-            if(i == 1) {
-                week_name = 'ПН'
-            } else if(i == 2) {
-                week_name = 'ВТ'
-            } else if(i == 3) {
-                week_name = 'СР'
-            } else if(i == 4) {
-                week_name = 'ЧТ'
-            } else if(i == 5) {
-                week_name = 'ПТ'
-            } else if(i == 6) {
-                week_name = 'СБ'
-            } else if(i == 7) {
-                week_name = 'ВС'
-            }
-
-            chartData1.push( [week_name, 0])
-        }
-
-        console.log(chartData1, 'chartData1');
-
+        console.log(chartData, 'chartDatachartDatachartDatachartDatachartDatachartData');
 
         for (const item in chartData)
         {
-            let day = chartData[item].timestamp2;
-            let day_without_zero = day == 0 ? 7 : day;
-
-            chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+            chartData[item].timestamp = moment(chartData[item].timestamp).format('YYYY-MM-DD');
+            chartData[item].amperage = parseFloat(chartData[item].amperage);
         }
-        console.log(chartData1, 'chartData1');
 
-
-        console.log(chartData, 'chartData');
-
-        let newChartData1 = chartData1.slice();
-        newChartData1.unshift(['Year', 'Sales']);
-        chartData1 = newChartData1;
-
-        console.log(chartData1, 'chartData1')
-        console.log(chartData, 'chartDatachartData')
-
-        let jsonChartData1 = JSON.stringify(chartData1);
-        this.webviewRef.current.postMessage(jsonChartData1);
+        let jsonChartData1 = JSON.stringify({
+            data: chartData,
+            chart_type: chart_type,
+            language_name:language_name,
+        });
 
         this.setState({
             chart_show:true,
-            chartData: chartData1,
+            chartData: chartData,
         })
+
+        console.log(jsonChartData1, 'jsonChartData1 WEEEEKKK')
+        this.webviewRef.current.postMessage(jsonChartData1);
+
+
+
+
+        // let {chartData} = this.state;
+        //
+        // for (const item in chartData) {
+        //     let timestamp = chartData[item].timestamp
+        //     let new_timestamp = new Date(timestamp);
+        //     let hours = new_timestamp.getDay();
+        //     chartData[item].timestamp2 = hours;
+        // }
+        //
+        // chartData.sort(function(a, b) {
+        //     return a.timestamp2 - b.timestamp2;
+        // })
+        //
+        //
+        // console.log(chartData, 'chartData');
+        //
+        // let chartData1 = [];
+        //
+        // for (let i = 1; i <= 7; i++) {
+        //
+        //     let week_name = '';
+        //
+        //     if(i == 1) {
+        //         week_name = 'ПН'
+        //     } else if(i == 2) {
+        //         week_name = 'ВТ'
+        //     } else if(i == 3) {
+        //         week_name = 'СР'
+        //     } else if(i == 4) {
+        //         week_name = 'ЧТ'
+        //     } else if(i == 5) {
+        //         week_name = 'ПТ'
+        //     } else if(i == 6) {
+        //         week_name = 'СБ'
+        //     } else if(i == 7) {
+        //         week_name = 'ВС'
+        //     }
+        //
+        //     chartData1.push( [week_name, 0])
+        // }
+        //
+        // console.log(chartData1, 'chartData1');
+        //
+        //
+        // for (const item in chartData)
+        // {
+        //     let day = chartData[item].timestamp2;
+        //     let day_without_zero = day == 0 ? 7 : day;
+        //
+        //     chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+        // }
+        // console.log(chartData1, 'chartData1');
+        //
+        //
+        // console.log(chartData, 'chartData');
+        //
+        // let newChartData1 = chartData1.slice();
+        // newChartData1.unshift(['Year', 'Sales']);
+        // chartData1 = newChartData1;
+        //
+        // console.log(chartData1, 'chartData1')
+        // console.log(chartData, 'chartDatachartData')
+        //
+        // let jsonChartData1 = JSON.stringify(chartData1);
+        // this.webviewRef.current.postMessage(jsonChartData1);
+        //
+        // this.setState({
+        //     chart_show:true,
+        //     chartData: chartData1,
+        // })
 
 
 
@@ -577,48 +603,73 @@ export default class App extends Component {
     }
     setMonthData = async () => {
 
-        let {chartData} = this.state;
-
-        for (const item in chartData) {
-            let timestamp = chartData[item].timestamp
-            let new_timestamp = new Date(timestamp);
-            let hours = timestamp.split('T')[0];
-            chartData[item].timestamp2 = hours.slice(-2);
-
-        }
-
-        chartData.sort(function(a, b) {
-            return a.timestamp2 - b.timestamp2;
-        })
-
-
-        let chartData1 = [];
-
-        for (let i = 1; i <= 30; i++) {
-            chartData1.push( [i.toString(), 0, ])
-        }
+        let {chartData,chart_type, language_name} = this.state;
 
         for (const item in chartData)
         {
-            let day = chartData[item].timestamp2;
-            let day_without_zero = day < 10 ? day.slice(1) :  day;
-            chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+            chartData[item].timestamp = moment(chartData[item].timestamp).format('YYYY-MM-DD');
+            chartData[item].amperage = parseFloat(chartData[item].amperage);
         }
 
-        let newChartData1 = chartData1.slice();
-        newChartData1.unshift(['Year', 'Sales']);
-        chartData1 = newChartData1;
-
-        console.log(chartData1, 'chartData1')
-        console.log(chartData, 'chartDatachartData')
-
-        let jsonChartData1 = JSON.stringify(chartData1);
-        this.webviewRef.current.postMessage(jsonChartData1);
+        let jsonChartData1 = JSON.stringify({
+            data: chartData,
+            chart_type: chart_type,
+            language_name:language_name,
+        });
 
         this.setState({
             chart_show:true,
-            chartData: chartData1,
+            chartData: chartData,
         })
+
+        console.log(jsonChartData1, 'jsonChartData1 MONTH')
+        this.webviewRef.current.postMessage(jsonChartData1);
+
+
+
+
+        // let {chartData} = this.state;
+        //
+        // for (const item in chartData) {
+        //     let timestamp = chartData[item].timestamp
+        //     let new_timestamp = new Date(timestamp);
+        //     let hours = timestamp.split('T')[0];
+        //     chartData[item].timestamp2 = hours.slice(-2);
+        //
+        // }
+        //
+        // chartData.sort(function(a, b) {
+        //     return a.timestamp2 - b.timestamp2;
+        // })
+        //
+        //
+        // let chartData1 = [];
+        //
+        // for (let i = 1; i <= 30; i++) {
+        //     chartData1.push( [i.toString(), 0, ])
+        // }
+        //
+        // for (const item in chartData)
+        // {
+        //     let day = chartData[item].timestamp2;
+        //     let day_without_zero = day < 10 ? day.slice(1) :  day;
+        //     chartData1[day_without_zero-1][1] = parseFloat(chartData[item].amperage);
+        // }
+        //
+        // let newChartData1 = chartData1.slice();
+        // newChartData1.unshift(['Year', 'Sales']);
+        // chartData1 = newChartData1;
+        //
+        // console.log(chartData1, 'chartData1')
+        // console.log(chartData, 'chartDatachartData')
+        //
+        // let jsonChartData1 = JSON.stringify(chartData1);
+        // this.webviewRef.current.postMessage(jsonChartData1);
+        //
+        // this.setState({
+        //     chart_show:true,
+        //     chartData: chartData1,
+        // })
 
         //
         // let chartData1 = [];
@@ -768,125 +819,164 @@ export default class App extends Component {
         this.pressToDayAfterPressToArrow();
     }
 
+    // goToPrevWeek = async () => {
+    //
+    //     let {date_begin, date_end, chart_type, chart_show} = this.state;
+    //
+    //     if (!chart_show) {
+    //         return false
+    //     }
+    //
+    //     let dateOffset = (24*60*60*1000) * 7; //6 days
+    //     let firstday = new Date(date_begin);
+    //     firstday.setTime(firstday.getTime() - dateOffset);
+    //     firstday = moment(firstday).format('YYYY-MM-DD')
+    //
+    //     let date = new Date().getDate();
+    //     date = date < 10 ? `0${date}` : date;
+    //     let month = new Date().getMonth() + 1;
+    //     let year = new Date().getFullYear();
+    //     let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+    //
+    //     console.log(firstday, 'firstday')
+    //     console.log(date_begin, 'lastday')
+    //     await this.setState({
+    //         date_begin:firstday,
+    //         date_end:date_begin
+    //     })
+    //     await this.pressToWeekAfterPressToArrow();
+    // }
+    // goToNextWeek = async () => {
+    //
+    //     let {date_begin, date_end, chart_type, chart_show} = this.state;
+    //
+    //     if (!chart_show) {
+    //         return false
+    //     }
+    //
+    //     let dateOffset = (24*60*60*1000) * 7; //6 days
+    //     let firstday = new Date(date_end);
+    //     firstday.setTime(firstday.getTime() + dateOffset);
+    //     firstday = moment(firstday).format('YYYY-MM-DD')
+    //
+    //     let date = new Date().getDate();
+    //     date = date < 10 ? `0${date}`: date;
+    //     let month = new Date().getMonth() + 1;
+    //     let year = new Date().getFullYear();
+    //     let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+    //
+    //     console.log(date_end, 'date_end')
+    //     console.log(firstday, 'firstday')
+    //     await this.setState({
+    //         date_begin:date_end,
+    //         date_end:firstday
+    //     })
+    //     await this.pressToWeekAfterPressToArrow();
+    //
+    // }
+
+
+
+    // goToPrevMonth = async () => {
+    //
+    //     let {date_begin, date_end, chart_type, chart_show} = this.state;
+    //     if (!chart_show) {
+    //         return false
+    //     }
+    //     // let dateOffset = (24*60*60*1000) * 30; //6 days
+    //     // let firstday = new Date(date_begin);
+    //     // firstday.setTime(firstday.getTime() - dateOffset);
+    //     // firstday = moment(firstday).format('YYYY-MM-DD')
+    //     //
+    //     // console.log(firstday, 'firstday')
+    //     // console.log(date_begin, 'lastday');
+    //     //
+    //     // await this.setState({
+    //     //     date_begin:firstday,
+    //     //     date_end:date_begin
+    //     // })
+    //     let lastday = moment(date_begin).format('YYYY-MM-DD');
+    //     lastday = moment(lastday).add(-1, 'M');
+    //     lastday = moment(lastday).format('YYYY-MM-DD')
+    //
+    //
+    //     await this.setState({
+    //         date_begin:lastday,
+    //         date_end:date_begin
+    //     })
+    //     await this.pressToMonthAfterPressToArrow();
+    // }
+    //
+
+
+
     goToPrevWeek = async () => {
 
         let {date_begin, date_end, chart_type, chart_show} = this.state;
-
         if (!chart_show) {
             return false
         }
 
-        let dateOffset = (24*60*60*1000) * 7; //6 days
-        let firstday = new Date(date_begin);
-        firstday.setTime(firstday.getTime() - dateOffset);
-        firstday = moment(firstday).format('YYYY-MM-DD')
-
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}` : date;
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-
-        console.log(firstday, 'firstday')
-        console.log(date_begin, 'lastday')
-        await this.setState({
-            date_begin:firstday,
-            date_end:date_begin
-        })
-        await this.pressToWeekAfterPressToArrow();
-    }
-    goToNextWeek = async () => {
-
-        let {date_begin, date_end, chart_type, chart_show} = this.state;
-
-        if (!chart_show) {
-            return false
-        }
-
-        let dateOffset = (24*60*60*1000) * 7; //6 days
-        let firstday = new Date(date_end);
-        firstday.setTime(firstday.getTime() + dateOffset);
-        firstday = moment(firstday).format('YYYY-MM-DD')
-
-        let date = new Date().getDate();
-        date = date < 10 ? `0${date}`: date;
-        let month = new Date().getMonth() + 1;
-        let year = new Date().getFullYear();
-        let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-
-        console.log(date_end, 'date_end')
-        console.log(firstday, 'firstday')
-        await this.setState({
-            date_begin:date_end,
-            date_end:firstday
-        })
-        await this.pressToWeekAfterPressToArrow();
-
-    }
-
-    goToPrevMonth = async () => {
-
-        let {date_begin, date_end, chart_type, chart_show} = this.state;
-        if (!chart_show) {
-            return false
-        }
-        // let dateOffset = (24*60*60*1000) * 30; //6 days
-        // let firstday = new Date(date_begin);
-        // firstday.setTime(firstday.getTime() - dateOffset);
-        // firstday = moment(firstday).format('YYYY-MM-DD')
-        //
-        // console.log(firstday, 'firstday')
-        // console.log(date_begin, 'lastday');
-        //
-        // await this.setState({
-        //     date_begin:firstday,
-        //     date_end:date_begin
-        // })
-        let lastday = moment(date_begin).format('YYYY-MM-DD');
-        lastday = moment(lastday).add(-1, 'M');
-        lastday = moment(lastday).format('YYYY-MM-DD')
-
+        let futureMonth =  moment(date_begin).subtract(6, "day");
+        let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
         await this.setState({
             date_begin:lastday,
             date_end:date_begin
         })
-        await this.pressToMonthAfterPressToArrow();
+
+        await this.pressToWeekAfterPressToArrow();
+
+
     }
-    goToNextMonth = async () => {
+    goToNextWeek = async () => {
 
         let {date_begin, date_end, chart_type, chart_show} = this.state;
-        if (!chart_show) {
-            return false
-        }
-        // let dateOffset = (24*60*60*1000) * 30; //6 days
-        // let firstday = new Date(date_end);
-        // firstday.setTime(firstday.getTime() + dateOffset);
-        // firstday = moment(firstday).format('YYYY-MM-DD')
-        //
-        // let date = new Date().getDate();
-        // date = date < 10 ? `0${date}` : date;
-        // let month = new Date().getMonth() + 1;
-        // let year = new Date().getFullYear();
-        // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-        //
-        // console.log(date_end, 'date_end')
-        // console.log(firstday, 'firstday')
-        // await this.setState({
-        //     date_begin:date_end,
-        //     date_end:firstday
-        // })
-        let lastday = moment(date_end).format('YYYY-MM-DD');
-        lastday = moment(lastday).add(1, 'M');
-        lastday = moment(lastday).format('YYYY-MM-DD')
+        let futureMonth =  moment(date_end).add(1, 'W').subtract(1, "days");
+        let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
         await this.setState({
             date_begin:date_end,
             date_end:lastday
         })
-        await this.pressToMonthAfterPressToArrow();
+        await this.pressToWeekAfterPressToArrow();
 
     }
+
+    // goToNextMonth = async () => {
+    //
+    //     let {date_begin, date_end, chart_type, chart_show} = this.state;
+    //     if (!chart_show) {
+    //         return false
+    //     }
+    //     // let dateOffset = (24*60*60*1000) * 30; //6 days
+    //     // let firstday = new Date(date_end);
+    //     // firstday.setTime(firstday.getTime() + dateOffset);
+    //     // firstday = moment(firstday).format('YYYY-MM-DD')
+    //     //
+    //     // let date = new Date().getDate();
+    //     // date = date < 10 ? `0${date}` : date;
+    //     // let month = new Date().getMonth() + 1;
+    //     // let year = new Date().getFullYear();
+    //     // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
+    //     //
+    //     // console.log(date_end, 'date_end')
+    //     // console.log(firstday, 'firstday')
+    //     // await this.setState({
+    //     //     date_begin:date_end,
+    //     //     date_end:firstday
+    //     // })
+    //     let lastday = moment(date_end).format('YYYY-MM-DD');
+    //     lastday = moment(lastday).add(1, 'M');
+    //     lastday = moment(lastday).format('YYYY-MM-DD')
+    //
+    //     await this.setState({
+    //         date_begin:date_end,
+    //         date_end:lastday
+    //     })
+    //     await this.pressToMonthAfterPressToArrow();
+    //
+    // }
 
 
     render() {
@@ -917,67 +1007,37 @@ export default class App extends Component {
                         </View>
 
                     </View>
+
+                    <View style={{maxWidth: 350, alignSelf: 'center', width:'100%'}}>
+                        <Svg width={84} height={83} viewBox="0 0 84 83" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <G clipPath="url(#clip0_2228_33)">
+                                <Path d="M28.567 75.219h25.938M25.552 54.145a25.776 25.776 0 01-9.954-20.264C15.534 19.81 26.848 8.105 40.92 7.78a25.937 25.937 0 0116.632 46.331 7.846 7.846 0 00-3.047 6.193v1.945a2.594 2.594 0 01-2.594 2.594H31.16a2.594 2.594 0 01-2.594-2.594v-1.945a7.91 7.91 0 00-3.015-6.16z" stroke="#DD9C5A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+                                <Path fillRule="evenodd" clipRule="evenodd" d="M33.536 34.125a1.875 1.875 0 100-3.75 1.875 1.875 0 000 3.75zm16.875 0a1.875 1.875 0 100-3.75 1.875 1.875 0 000 3.75zM41.974 51a4.687 4.687 0 100-9.375 4.687 4.687 0 000 9.375zm0-1.875a2.812 2.812 0 100-5.625 2.812 2.812 0 000 5.625zm9.147-24.437l1.048 1.555-6.217 4.194-1.049-1.555 6.218-4.194zm-12.077 4.194l-1.048 1.555-6.218-4.194 1.049-1.555 6.217 4.194z" fill="#DD9C5A"/>
+                            </G>
+                            <Defs>
+                                <ClipPath id="clip0_2228_33">
+                                    <Path fill="#fff" transform="translate(.036)" d="M0 0H83V83H0z" />
+                                </ClipPath>
+                            </Defs>
+                        </Svg>
+                    </View>
+
                     <ScrollView style={styles.all_devices_general_page_main_wrapper}>
                         <View style={styles.impulse_surges_items_main_wrapper}>
-                            <View style={styles.impulse_surges_items_second_wrapper}>
-                                <View style={styles.impulse_surges_item_icon_title_wrapper}>
-
-                                    <View style={styles.impulse_surges_item_icon}>
-                                        <Svg width={21} height={21} viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Circle cx={10.5} cy={10.5} r={10.5} fill="#10BCCE" />
-                                            <Path d="M7.952 6l2.01 6.838h.077L12.052 6H14l-2.866 9H8.87L6 6h1.952z" fill="#fff"/>
-                                        </Svg>
-                                    </View>
-
-                                    <Text style={styles.impulse_surges_item_info1}>
-                                        AVG {this.state.voltage_item_info}
-                                        {/*AVG {this.state.amperage_min} - {this.state.amperage_max} V*/}
-                                    </Text>
-
-                                </View>
-                                <View style={styles.impulse_surges_item}>
-                                    <Text style={styles.impulse_surges_item_title}>{this.state.language.minimum}</Text>
-                                    {/*<Text style={styles.impulse_surges_item_info}>{this.state.minimum_info} V</Text>*/}
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.amperage_min} V</Text>
-                                </View>
-                                <View style={styles.impulse_surges_item}>
-                                    <Text style={styles.impulse_surges_item_title}>{this.state.language.maximum}</Text>
-                                    {/*<Text style={styles.impulse_surges_item_info}>{this.state.maximum_info} V</Text>*/}
-                                    <Text style={styles.impulse_surges_item_info}>{this.state.amperage_max} V</Text>
-                                </View>
-
-                            </View>
-
-                            <View  style={styles.impulse_surges_dates_info_buttons_main_wrapper}>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        this.pressToDay()
-                                    }}
-                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'day' ? styles.active_impulse_surges_dates_info_button : {}]}
-                                >
-                                    <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        this.pressToWeek()
-                                    }}
-                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'week' ? styles.active_impulse_surges_dates_info_button : {}]}
-                                >
-                                    <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        this.pressToMonth()
-                                    }}
-                                    style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'month' ? styles.active_impulse_surges_dates_info_button : {}]}
-                                >
-                                    <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>
-                                </TouchableOpacity>
-                            </View>
-
                             <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
 
                                 <View style={{height: 300, backgroundColor:'red', width: '100%'}}>
+
+                                    {this.state.chart_show && this.state.voltage_item_info == 0 &&
+
+                                        <View style={{paddingHorizontal: 25,zIndex: 99999, width: '100%', height: '100%', justifyContent:'center', alignItems:'center', position:'absolute', bottom:0, left:0, backgroundColor: 'white'}}>
+                                            <Text style={{textAlign:'center'}}>
+                                                {this.state.language.no_grafik_data}
+                                                {/*Нет данных для отображение за выбранный период.*/}
+                                            </Text>
+                                        </View>
+
+                                    }
 
                                     <WebView
                                         // onLoadStart={() => setVisible(true)}
@@ -989,193 +1049,265 @@ export default class App extends Component {
                                         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                                         
                                           <script type="text/javascript">
+
                                                 document.addEventListener("message", message => {
 
-                                                  google.charts.load('current', {'packages': ['corechart']});
-                                                  google.charts.setOnLoadCallback(drawChart);
-                                            
-                                                  function drawChart() {
-                                                    var chartData1 =  JSON.parse(message.data)     
-                                                    // alert(chartData1)
-                                                    // alert(message.data)
-                                                    //  var data = google.visualization.arrayToDataTable([
-                                                    //   ['', ''],
-                                                    //   ['2004',  1000],
-                                                    //   ['2005',  1170],
-                                                    //   ['2006',  660,],
-                                                    //   ['2007',  1030]
-                                                    // ]);
 
-                                                    var data = google.visualization.arrayToDataTable(chartData1);
-                                            
-                                                    var options = {
-                                                        isStacked: false,
-
-                                                      hAxis: {title: '',  titleTextStyle: {color: '#333'}},
-                                                      vAxis: {minValue: 0},
-                                                      legend: 'none'
-
+                                                  google.charts.load('current', {'packages':['corechart']});
+                                                  google.charts.setOnLoadCallback(drawVisualization);
+                                                          
+                                                    //Перевод
+                                                    const translateMonth = {
+                                                        en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                                                        ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] 
                                                     };
-                                            
-                                                      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-                                                       chart.draw(data, options);
-                                                  }
+                                                    const translateWeek = {
+                                                        en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+                                                        ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"]
+                                                    };
+                                                     const translateChart = {
+                                                        chartDate: { en: 'Date', ru: 'Дата' },
+                                                        chartValue: { en: 'Current', ru: 'Сила тока' },      
+                                                    };
+                                                      
+                                                     
+                                                      function drawVisualization() {
+                                                          
+                                                           var chartData1 =  JSON.parse(message.data)     
+                                                            var language = chartData1.language_name; //Локалмзация en | ru
+                                                          //   var showAs = 'days'; //показывать как hourly | week | days
+                                                          
+                                                           if(chartData1.chart_type == 'day') {
+                                                                showAs = 'hours';
+                                                            }
+    
+                                                            if(chartData1.chart_type == 'week') {
+                                                                showAs = 'week';
+                                                            }
+    
+                                                            if(chartData1.chart_type == 'month') {
+                                                                showAs = 'days';
+                                                            }
+                                                            
+                                                            var apiDataArray = chartData1.data;
+                                                  
+                                                      //   var language = 'ru'; //Локалмзация en | ru
+                                                      //   var showAs = 'days'; //показывать как hourly | week | days
+                                                      //
+                                                      //    var apiDataArray = [
+                                                      //    { timestamp: '2023-01-05',  amperage: 0.4 },
+                                                      //    { timestamp: '2023-01-07',  amperage: 2.1 },
+                                                      //    { timestamp: '2023-01-08',  amperage: 0.66 },
+                                                      //    { timestamp: '2023-01-09',  amperage: 4.1 },
+                                                      //    { timestamp: '2023-01-10',  amperage: 0 },
+                                                      //    { timestamp: '2023-01-11',  amperage: 0 },
+                                                      //    { timestamp: '2023-01-12',  amperage: 2.1 },
+                                                      // ];
+                                                    
+                                                    //Готовим массив под наполнение
+                                                            var dataArray = []; 
+                                                            dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
+                                                            translateChart.chartDate[language], 
+                                                              translateChart.chartValue[language]
+                                                             ]), 
+                                                            apiDataArray.forEach((element) => {
+                                                             
+                                                            //Заголовки подписей
+                                                            var caption = ''
+                                                            var mydate = new Date(element.timestamp);
+                                                            if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
+                                                            if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
+                                                            if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
+                                                               
+                                                      dataArray.push([
+                                                              caption,  //Заголовок
+                                                                element.amperage//Целевое значение
+                                                                ]);
+                                                    });
+                                                            
+                                                            
+                                                    //Отправляем данные в диаграму        
+                                                            var data = google.visualization.arrayToDataTable(dataArray);
+                                                    
+                                                    
+                                                    //Рассчитываем границу графика для подрезки      
+                                                    //var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
+                                                    
+                                                    //Настройки графиков
+                                                            var options = {
+                                                              /*title : 'Monthly12',*/
+                                                              legend: 'none',
+                                                              vAxis: {
+                                                              /*title: 'V',*/
+                                                                /*scaleType: 'log',*/
+                                                               // viewWindow: {min: minimalValue}, //подрезка графика
+                                                              },
+                                                              hAxis: {
+                                                             /*title: 'Date',*/
+                                                              },
+                                                        
+                                                             
+                                                              series: {
+                                                    
+                                                              0: {type: 'line', color: '004B84'}, // красная линия
+                                                                }
+                                                            };
+                                                    
+                                                            var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+                                                            chart.draw(data, options);
+                                                          }
 
                                                 });
-
-                                                 
-                                          
                                           
                                           </script>
-                                        <div id="curve_chart" style="width: 100%; height: 300px;"></div>` }}
+                                        <div id="chart_div" style="width: 100%; height: 300px;"></div>` }}
                                     />
 
 
                                 </View>
-                                {/*<View style={[styles.impulse_surges_item_img]}>*/}
-                                {/*    <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/chart_img5.png')}/>*/}
-                                {/*</View>*/}
-
-                                {/*<View style={{ height: 200, flexDirection: 'row', width: '100%', marginBottom:25 }}>*/}
-
-                                {/*    {this.state.chart_show ?*/}
-
-                                {/*        <LineChart*/}
-                                {/*            data={{*/}
-                                {/*                labels:  this.state.chart_labels,*/}
-                                {/*                datasets: [*/}
-                                {/*                    // {*/}
-                                {/*                    //     data: [130, 135, 140, 145,  260,130, 135, 140, 145, 260, 220 ],*/}
-                                {/*                    //     // color: (opacity = 1) => `silver`, // optional*/}
-                                {/*                    //     strokeWidth: 2, // optional*/}
-                                {/*                    //     withDots: false, //a flage to make it hidden*/}
-                                {/*                    // },*/}
-
-                                {/*                    {*/}
-                                {/*                        data: this.state.chartData, //, [210, 215, 240, 220, 210],*/}
-                                {/*                        // color: (opacity = 1) => `silver`, // optional*/}
-                                {/*                        // strokeWidth: 2 // optional*/}
-                                {/*                        withDots: false, //a flage to make it hidden*/}
-                                {/*                    },*/}
-                                {/*                ],*/}
-                                {/*            }}*/}
-                                {/*            width={screenWidth}*/}
-                                {/*            height={220}*/}
-                                {/*            chartConfig={chartConfig}*/}
-                                {/*            // bezier*/}
-                                {/*            withDots={true}*/}
-                                {/*            withInnerLines={true}*/}
-                                {/*            withOuterLines={false}*/}
-                                {/*            withVerticalLines={false}*/}
-                                {/*            withHorizontalLines={true}*/}
-                                {/*            // yAxisSuffix={'V'}*/}
-                                {/*            // fromNumber={260}*/}
-                                {/*            // fromZero={false}*/}
-                                {/*        />*/}
-
-                                {/*        :*/}
-
-                                {/*        <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>*/}
-                                {/*            <ActivityIndicator size="large" color="#0000ff"/>*/}
-                                {/*        </View>*/}
-                                {/*    }*/}
-                                {/*</View>*/}
 
 
 
                                 {this.state.chart_type == 'day' &&
-                                <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
+                                    <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
 
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.goToPrevDay()
-                                        }}
-                                        style={styles.impulse_surges_change_minus_date_button}
-                                    >
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                        </Svg>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.goToPrevDay()
+                                            }}
+                                            style={styles.impulse_surges_change_minus_date_button}
+                                        >
+                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                            </Svg>
+                                        </TouchableOpacity>
 
-                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15}]}>{this.state.date_begin}</Text>
+                                        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15}]}>{this.state.date_begin}</Text>
 
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.goToNextDay()
-                                        }}
-                                        style={styles.impulse_surges_change_plus_date_button}
-                                    >
-                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                        </Svg>
-                                    </TouchableOpacity>
-                                </View>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.goToNextDay()
+                                            }}
+                                            style={styles.impulse_surges_change_plus_date_button}
+                                        >
+                                            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                            </Svg>
+                                        </TouchableOpacity>
+                                    </View>
                                 }
 
 
                                 {this.state.chart_type == 'week' &&
 
-                                <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
+                                    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
 
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.goToPrevWeek()
-                                        }}
-                                        style={styles.impulse_surges_change_minus_date_button}
-                                    >
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                        </Svg>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.goToPrevWeek()
+                                            }}
+                                            style={styles.impulse_surges_change_minus_date_button}
+                                        >
+                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
+                                            </Svg>
+                                        </TouchableOpacity>
 
-                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
+                                        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
 
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.goToNextWeek()
-                                        }}
-                                        style={styles.impulse_surges_change_plus_date_button}
-                                    >
-                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                        </Svg>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                this.goToNextWeek()
+                                            }}
+                                            style={styles.impulse_surges_change_plus_date_button}
+                                        >
+                                            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
+                                            </Svg>
+                                        </TouchableOpacity>
 
-                                </View>
-
-                                }
-
-                                {this.state.chart_type == 'month' &&
-
-                                <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
-
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.goToPrevMonth()
-                                        }}
-                                        style={styles.impulse_surges_change_minus_date_button}
-                                    >
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                        </Svg>
-                                    </TouchableOpacity>
-
-                                    <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
-
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.goToNextMonth()
-                                        }}
-                                        style={styles.impulse_surges_change_plus_date_button}
-                                    >
-                                        <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                        </Svg>
-                                    </TouchableOpacity>
-
-                                </View>
+                                    </View>
 
                                 }
+
+
+                                <View  style={[styles.impulse_surges_dates_info_buttons_main_wrapper, {marginTop: 29, marginBottom:40}]}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.pressToDay()
+                                        }}
+                                        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'day' ? styles.active_impulse_surges_dates_info_button : {}]}
+                                    >
+                                        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.pressToWeek()
+                                        }}
+                                        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'week' ? styles.active_impulse_surges_dates_info_button : {}]}
+                                    >
+                                        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            this.pressToMonth()
+                                        }}
+                                        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'month' ? styles.active_impulse_surges_dates_info_button : {}]}
+                                    >
+                                        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>
+                                    </TouchableOpacity>
+                                </View>
+
+
+
+                                {/*{this.state.chart_type == 'month' &&*/}
+
+                                {/*    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>*/}
+
+                                {/*        <TouchableOpacity*/}
+                                {/*            onPress={() => {*/}
+                                {/*                this.goToPrevMonth()*/}
+                                {/*            }}*/}
+                                {/*            style={styles.impulse_surges_change_minus_date_button}*/}
+                                {/*        >*/}
+                                {/*            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                                {/*                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>*/}
+                                {/*            </Svg>*/}
+                                {/*        </TouchableOpacity>*/}
+
+                                {/*        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>*/}
+
+                                {/*        <TouchableOpacity*/}
+                                {/*            onPress={() => {*/}
+                                {/*                this.goToNextMonth()*/}
+                                {/*            }}*/}
+                                {/*            style={styles.impulse_surges_change_plus_date_button}*/}
+                                {/*        >*/}
+                                {/*            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                                {/*                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>*/}
+                                {/*            </Svg>*/}
+                                {/*        </TouchableOpacity>*/}
+
+                                {/*    </View>*/}
+
+                                {/*}*/}
+
+
+                                <View style={styles.impulse_surges_items_second_wrapper}>
+
+                                    <View style={styles.impulse_surges_item}>
+                                        <Text style={styles.impulse_surges_item_title}> {this.state.language.minimum}</Text>
+                                        <Text style={styles.impulse_surges_item_info}>{this.state.amperage_min.toFixed(1)} {this.state.language.voltage_n}</Text>
+                                    </View>
+                                    <View style={styles.impulse_surges_item}>
+                                        <Text style={styles.impulse_surges_item_title}> {this.state.language.maximum}</Text>
+                                        <Text style={styles.impulse_surges_item_info}>{this.state.amperage_max.toFixed(1)} {this.state.language.voltage_n}</Text>
+                                    </View>
+                                    <View style={styles.impulse_surges_item}>
+                                        <Text style={styles.impulse_surges_item_title}> {this.state.language.average}</Text>
+                                        <Text style={styles.impulse_surges_item_info}>{this.state.voltage_item_info.toFixed(1)} {this.state.language.voltage_n}</Text>
+                                    </View>
+                                </View>
 
 
 

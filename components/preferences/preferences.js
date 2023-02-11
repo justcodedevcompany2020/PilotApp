@@ -653,11 +653,11 @@ export default class App extends Component {
                     lower_voltage_delay: response.lower_voltage_delay ? parseFloat(response.lower_voltage_delay).toFixed(1) : 0,
                     amperage_delay: response.amperage_delay ? parseFloat(response.amperage_delay).toFixed(1) : 0,
 
-                    sort_by_pre_configuration1: response.protection_preset == 'AV' ? true : false,
-                    sort_by_pre_configuration2:  response.protection_preset == 'Air conditioner' ? true : false,
-                    sort_by_pre_configuration3: response.protection_preset == 'Refrigerator' ? true : false,
-                    sort_by_pre_configuration4: response.protection_preset == 'Other home  appliance' ? true : false,
-                    sort_by_pre_configuration5: response.protection_preset == 'Manual setup' ? true : false,
+                    sort_by_pre_configuration1: response.protection_preset == 'av' ? true : false,
+                    // sort_by_pre_configuration2:  response.protection_preset == 'Air conditioner' ? true : false,
+                    sort_by_pre_configuration3: response.protection_preset == 'refrigerator' ? true : false,
+                    sort_by_pre_configuration4: response.protection_preset == 'others' ? true : false,
+                    sort_by_pre_configuration5: response.protection_preset == 'manual' ? true : false,
                     schedule_days: response.schedule_days,
                     schedule_time_on: response.schedule_time_on,
                     schedule_time_off: response.schedule_time_off,
@@ -813,23 +813,23 @@ export default class App extends Component {
         let value = '';
 
         if(key === 'sort_by_pre_configuration1') {
-            value = 'AV'
+            value = 'av';//'AV'
         }
 
-        if(key === 'sort_by_pre_configuration2') {
-            value = 'Air conditioner'
-        }
+        // if(key === 'sort_by_pre_configuration2') {
+        //     value = //'Air conditioner'
+        // }
 
         if(key === 'sort_by_pre_configuration3') {
-            value = 'Refrigerator'
+            value = 'refrigerator'; //'Refrigerator'
         }
 
         if(key === 'sort_by_pre_configuration4') {
-            value = 'Other home  appliance'
+            value = 'others';//'Other home  appliance'
         }
 
         if(key === 'sort_by_pre_configuration5') {
-            value = 'Manual setup'
+            value = 'manual'//'manual'
         }
 
         let userToken = await AsyncStorage.getItem('userToken');
@@ -943,7 +943,7 @@ export default class App extends Component {
             let userToken = await AsyncStorage.getItem('userToken');
             let AuthStr = 'Bearer ' + userToken;
             let id = this.props.id;
-
+            console.log(protection_lower_voltage_input, 'protection_lower_voltage_inputprotection_lower_voltage_input')
             try {
                 fetch(`https://apiv1.zis.ru/devices/`+ id, {
                     method: 'PATCH',
@@ -953,7 +953,7 @@ export default class App extends Component {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        lower_voltage_trigger: protection_lower_voltage_input,
+                        lower_voltage_trigger: Number(protection_lower_voltage_input),
                     })
 
                 }).then((response) => {
@@ -1731,6 +1731,32 @@ export default class App extends Component {
 
     }
 
+
+    printConfTranslate = () =>
+    {
+        let {protection_preset} = this.state;
+        switch (protection_preset) {
+            case 'av':
+               return this.state.language.av
+                break;
+            // case 'Air conditioner':
+            //     return this.state.language.air_conditioner;
+                break;
+            case 'refrigerator':
+                return this.state.language.refrigerator;
+                break;
+            case 'others':
+                return this.state.language.other_home_appliance;
+                break;
+            case 'manual':
+                return this.state.language.manual_setup;
+                break;
+            default:
+                return this.state.language.not_selected ;//'Не выбранно';
+        }
+
+    }
+
     render() {
         // SharedAccessPopup
         if (this.state.SharedAccessPopup) {
@@ -1835,34 +1861,41 @@ export default class App extends Component {
                             </View>
 
                             <View style={styles.new_test_item}>
+
                                 <Text style={styles.new_test_item_title}>
                                     {/*Pre-configuration*/}
                                     {this.state.language.pre_configuration}
                                 </Text>
-                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({pre_configuration_popup: true})}}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.protection_preset}</Text>
+
+                                <TouchableOpacity style={[styles.preferences_item_btn, {width:'35%'}]} onPress={() => {this.setState({pre_configuration_popup: true})}}>
+
+                                    <Text style={[styles.preferences_item_btn_text, {width: '100%'}]}>
+                                        {this.printConfTranslate()}
+                                    </Text>
+
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                         </Svg>
                                     </View>
+
                                 </TouchableOpacity>
                             </View>
 
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_upper_voltage_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'manual' && {color: 'silver'}]}>
                                     {this.state.language.protection_upper_voltage_title2}
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE',  }]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE',  }]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionUpperVoltage(val)
                                         }}
                                         value={this.state.protection_upper_voltage_input}
                                         // placeholder='3.43'
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
-                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                        placeholderTextColor={this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'manual' ? false : true}
                                         // keyboardType = 'numeric'
                                         // keyboardType="numeric"
 
@@ -1873,14 +1906,14 @@ export default class App extends Component {
 
                             <View style={[styles.new_test_item]}>
 
-                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'manual' && {color: 'silver'}]}>
 
                                     {this.state.language.upper_voltage_sec2}
 
                                 </Text>
 
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
-                                    if (this.state.protection_preset != 'Manual setup') {
+                                    if (this.state.protection_preset != 'manual') {
                                         return false
                                     } else  {
                                         this.setState({
@@ -1888,12 +1921,12 @@ export default class App extends Component {
                                         })
                                     }
                                 }}>
-                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'manual' && {color: 'silver'}]}>
                                         {this.state.upper_voltage_delay}
                                     </Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'Manual setup' ? "silver" : "#004B84"}/>
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'manual' ? "silver" : "#004B84"}/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
@@ -1901,19 +1934,19 @@ export default class App extends Component {
 
                             <View style={[styles.new_test_item]}>
 
-                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'Manual setup' && {color: 'silver'} ]}>
+                                <Text style={[styles.new_test_item_title, {color: this.state.protection_lower_voltage_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'manual' && {color: 'silver'} ]}>
                                     {this.state.language.protection_lower_voltage_title2}
                                 </Text>
 
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionLowerVoltage(val);
                                         }}
                                         value={this.state.protection_lower_voltage_input}
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
-                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                        placeholderTextColor={this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'manual' ? false : true}
                                     />
                                 </View>
 
@@ -1922,13 +1955,13 @@ export default class App extends Component {
 
                             <View style={[styles.new_test_item]}>
 
-                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>
+                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'manual' && {color: 'silver'}]}>
                                     {this.state.language.lower_voltage_delay_sec2}
                                 </Text>
 
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {
 
-                                    if (this.state.protection_preset != 'Manual setup') {
+                                    if (this.state.protection_preset != 'manual') {
                                         return false
                                     } else  {
                                         this.setState({
@@ -1936,10 +1969,10 @@ export default class App extends Component {
                                         })
                                     }
                                 }}>
-                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>{this.state.lower_voltage_delay}</Text>
+                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'manual' && {color: 'silver'}]}>{this.state.lower_voltage_delay}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'Manual setup' ? "silver" : "#004B84"}/>
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'manual' ? "silver" : "#004B84"}/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
@@ -1950,53 +1983,55 @@ export default class App extends Component {
                                     style={[
                                         styles.new_test_item_title,
                                         {color: this.state.power_restore_delay_input_error === true ? 'red' : '#4A4A4A'},
-                                        this.state.protection_preset != 'Manual setup' && {color: 'silver'}
+                                        this.state.protection_preset != 'manual' && {color: 'silver'}
                                     ]}
                                 >
                                     {this.state.language.power_restore_delay_sec}
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.choosePowerRestoreDelay(val);
                                         }}
                                         value={this.state.power_restore_delay_input}
                                         // placeholder="3500"
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
-                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                        placeholderTextColor={this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'manual' ? false : true}
                                     />
                                 </View>
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'Manual setup' && {color: 'silver'}]}>{this.state.language.startup_delay_sec}</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'manual' && {color: 'silver'}]}>{this.state.language.startup_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'Manual setup' ?  'silver' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.chooseStartupDelay(val);
                                         }}
                                         value={this.state.startup_delay_input}
                                         // placeholder="3500"
-                                        placeholderTextColor={this.state.protection_preset != 'Manual setup' ? 'silver' : '#10BCCE'}
-                                        editable={this.state.protection_preset != 'Manual setup' ? false : true}
+                                        placeholderTextColor={this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE'}
+                                        editable={this.state.protection_preset != 'manual' ? false : true}
                                     />
                                 </View>
 
                             </View>
                             <View style={[styles.new_test_item]}>
-                                <Text style={[styles.new_test_item_title, {color: this.state.amperage_trigger_input_error === true ? 'red' : '#4A4A4A'}]}>{this.state.language.current_protection_title}</Text>
+                                <Text style={[styles.new_test_item_title, {color: this.state.amperage_trigger_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'manual' && {color: 'silver'}]}>
+                                    {this.state.language.current_protection_title}
+                                </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field,]}
+                                        style={[styles.new_test_item_input_field, {borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
                                         onChangeText={(val) => {
                                             this.chooseAmperageTrigger(val);
                                         }}
                                         value={this.state.amperage_trigger_input}
                                         // placeholder="3500"
                                         placeholderTextColor= '#10BCCE'
-
+                                        editable={this.state.protection_preset != 'manual' ? false : true}
                                     />
                                 </View>
 
@@ -2005,12 +2040,20 @@ export default class App extends Component {
 
 
                             <View style={[styles.new_test_item]}>
-                                <Text style={styles.new_test_item_title}>{this.state.language.current_protection_delay}</Text>
-                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() =>  this.setState({amperage_delay_popup: true})}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.amperage_delay}</Text>
+                                <Text style={[styles.new_test_item_title, this.state.protection_preset != 'manual' && {color: 'silver'}]}>{
+                                    this.state.language.current_protection_delay}
+                                </Text>
+                                <TouchableOpacity style={styles.preferences_item_btn}
+                                      onPress={() => {
+                                          if(this.state.protection_preset == 'manual') {
+                                              this.setState({amperage_delay_popup: true})
+                                          }
+                                      }}
+                                >
+                                    <Text style={[styles.preferences_item_btn_text, this.state.protection_preset != 'manual' && {color: 'silver'}]}>{this.state.amperage_delay}</Text>
                                     <View style={styles.preferences_item_btn_icon}>
-                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
+                                        <Svg style={this.state.protection_preset != 'manual' && {fill: 'silver'}} width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill={this.state.protection_preset != 'manual' ? 'silver' : '#004B84'} />
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>
@@ -2152,31 +2195,31 @@ export default class App extends Component {
                                             </Text>
 
                                         </View>
-                                        <View style={styles.sort_by_pre_configuration_radio_input}>
-                                            <TouchableOpacity
-                                                style={[styles.sort_by_pre_configuration_radio_input_button]}
-                                                onPress={()=> {
-                                                    this.setState({
-                                                        sort_by_pre_configuration1: false,
-                                                        sort_by_pre_configuration2: true,
-                                                        sort_by_pre_configuration3: false,
-                                                        sort_by_pre_configuration4: false,
-                                                        sort_by_pre_configuration5: false,
-                                                    })
-                                                    this.chooseNewPreConfiguration('sort_by_pre_configuration2')
-                                                }}>
-                                                {this.state.sort_by_pre_configuration2 &&
-                                                <View style={styles.activeRadioRound}>
+                                        {/*<View style={styles.sort_by_pre_configuration_radio_input}>*/}
+                                        {/*    <TouchableOpacity*/}
+                                        {/*        style={[styles.sort_by_pre_configuration_radio_input_button]}*/}
+                                        {/*        onPress={()=> {*/}
+                                        {/*            this.setState({*/}
+                                        {/*                sort_by_pre_configuration1: false,*/}
+                                        {/*                sort_by_pre_configuration2: true,*/}
+                                        {/*                sort_by_pre_configuration3: false,*/}
+                                        {/*                sort_by_pre_configuration4: false,*/}
+                                        {/*                sort_by_pre_configuration5: false,*/}
+                                        {/*            })*/}
+                                        {/*            this.chooseNewPreConfiguration('sort_by_pre_configuration2')*/}
+                                        {/*        }}>*/}
+                                        {/*        {this.state.sort_by_pre_configuration2 &&*/}
+                                        {/*        <View style={styles.activeRadioRound}>*/}
 
-                                                </View>
-                                                }
-                                            </TouchableOpacity>
-                                            <Text style={styles.sort_by_pre_configuration_radio_input_title}>
-                                                {this.state.language.air_conditioner}
-                                                {/*Air conditioner*/}
-                                            </Text>
+                                        {/*        </View>*/}
+                                        {/*        }*/}
+                                        {/*    </TouchableOpacity>*/}
+                                        {/*    <Text style={styles.sort_by_pre_configuration_radio_input_title}>*/}
+                                        {/*        {this.state.language.air_conditioner}*/}
+                                        {/*        /!*Air conditioner*!/*/}
+                                        {/*    </Text>*/}
 
-                                        </View>
+                                        {/*</View>*/}
                                         <View style={styles.sort_by_pre_configuration_radio_input}>
                                             <TouchableOpacity
                                                 style={[styles.sort_by_pre_configuration_radio_input_button]}
@@ -2252,7 +2295,7 @@ export default class App extends Component {
                                             <Text style={styles.sort_by_pre_configuration_radio_input_title}>
                                                 {this.state.language.manual_setup}
 
-                                                {/*Manual setup*/}
+                                                {/*manual*/}
                                             </Text>
 
                                         </View>

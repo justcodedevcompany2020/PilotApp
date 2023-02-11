@@ -11,6 +11,8 @@ import {AuthContext} from "./components/AuthContext/context";
 import {StackActions} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import registerNNPushToken from 'native-notify';
+
 
 import LoginComponent from './components/auth_login/login';
 import PasswordRecoveryComponent from './components/password_recovery/password_recovery';
@@ -137,18 +139,18 @@ function ImpulseSurgesScreen({ route, navigation }) {
 }
 
 function UndervoltageScreen({route, navigation }) {
-    const {params, params2, params3, test_report_start_time, test_report_end_time} = route.params
+    const {params, params2, params3, lower_voltage_trigger, test_report_start_time, test_report_end_time} = route.params
 
     return (
-        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} test_report_start_time={test_report_start_time} test_report_end_time={test_report_end_time} navigation={navigation}  />
+        <UndervoltageComponent id={params} device_id={params2} undervoltage_limit={params3} lower_voltage_trigger={lower_voltage_trigger} test_report_start_time={test_report_start_time} test_report_end_time={test_report_end_time} navigation={navigation}  />
     );
 }
 
 function OvervoltageScreen({route, navigation }) {
-    const {params, params2, params3, test_report_start_time} = route.params
+    const {params, params2, params3,upper_voltage_trigger, test_report_start_time, test_report_end_time} = route.params
 
     return (
-        <OvervoltageComponent id={params} device_id={params2} overvoltage_limit={params3} test_report_start_time={test_report_start_time} navigation={navigation}  />
+        <OvervoltageComponent id={params} device_id={params2} overvoltage_limit={params3} upper_voltage_trigger={upper_voltage_trigger} test_report_start_time={test_report_start_time}  test_report_end_time={test_report_end_time} navigation={navigation}  />
     );
 }
 
@@ -188,9 +190,10 @@ function PowerScreen({ route, navigation }) {
     );
 }
 
-function OsciloscopeScreen({ navigation }) {
+function OsciloscopeScreen({ route, navigation }) {
+    const {params, params2, prev_page} = route.params
     return (
-        <OsciloscopeComponent navigation={navigation}  />
+        <OsciloscopeComponent id={params} device_id={params2} prev_page={prev_page}  navigation={navigation}  />
     );
 }
 function ManualScreen({ navigation }) {
@@ -208,6 +211,9 @@ function SetNewPasswordScreen({route, navigation }) {
 
 
 export default function App() {
+
+    registerNNPushToken(6321, 'T9mACaeYwZfGDhSdvhaAL2');
+
     const popAction = StackActions.pop(1);
 
     const [isLoading, setIsLoading] = React.useState(true);
@@ -261,7 +267,7 @@ export default function App() {
             // const userId = String(foundUser.user_id);
             // setUserToken(userToken);
 
-            //  console.log('AuthUser', foundUser);
+             console.log('AuthUser', userToken);
             try {
                 await AsyncStorage.setItem('userToken', userToken);
                 await AsyncStorage.setItem('userLogin', userLogin);
@@ -312,7 +318,7 @@ export default function App() {
             } else {
                 setInet(true)
             }
-            console.log('check internet!',await checkInternet())
+            // console.log('check internet!',await checkInternet())
 
         }, 2000)
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "629982833415",
+    "project_id": "pilot-f6954",
+    "storage_bucket": "pilot-f6954.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629982833415:android:4204bf64ea78d4c61a73a2",
+        "android_client_info": {
+          "package_name": "com.JustCode.Pilot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "629982833415-52dsq63foditgpi5olieeu2jet61q8e5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqvdHCvbplYEfBRRqi8qKhWk42CYv-Oc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "629982833415-52dsq63foditgpi5olieeu2jet61q8e5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

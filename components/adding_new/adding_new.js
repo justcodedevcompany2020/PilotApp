@@ -47,8 +47,8 @@ export default class App extends Component {
 
         this.state = {
             headerMenuPopup: false,
-            // enterNewDevice: '',
-            enterNewDevice: '06AB90781234',
+            enterNewDevice: '',
+            // enterNewDevice: '06AB90781234',
             // enterNewDevice: '06AB90781235',
             inetAvalaibel: true,
             add_device_info: [],
@@ -56,8 +56,8 @@ export default class App extends Component {
             deviceIsAlreadyLinked: false,
             language: en,
             language_name: 'en',
-            search: true,
-            search_by_mac:false
+            search_by_mac:false,
+            auto_device_search: true
         };
 
     }
@@ -160,14 +160,18 @@ export default class App extends Component {
 
     searchDevices = async () => {
         // await AsyncStorage.clear();
-
+        await this.setState({
+            search_by_mac: false,
+            auto_device_search: true
+        })
         clearInterval(this.interval);
+
 
         this.interval = setInterval(async () => {
 
             await this.setState({
-                search:true,
-                search_by_mac: false
+                search_by_mac: false,
+                auto_device_search: true
             })
 
             let inet = await Network.getNetworkStateAsync()
@@ -190,12 +194,20 @@ export default class App extends Component {
                         return response.json()
                     }).then((response) => {
 
-                        // console.log(response, 'search device interval' )
+                        console.log(response, 'search device interval' )
+
+
 
                         this.setState({
                             add_device_info: response,
-                            // search:false
                         })
+
+                        if (response.length == 0) {
+                            this.setState({
+                                auto_device_search:false
+                            })
+                            clearInterval(this.interval);
+                        }
 
                     })
                 } catch (e) {
@@ -324,21 +336,25 @@ export default class App extends Component {
 
 
 
-                // if  (response.hasOwnProperty('result')) {
-                //     if (response.result == 'success') {
-                //         this.setState({
-                //             addDeviceSuccess: true
-                //         })
-                //         this.refreshDevices();
-                //     }
-                // }
+                if  (response.hasOwnProperty('statusCode')) {
+                    if (response.statusCode == 403) {
+                        clearInterval(this.interval);
 
-                clearInterval(this.interval);
+                        this.setState({
+                            add_device_info: [],
+                            search_by_mac: true
+                        })
+                    }
+                } else {
+                    clearInterval(this.interval);
 
-                this.setState({
-                    add_device_info: [response],
-                    search_by_mac: true
-                })
+                    this.setState({
+                        add_device_info: [response],
+                        search_by_mac: true
+                    })
+                }
+
+
 
             }).catch((error) => {
                 console.log('Error:', error);
@@ -405,13 +421,29 @@ export default class App extends Component {
                                         </Svg>
                                     </View>
 
-                                    { this.state.add_device_info.length == 0 && this.state.search_by_mac === false &&
+                                    { this.state.search_by_mac === false && this.state.auto_device_search === true &&
 
                                         <Text style={styles.adding_new_page_icon_title}>{this.state.language.searching}...</Text>
-
                                     }
 
-                                    {/*{this.state.add_device_info.length == 0 &&*/}
+                                    { this.state.search_by_mac === false && this.state.auto_device_search === false && this.state.add_device_info.length == 0 &&
+                                        <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', width:'100%', paddingHorizontal:11, backgroundColor:'unset'}}>
+                                            <Text style={[styles.adding_new_page_icon_title, {marginRight: 6, fontSize:15, flex:1}]}>
+                                                {this.state.language.device_not_found}
+                                            </Text>
+                                            <TouchableOpacity style={styles.enter_new_device_number_search_btn} onPress={()=> {this.searchDevices()} }>
+                                                <Svg width={25} height={25} style={{fill:'white'}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" >
+                                                    <G data-name={1}>
+                                                        <Path d="M102.59 341.42a15 15 0 01-13.42-8.28 187.41 187.41 0 0135.11-216.86c73.18-73.19 192.26-73.19 265.44 0a15 15 0 01-21.21 21.21C307 76 207 76 145.49 137.49A157.45 157.45 0 00116 319.69a15 15 0 01-13.4 21.73zM257 436.61a187.1 187.1 0 01-132.72-54.88 15 15 0 1121.21-21.22C207 422 307 422 368.51 360.51A157.45 157.45 0 00398 178.31a15 15 0 0126.82-13.45A187.62 187.62 0 01257 436.61z" />
+                                                        <Path d="M315.21 148.25a15 15 0 01-1.47-29.92l47.43-4.73-9.51-47.67a15 15 0 0129.42-5.86L393.82 124a15 15 0 01-13.22 17.86l-63.88 6.37c-.51 0-1.01.02-1.51.02zM147.61 450a15 15 0 01-14.7-12.07l-12.74-63.88a15 15 0 0113.23-17.86l63.88-6.37a15 15 0 013 29.85l-47.43 4.73 9.5 47.67A15 15 0 01147.61 450z" />
+                                                    </G>
+                                                </Svg>
+                                            </TouchableOpacity>
+                                        </View>
+                                    }
+
+
+                                        {/*{this.state.add_device_info.length == 0 &&*/}
 
                                     {/*    <Text style={styles.adding_new_page_icon_title}>"Devices are not discovered</Text>*/}
 

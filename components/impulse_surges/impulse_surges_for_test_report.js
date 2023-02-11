@@ -40,6 +40,31 @@ import {LineChart, BarChart} from "react-native-chart-kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 
+const chartConfig = {
+    backgroundGradientFrom: "white",
+    backgroundGradientFromOpacity:1,
+    backgroundGradientTo: "white",
+    backgroundGradientToOpacity: 1,
+    color: (opacity = 1) => `silver`,
+    strokeWidth: 2, // optional, default 3
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false, // optional
+    // decimalPlaces: 0,
+    linejoinType: "round",
+    scrollableDotFill: '#fff',
+    scrollableDotRadius: 6,
+    scrollableDotStrokeColor: 'tomato',
+    scrollableDotStrokeWidth: 3,
+    scrollableInfoViewStyle: {
+        justifyContent: 'center',
+        alignContent: 'center',
+        backgroundColor: '#121212',
+        borderRadius: 2,
+        marginTop: 25,
+        marginLeft: 25
+    },
+
+};
 const screenWidth = Dimensions.get("window").width;
 
 export default class App extends Component {
@@ -58,7 +83,7 @@ export default class App extends Component {
             date_end: '2022-09-06',
             chart_data_day: [],
             chart_labels: [],
-            chartData: [],
+                chartData: [],
             chart_show: false,
             chart_type: 'day',
             language: en,
@@ -127,6 +152,7 @@ export default class App extends Component {
 
     redirectToRegistration = () => {
         this.props.navigation.navigate("Registration");
+
     }
 
 
@@ -466,17 +492,6 @@ export default class App extends Component {
         let futureMonth =  moment(test_start_date).add(1, 'M');
         let lastday = moment(futureMonth).format('YYYY-MM-DD')
 
-        // let dateOffset = (24*60*60*1000) * 30; //6 days
-        // let firstday = new Date();
-        // firstday.setTime(firstday.getTime() - dateOffset);
-        // firstday = moment(firstday).format('YYYY-MM-DD')
-        //
-        // let date = new Date().getDate();
-        // date = date < 10 ? `0${date}` : date;
-        // let month = new Date().getMonth() + 1;
-        // let year = new Date().getFullYear();
-        // let lastday =  year + '-' + month + '-' + date;//format: yyyy-mm-dd;
-
         console.log(test_start_date, 'test_start_date');
         console.log(lastday, 'lastday');
 
@@ -590,18 +605,18 @@ export default class App extends Component {
         const { navigation } = this.props;
         this.setLanguageFromStorage();
         // this.pressToDay()
-        this.focusListener = navigation.addListener("focus", () => {
-            this.setLanguageFromStorage();
-            // this.pressToMonth()
-        });
+        // this.focusListener = navigation.addListener("focus", () => {
+        //     this.setLanguageFromStorage();
+        //     // this.pressToMonth()
+        // });
 
     }
-
-    componentWillUnmount() {
-        if (this.focusListener) {
-            this.focusListener();
-        }
-    }
+    //
+    // componentWillUnmount() {
+    //     if (this.focusListener) {
+    //         this.focusListener();
+    //     }
+    // }
 
     closeMenu = () => {
         this.setState({
@@ -755,10 +770,23 @@ export default class App extends Component {
         if (!chart_show) {
             return false
         }
+        // let dateOffset = (24*60*60*1000) * 30; //6 days
+        // let firstday = new Date(date_begin);
+        // firstday.setTime(firstday.getTime() - dateOffset);
+        // firstday = moment(firstday).format('YYYY-MM-DD')
+        //
+        // console.log(firstday, 'firstday')
+        // console.log(date_begin, 'lastday');
+        //
+        // await this.setState({
+        //     date_begin:firstday,
+        //     date_end:date_begin
+        // })
 
         let lastday = moment(date_begin).format('YYYY-MM-DD');
         lastday = moment(lastday).add(-1, 'M');
         lastday = moment(lastday).format('YYYY-MM-DD')
+
 
         await this.setState({
             date_begin:lastday,
@@ -808,405 +836,267 @@ export default class App extends Component {
         let {chartData} = this.state;
 
         return (
-            <SafeAreaView style={styles.container} >
-                <StatusBar style="dark" />
+                <View style={styles.impulse_surges_items_main_wrapper}>
 
-                {this.state.headerMenuPopup &&
-                     <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
-                }
+                    <Text style={{paddingHorizontal:35,marginTop:10, color:'#004B84', fontSize:16}}>Impulse surges</Text>
+                    <View style={styles.impulse_surges_item_img_dates_info_wrapper} >
+                        <View style={{height: 300, width: '100%', marginBottom: 35}}>
 
-                <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
-                    <View style={styles.all_devices_general_page_header}>
-                        <View style={styles.all_devices_general_page_header_child}>
-                            <TouchableOpacity style={styles.title_back_btn_wrapper} onPress={() => {this.redirectToTestReport()}}>
-                                <View style={styles.back_btn}>
-                                    <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#004B84"/>
-                                    </Svg>
+                            {/*chartData*/}
+
+                            {this.state.chart_show && this.state.chartData.length == 0 &&
+
+                                <View style={{paddingHorizontal: 25,zIndex: 99999, width: '100%', height: '100%', justifyContent:'center', alignItems:'center', position:'absolute', bottom:0, left:0, backgroundColor: 'white'}}>
+                                    <Text style={{textAlign:'center'}}>
+                                        {this.state.language.no_grafik_data}
+                                        {/*Нет данных для отображение за выбранный период.*/}
+                                    </Text>
                                 </View>
-                                <Text style={styles.all_devices_general_page_header_title}>{this.state.language.impulse_surges}</Text>
-                            </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.all_devices_general_page_header_menu_btn} onPress={() => {this.setState({headerMenuPopup: true})}}>
-                                <Svg width={28} height={25} viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><Path fill="#004B84" d="M0 0H28V3H0z" /><Path fill="#004B84" d="M0 11H28V14H0z" /><Path fill="#004B84" d="M0 22H28V25H0z" /></Svg>
-                            </TouchableOpacity>
+                            }
 
-                        </View>
-
-                    </View>
-
-
-                    <View style={{maxWidth: 350, alignSelf: 'center', width:'100%'}}>
-                        <Svg width={84} height={83} viewBox="0 0 84 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <G clipPath="url(#clip0_2228_33)">
-                                <Path d="M28.567 75.219h25.938M25.552 54.145a25.776 25.776 0 01-9.954-20.264C15.534 19.81 26.848 8.105 40.92 7.78a25.937 25.937 0 0116.632 46.331 7.846 7.846 0 00-3.047 6.193v1.945a2.594 2.594 0 01-2.594 2.594H31.16a2.594 2.594 0 01-2.594-2.594v-1.945a7.91 7.91 0 00-3.015-6.16z" stroke="#DD9C5A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-                                <Path fillRule="evenodd" clipRule="evenodd" d="M33.536 34.125a1.875 1.875 0 100-3.75 1.875 1.875 0 000 3.75zm16.875 0a1.875 1.875 0 100-3.75 1.875 1.875 0 000 3.75zM41.974 51a4.687 4.687 0 100-9.375 4.687 4.687 0 000 9.375zm0-1.875a2.812 2.812 0 100-5.625 2.812 2.812 0 000 5.625zm9.147-24.437l1.048 1.555-6.217 4.194-1.049-1.555 6.218-4.194zm-12.077 4.194l-1.048 1.555-6.218-4.194 1.049-1.555 6.217 4.194z" fill="#DD9C5A"/>
-                            </G>
-                            <Defs>
-                                <ClipPath id="clip0_2228_33">
-                                    <Path fill="#fff" transform="translate(.036)" d="M0 0H83V83H0z" />
-                                </ClipPath>
-                            </Defs>
-                        </Svg>
-                    </View>
-
-                    <ScrollView style={styles.all_devices_general_page_main_wrapper}>
-                        <View style={styles.impulse_surges_items_main_wrapper}>
-
-                            <View style={styles.impulse_surges_item_img_dates_info_wrapper}>
-
-
-                                <View style={{height: 300, width: '100%', marginBottom: 35}}>
-
-
-                                    {/*chartData*/}
-
-                                    {this.state.chart_show && this.state.chartData.length == 0 &&
-
-                                        <View style={{paddingHorizontal: 25,zIndex: 99999, width: '100%', height: '100%', justifyContent:'center', alignItems:'center', position:'absolute', bottom:0, left:0, backgroundColor: 'white'}}>
-                                            <Text style={{textAlign:'center'}}>
-                                                {this.state.language.no_grafik_data}
-                                                {/*Нет данных для отображение за выбранный период.*/}
-                                            </Text>
-                                        </View>
-
-                                    }
-
-                                    {/*{this.state.chart_show &&*/}
-                                    <WebView
-                                        // onLoadStart={() => setVisible(true)}
-                                        onLoad={() => this.pressToDay()}
-                                        mixedContentMode="compatibility"
-                                        ref={this.webviewRef}
-                                        source={{ html: `
-                                        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-                                        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-                                        
-                                          <script type="text/javascript">
-                                          
-                                          document.addEventListener("message", message => {
-                                            
-                                                google.charts.load('current', {'packages':['corechart']});
-                                                google.charts.setOnLoadCallback(drawVisualization);
-                                                  
-                                                //Перевод
-                                                const translateMonth = {en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-                                                      ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] };
-                                                      const translateWeek = {en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-                                                      ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"] };
-                                                      const translateChart = {
-                                                      chartDate: { en: 'Date', ru: 'Дата' },
-                                                      chartRecomended: { en: 'Recomended', ru: 'Рекомендованое PILOT(R)' },
-                                                      chartLimit: { en: 'Limit', ru: 'Предельное значение' },
-                                                      chartValue: { en: 'Value', ru: 'Пиковое значение' },       
-                                                       };
-                                                      
-                                                        
-                                                      function drawVisualization() {
-                                                        var chartData1 =  JSON.parse(message.data)     
-                                                        // var language = 'ru'; //Локалмзация en | ru
-                                                        var language = chartData1.language_name; //Локалмзация en | ru
-                                                        // var showAs = 'days'; //показывать как hourly | week | days
-                                                        var recommended = 600; //Граница рекомендуемого для оценки повышеного напряжения (всегда 255)
-                                                        // var userLimit = 680; //ница которую указал пользователь для тестирования
-                                                        var userLimit = chartData1.peak_limit; // Граница которую указал пользователь для тестирования
-                                                            
-                                                            if(chartData1.chart_type == 'day') {
-                                                                showAs = 'hours';
-                                                            }
-
-                                                            if(chartData1.chart_type == 'week') {
-                                                                showAs = 'week';
-                                                            }
-
-                                                            if(chartData1.chart_type == 'month') {
-                                                                showAs = 'days';
-                                                            }
-                                                            
-                                                            var apiDataArray = chartData1.data;
+                            {/*{this.state.chart_show &&*/}
+                            <WebView
+                                // onLoadStart={() => setVisible(true)}
+                                onLoad={() => this.pressToMonth()}
+                                mixedContentMode="compatibility"
+                                ref={this.webviewRef}
+                                source={{ html: `
+                                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+                                <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+                                
+                                  <script type="text/javascript">
+                                  
+                                  document.addEventListener("message", message => {
                                     
-                                                //Готовим массив под наполнение
-                                                        var dataArray = []; 
-                                                        dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
-                                                        translateChart.chartDate[language], 
-                                                          translateChart.chartRecomended[language], 
-                                                          translateChart.chartLimit[language],  
-                                                          translateChart.chartValue[language]
-                                                         ]), 
-                                                        apiDataArray.forEach((element) => {
-                                                         
-                                                        //Заголовки подписей
-                                                        var caption = ''
-                                                        var mydate = new Date(element.timestamp);
-                                                        if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
-                                                        if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
-                                                        if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
-                                                         
-                                                        
-                                                        
-                                                        dataArray.push([
-                                                          caption,  //Заголовок
-                                                            recommended,        //Рекомендованная граница
-                                                            userLimit,          // Пользовательская граница
-                                                            element.voltage//Целевое значение
-                                                        ]);
-                                                });
-                                                        
-                                                        
-                                                //Отправляем данные в диаграму        
-                                                        var data = google.visualization.arrayToDataTable(dataArray);
-                                                
-                                                
-                                                //Рассчитываем границу графика для подрезки      
-                                                var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
-                                                
-                                                //Настройки графиков
-                                                        var options = {
-                                                          /*title : 'Monthly12',*/
-                                                          legend: 'none',
-                                                          vAxis: {
-                                                          /*title: 'V',*/
-                                                            /*scaleType: 'log',*/
-                                                            viewWindow: {min: minimalValue}, //подрезка графика
-                                                          },
-                                                          hAxis: {
-                                                         /*title: 'Date',*/
-                                                          },
-                                                    
-                                                         
-                                                          series: {
-                                                            0: {type: 'area', color: '10BCCE', areaOpacity: 0.2,  lineWidth: 0}, //график рекомендуемых
-                                                          1: {type: 'line', color: 'ff0000'}, // красная линия
-                                                            2: {type: 'bars', color: '004B84'} // данные
-                                                            }
-                                                        };
-                                                
-                                                        var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
-                                                        chart.draw(data, options);
-                                                      }
-                                              
-                                          });
+                                        google.charts.load('current', {'packages':['corechart']});
+                                        google.charts.setOnLoadCallback(drawVisualization);
                                           
-                                          </script>
-                                        <div id="chart_div" style="width: 100%; height: 300px;"></div>` }}
-                                    />
+                                        //Перевод
+                                        const translateMonth = {en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                                              ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] };
+                                              const translateWeek = {en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+                                              ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"] };
+                                              const translateChart = {
+                                              chartDate: { en: 'Date', ru: 'Дата' },
+                                              chartRecomended: { en: 'Recomended', ru: 'Рекомендованое PILOT(R)' },
+                                              chartLimit: { en: 'Limit', ru: 'Предельное значение' },
+                                              chartValue: { en: 'Value', ru: 'Пиковое значение' },       
+                                               };
+                                              
+                                                
+                                              function drawVisualization() {
+                                                var chartData1 =  JSON.parse(message.data)     
+                                                // var language = 'ru'; //Локалмзация en | ru
+                                                var language = chartData1.language_name; //Локалмзация en | ru
+                                                // var showAs = 'days'; //показывать как hourly | week | days
+                                                var recommended = 600; //Граница рекомендуемого для оценки повышеного напряжения (всегда 255)
+                                                // var userLimit = 680; //ница которую указал пользователь для тестирования
+                                                var userLimit = chartData1.peak_limit; // Граница которую указал пользователь для тестирования
+                                                    
+                                                    if(chartData1.chart_type == 'day') {
+                                                        showAs = 'hours';
+                                                    }
 
-                                    {/*}*/}
+                                                    if(chartData1.chart_type == 'week') {
+                                                        showAs = 'week';
+                                                    }
 
-                                </View>
+                                                    if(chartData1.chart_type == 'month') {
+                                                        showAs = 'days';
+                                                    }
+                                                    
+                                                    var apiDataArray = chartData1.data;
+                            
+                                        //Готовим массив под наполнение
+                                                var dataArray = []; 
+                                                dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
+                                                translateChart.chartDate[language], 
+                                                  translateChart.chartRecomended[language], 
+                                                  translateChart.chartLimit[language],  
+                                                  translateChart.chartValue[language]
+                                                 ]), 
+                                                apiDataArray.forEach((element) => {
+                                                 
+                                                //Заголовки подписей
+                                                var caption = ''
+                                                var mydate = new Date(element.timestamp);
+                                                if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
+                                                if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
+                                                if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
+                                                 
+                                                
+                                                
+                                                dataArray.push([
+                                                  caption,  //Заголовок
+                                                    recommended,        //Рекомендованная граница
+                                                    userLimit,          // Пользовательская граница
+                                                    element.voltage//Целевое значение
+                                                ]);
+                                        });
+                                                
+                                                
+                                        //Отправляем данные в диаграму        
+                                                var data = google.visualization.arrayToDataTable(dataArray);
+                                        
+                                        
+                                        //Рассчитываем границу графика для подрезки      
+                                        var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
+                                        
+                                        //Настройки графиков
+                                                var options = {
+                                                  /*title : 'Monthly12',*/
+                                                  legend: 'none',
+                                                  vAxis: {
+                                                  /*title: 'V',*/
+                                                    /*scaleType: 'log',*/
+                                                    viewWindow: {min: minimalValue}, //подрезка графика
+                                                  },
+                                                  hAxis: {
+                                                 /*title: 'Date',*/
+                                                  },
+                                            
+                                                 
+                                                  series: {
+                                                    0: {type: 'area', color: '10BCCE', areaOpacity: 0.2,  lineWidth: 0}, //график рекомендуемых
+                                                  1: {type: 'line', color: 'ff0000'}, // красная линия
+                                                    2: {type: 'bars', color: '004B84'} // данные
+                                                    }
+                                                };
+                                        
+                                                var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+                                                chart.draw(data, options);
+                                              }
+                                      
+                                  });
+                                  
+                                  </script>
+                                <div id="chart_div" style="width: 100%; height: 300px;"></div>` }}
+                            />
 
+                            {/*}*/}
 
-                                {/*<View style={[styles.impulse_surges_item_img]}>*/}
-                                {/*    <Image style={styles.impulse_surges_item_img_child} source={require('../../assets/images/report_chart_img2.png')}/>*/}
-                                {/*</View>*/}
-
-                                {/*<ScrollView  horizontal={true}  >*/}
-                                {/*    <View style={{ height: 220, flexDirection: 'row', width: '100%', marginBottom:25 }}>*/}
-
-                                {/*        {this.state.chart_show ?*/}
-
-                                {/*            <BarChart*/}
-                                {/*                data={{*/}
-                                {/*                    labels:  this.state.chart_labels,*/}
-                                {/*                    datasets: [*/}
-                                {/*                        {*/}
-                                {/*                            data: this.state.chartData, //, [210, 215, 240, 220, 210],*/}
-                                {/*                            color: (opacity = 1) => `red`, // optional*/}
-                                {/*                            legendFontSize: 8,*/}
-                                {/*                        },*/}
-                                {/*                    ],*/}
-                                {/*                }}*/}
-                                {/*                width={screenWidth- 15}*/}
-                                {/*                height={220}*/}
-                                {/*                chartConfig={{*/}
-                                {/*                    ...chartConfig,*/}
-                                {/*                    propsForLabels: {*/}
-                                {/*                        // fontSize:8,*/}
-                                {/*                    }*/}
-                                {/*                }}*/}
-
-                                {/*                bezier*/}
-                                {/*                // withDots={true}*/}
-                                {/*                // withInnerLines={true}*/}
-                                {/*                // withOuterLines={false}*/}
-                                {/*                // withVerticalLines={false}*/}
-                                {/*                // withHorizontalLines={true}*/}
-                                {/*                yAxisInterval={5}*/}
-                                {/*                // yAxisSuffix={'V'}*/}
-                                {/*                // fromNumber={260}*/}
-                                {/*                fromZero={true}*/}
-                                {/*            />*/}
-
-                                {/*            :*/}
-
-                                {/*            <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>*/}
-                                {/*                <ActivityIndicator size="large" color="#0000ff"/>*/}
-                                {/*            </View>*/}
-                                {/*        }*/}
-                                {/*    </View>*/}
-
-                                {/*</ScrollView>*/}
-
-
-
-                                {this.state.chart_type == 'day' &&
-                                    <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>
-
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToPrevDay()
-                                            }}
-                                            style={styles.impulse_surges_change_minus_date_button}
-                                        >
-                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
-
-                                        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15}]}>{this.state.date_begin}</Text>
-
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToNextDay()
-                                            }}
-                                            style={styles.impulse_surges_change_plus_date_button}
-                                        >
-                                            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
-                                    </View>
-                                }
-
-
-                                {this.state.chart_type == 'week' &&
-
-                                    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>
-
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToPrevWeek()
-                                            }}
-                                            style={styles.impulse_surges_change_minus_date_button}
-                                        >
-                                            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
-
-                                        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>
-
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                this.goToNextWeek()
-                                            }}
-                                            style={styles.impulse_surges_change_plus_date_button}
-                                        >
-                                            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>
-                                            </Svg>
-                                        </TouchableOpacity>
-
-                                    </View>
-
-                                }
-
-                                {/*{this.state.chart_type == 'month' &&*/}
-
-                                {/*    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>*/}
-
-                                {/*        <TouchableOpacity*/}
-                                {/*            onPress={() => {*/}
-                                {/*                this.goToPrevMonth()*/}
-                                {/*            }}*/}
-                                {/*            style={styles.impulse_surges_change_minus_date_button}*/}
-                                {/*        >*/}
-                                {/*            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                                {/*                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>*/}
-                                {/*            </Svg>*/}
-                                {/*        </TouchableOpacity>*/}
-
-                                {/*        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>*/}
-
-                                {/*        <TouchableOpacity*/}
-                                {/*            onPress={() => {*/}
-                                {/*                this.goToNextMonth()*/}
-                                {/*            }}*/}
-                                {/*            style={styles.impulse_surges_change_plus_date_button}*/}
-                                {/*        >*/}
-                                {/*            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                                {/*                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>*/}
-                                {/*            </Svg>*/}
-                                {/*        </TouchableOpacity>*/}
-
-                                {/*    </View>*/}
-
-                                {/*}*/}
-
-
-                                <View style={[styles.impulse_surges_dates_info_buttons_main_wrapper, {marginTop: 29}]}>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.pressToDay()
-                                        }}
-                                        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'day' ? styles.active_impulse_surges_dates_info_button : {}]}
-                                    >
-                                        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.pressToWeek()
-                                        }}
-                                        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'week' ? styles.active_impulse_surges_dates_info_button : {}]}
-                                    >
-                                        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            this.pressToMonth()
-                                        }}
-                                        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'month' ? styles.active_impulse_surges_dates_info_button : {}]}
-                                    >
-                                        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-
-                                <View style={styles.impulse_surges_items_second_wrapper}>
-
-                                    {/*<View style={styles.impulse_surges_item_icon_title_wrapper}>*/}
-                                    {/*    <View style={styles.impulse_surges_item_icon}>*/}
-                                    {/*        <Svg width={24} height={19} viewBox="0 0 24 19" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                                    {/*            <Path d="M0 14.514V19h24v-4.486h-9.6L12 0 8.8 14.514H0z" fill="#004B84" />*/}
-                                    {/*        </Svg>*/}
-                                    {/*    </View>*/}
-                                    {/*    <Text style={styles.impulse_surges_item_info1}>{this.state.impulse_surges_item_info}</Text>*/}
-                                    {/*</View>*/}
-
-                                    <View style={styles.impulse_surges_item}>
-                                        <Text style={styles.impulse_surges_item_title}>Кол-во дней с импульсными скачками</Text>
-                                        <Text style={styles.impulse_surges_item_info}>{this.state.peak_limit_dinamyc_count}</Text>
-                                    </View>
-                                    <View style={styles.impulse_surges_item}>
-                                        <Text style={styles.impulse_surges_item_title}>Пороговое значение</Text>
-                                        <Text style={styles.impulse_surges_item_info}>{this.state.peak_limit}  {this.state.language.voltage_n}</Text>
-                                    </View>
-                                    <View style={styles.impulse_surges_item}>
-                                        <Text style={styles.impulse_surges_item_title}>
-                                            Максимальное значение
-                                        </Text>
-                                        <Text style={styles.impulse_surges_item_info}>{parseInt(this.state.peak_value).toFixed(1)} {this.state.language.voltage_n}</Text>
-                                    </View>
-                                </View>
-
-                            </View>
                         </View>
 
+                        {/*{this.state.chart_type == 'day' &&*/}
+                        {/*    <View style={styles.impulse_surges_change_date_buttons_info_wrapper}>*/}
 
-                    </ScrollView>
+                        {/*        <TouchableOpacity*/}
+                        {/*            onPress={() => {*/}
+                        {/*                this.goToPrevDay()*/}
+                        {/*            }}*/}
+                        {/*            style={styles.impulse_surges_change_minus_date_button}*/}
+                        {/*        >*/}
+                        {/*            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>*/}
+                        {/*            </Svg>*/}
+                        {/*        </TouchableOpacity>*/}
+
+                        {/*        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15}]}>{this.state.date_begin}</Text>*/}
+
+                        {/*        <TouchableOpacity*/}
+                        {/*            onPress={() => {*/}
+                        {/*                this.goToNextDay()*/}
+                        {/*            }}*/}
+                        {/*            style={styles.impulse_surges_change_plus_date_button}*/}
+                        {/*        >*/}
+                        {/*            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>*/}
+                        {/*            </Svg>*/}
+                        {/*        </TouchableOpacity>*/}
+                        {/*    </View>*/}
+                        {/*}*/}
+
+
+                        {/*{this.state.chart_type == 'week' &&*/}
+
+                        {/*    <View style={[styles.impulse_surges_change_date_buttons_info_wrapper]}>*/}
+
+                        {/*        <TouchableOpacity*/}
+                        {/*            onPress={() => {*/}
+                        {/*                this.goToPrevWeek()*/}
+                        {/*            }}*/}
+                        {/*            style={styles.impulse_surges_change_minus_date_button}*/}
+                        {/*        >*/}
+                        {/*            <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*                <Path d="M9.633 0l1.406 1.406-8.297 8.227 8.297 8.226-1.406 1.407L0 9.633 9.633 0z" fill="#fff"/>*/}
+                        {/*            </Svg>*/}
+                        {/*        </TouchableOpacity>*/}
+
+                        {/*        <Text style={[styles.impulse_surges_change_date_info, {marginHorizontal: 15  }]}>{this.state.date_begin} - {this.state.date_end}</Text>*/}
+
+                        {/*        <TouchableOpacity*/}
+                        {/*            onPress={() => {*/}
+                        {/*                this.goToNextWeek()*/}
+                        {/*            }}*/}
+                        {/*            style={styles.impulse_surges_change_plus_date_button}*/}
+                        {/*        >*/}
+                        {/*            <Svg width={11} height={20} viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*                <Path d="M1.401 0L0 1.406l8.268 8.227L0 17.859l1.401 1.407L11 9.633 1.401 0z" fill="#fff"/>*/}
+                        {/*            </Svg>*/}
+                        {/*        </TouchableOpacity>*/}
+
+                        {/*    </View>*/}
+
+                        {/*}*/}
+
+                        {/*<View style={[styles.impulse_surges_dates_info_buttons_main_wrapper, {marginTop: 29}]}>*/}
+                        {/*    <TouchableOpacity*/}
+                        {/*        onPress={() => {*/}
+                        {/*            this.pressToDay()*/}
+                        {/*        }}*/}
+                        {/*        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'day' ? styles.active_impulse_surges_dates_info_button : {}]}*/}
+                        {/*    >*/}
+                        {/*        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.day}</Text>*/}
+                        {/*    </TouchableOpacity>*/}
+                        {/*    <TouchableOpacity*/}
+                        {/*        onPress={() => {*/}
+                        {/*            this.pressToWeek()*/}
+                        {/*        }}*/}
+                        {/*        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'week' ? styles.active_impulse_surges_dates_info_button : {}]}*/}
+                        {/*    >*/}
+                        {/*        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.week}</Text>*/}
+                        {/*    </TouchableOpacity>*/}
+                        {/*    <TouchableOpacity*/}
+                        {/*        onPress={() => {*/}
+                        {/*            this.pressToMonth()*/}
+                        {/*        }}*/}
+                        {/*        style={[styles.impulse_surges_dates_info_button, this.state.chart_type == 'month' ? styles.active_impulse_surges_dates_info_button : {}]}*/}
+                        {/*    >*/}
+                        {/*        <Text style={styles.impulse_surges_dates_info_button_text}>{this.state.language.month}</Text>*/}
+                        {/*    </TouchableOpacity>*/}
+                        {/*</View>*/}
+
+
+                        {/*<View style={styles.impulse_surges_items_second_wrapper}>*/}
+
+                        {/*    <View style={styles.impulse_surges_item_icon_title_wrapper}>*/}
+                        {/*        <View style={styles.impulse_surges_item_icon}>*/}
+                        {/*            <Svg width={24} height={19} viewBox="0 0 24 19" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*                <Path d="M0 14.514V19h24v-4.486h-9.6L12 0 8.8 14.514H0z" fill="#004B84" />*/}
+                        {/*            </Svg>*/}
+                        {/*        </View>*/}
+                        {/*        <Text style={styles.impulse_surges_item_info1}>{this.state.impulse_surges_item_info}</Text>*/}
+                        {/*    </View>*/}
+
+                        {/*    <View style={styles.impulse_surges_item}>*/}
+                        {/*        <Text style={styles.impulse_surges_item_title}>Кол-во дней с импульсными скачками</Text>*/}
+                        {/*        <Text style={styles.impulse_surges_item_info}>{this.state.peak_limit_dinamyc_count}</Text>*/}
+                        {/*    </View>*/}
+                        {/*    <View style={styles.impulse_surges_item}>*/}
+                        {/*        <Text style={styles.impulse_surges_item_title}>Пороговое значение</Text>*/}
+                        {/*        <Text style={styles.impulse_surges_item_info}>{this.state.peak_limit}  {this.state.language.voltage_n}</Text>*/}
+                        {/*    </View>*/}
+                        {/*    <View style={styles.impulse_surges_item}>*/}
+                        {/*        <Text style={styles.impulse_surges_item_title}>*/}
+                        {/*            Максимальное значение*/}
+                        {/*        </Text>*/}
+                        {/*        <Text style={styles.impulse_surges_item_info}>{parseInt(this.state.peak_value).toFixed(1)} {this.state.language.voltage_n}</Text>*/}
+                        {/*    </View>*/}
+                        {/*</View>*/}
+
+                    </View>
                 </View>
-
-            </SafeAreaView>
         );
     }
 }

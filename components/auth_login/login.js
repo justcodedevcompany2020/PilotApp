@@ -41,13 +41,13 @@ import {
 } from 'react-native-safe-area-context';
 
 
-// Notifications.setNotificationHandler({
-//     handleNotification: async () => ({
-//         shouldShowAlert: true,
-//         shouldPlaySound: false,
-//         shouldSetBadge: false
-//     })
-// });
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false
+    })
+});
 
 export default class App extends Component {
     constructor(props) {
@@ -102,26 +102,26 @@ export default class App extends Component {
 
 
 
-    // getPushToken = () => {
-    //
-    //     try {
-    //         return Notifications.getPermissionsAsync()
-    //             .then((statusResult) => {
-    //                 return statusResult.status !== 'granted'
-    //                     ? Notifications.requestPermissionsAsync()
-    //                     : statusResult;
-    //             })
-    //             .then((statusResult) => {
-    //                 if (statusResult.status !== 'granted') {
-    //                     throw 'Failed to get push token for push notification!';
-    //                 }
-    //                 return Notifications.getExpoPushTokenAsync();
-    //             })
-    //             .then((tokenData) => tokenData.data);
-    //     } catch (error) {
-    //         return Promise.reject("Couldn't check notifications permissions");
-    //     }
-    // };
+    getPushToken = () => {
+
+        try {
+            return Notifications.getPermissionsAsync()
+                .then((statusResult) => {
+                    return statusResult.status !== 'granted'
+                        ? Notifications.requestPermissionsAsync()
+                        : statusResult;
+                })
+                .then((statusResult) => {
+                    if (statusResult.status !== 'granted') {
+                        throw 'Failed to get push token for push notification!';
+                    }
+                    return Notifications.getExpoPushTokenAsync();
+                })
+                .then((tokenData) => tokenData.data);
+        } catch (error) {
+            return Promise.reject("Couldn't check notifications permissions");
+        }
+    };
 
 
      registerForPushNotificationsAsync = async () => {
@@ -198,8 +198,8 @@ export default class App extends Component {
 
         //
         //
-        // let pushtoken = await this.registerForPushNotificationsAsync();
-        // console.log(pushtoken, 'pushtoken')
+        // let pushTokenRes = await this.registerForPushNotificationsAsync();
+        // console.log(pushTokenRes, 'pushtoken dwwwwwwwwwwwwwwwwww')
         let pushTokenRes = 'f65f1f1232f123e51f35ef1we35f1we351fw35';
 
         // await this.getPushToken().then((pushToken) => {
@@ -237,23 +237,28 @@ export default class App extends Component {
                     language: selectedLanguage,
                     platform: platform,
                     push_ident: pushTokenRes,
-
                 })
-
             }).then((response) => {
+
                 return response.json()
+
             }).then((response) => {
 
                 console.log(response, 'login')
 
                 if (response.hasOwnProperty('accessToken')) {
+
                         let foundUser = {
                             token: response.accessToken,
                             login: email
                         }
+
                         this.context.signIn(foundUser, () => { }).then(r => console.log("success"));
+
                 }  else {
+
                     if (response.hasOwnProperty('description')) {
+
                         let error_text = '';
 
                         if (response.description.en == 'Account not found') {

@@ -16,6 +16,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from "i18n-js";
 import {en, ru} from "../../i18n/supportedLanguages";
 
+import ImpulseSurges from '../impulse_surges/impulse_surges_for_test_report'
+
 import {
     Text,
     Alert,
@@ -48,6 +50,7 @@ import TopMenu from "../includes/header_menu";
 
 import { DonutChart } from "react-native-circular-chart";
 import moment from "moment";
+import ImpulseSurgesComponent from "../impulse_surges/impulse_surges";
 const chartConfig = {
     color: (opacity = 1) => `silver`,
 };
@@ -73,9 +76,13 @@ export default class App extends Component {
              blue_chart_data: 0,
              undervoltage_limit: 0,
              overvoltage_limit: 0,
+            impulse_surges_percent: 0,
 
             language: en,
             language_name: 'en',
+
+            upper_voltage_trigger: 0,
+            lower_voltage_trigger: 0,
         };
 
     }
@@ -151,6 +158,7 @@ export default class App extends Component {
             params: this.props.id,
             params2: this.props.device_id,
             params3: this.state.undervoltage_limit,
+            lower_voltage_trigger: this.state.lower_voltage_trigger, //lower_voltage_trigger
             test_report_start_time : this.state.report_start_time,
             test_report_end_time : this.state.report_end_time,
         });
@@ -161,7 +169,9 @@ export default class App extends Component {
             params: this.props.id,
             params2: this.props.device_id,
             params3: this.state.overvoltage_limit,
-            test_report_start_time : this.state.report_start_time
+            upper_voltage_trigger: this.state.upper_voltage_trigger, //upper_voltage_trigger
+            test_report_start_time : this.state.report_start_time,
+            test_report_end_time : this.state.report_end_time,
 
         });
 
@@ -212,8 +222,11 @@ export default class App extends Component {
     }
 
     redirectToOsciloscope = () => {
-        this.props.navigation.navigate("Osciloscope");
-
+        this.props.navigation.navigate("Osciloscope", {
+            params: this.props.id,
+            params2: this.props.device_id,
+            prev_page: 'test_report'
+        });
     }
 
     closeMenu = () => {
@@ -361,6 +374,7 @@ export default class App extends Component {
                 overvoltage: overvoltage,
                 power_outages: power_outages,
                 impulse_surges:response.impulse_surges ? parseFloat(response.impulse_surges) : 0,
+                impulse_surges_percent:response.impulse_surges_percent ? parseInt(response.impulse_surges_percent) : 0,
                 consumption: response.consumption ? parseFloat(response.consumption) : 0,
                 voltage: response.upper_voltage_trigger,
                 voltage_max: response.voltage_max ? parseFloat(response.voltage_max) : 0,
@@ -376,6 +390,13 @@ export default class App extends Component {
 
                 power_min: power_min,
                 power_max: power_max,
+
+
+
+                upper_voltage_trigger: response.upper_voltage_trigger, // Передаем границу повышенного напряжения
+                lower_voltage_trigger: response.lower_voltage_trigger, // Передаем димит пониженного напряжения
+
+
             })
 
         })
@@ -528,9 +549,14 @@ export default class App extends Component {
                                     </Text>
                                 </View>
 
-                                {/*<TouchableOpacity style={styles.report_status_button} onPress={() => {this.redirectToOsciloscope()}}>*/}
-                                {/*    <Text style={styles.report_status_button_text}>Osciloscope</Text>*/}
-                                {/*</TouchableOpacity>*/}
+                                {this.state.test_report_status == 'in_progress' &&
+
+                                    <TouchableOpacity style={styles.report_status_button} onPress={() => {this.redirectToOsciloscope()}}>
+                                        <Text style={styles.report_status_button_text}>Osciloscope</Text>
+                                    </TouchableOpacity>
+
+                                }
+
 
                             </View>
                             <View style={styles.report_chart_main_info_items_wrapper}>
@@ -565,7 +591,13 @@ export default class App extends Component {
                                                             name: "Moscow",
                                                             population: this.state.blue_chart_data,
                                                             color: "#10BCCE",
-                                                        }]}
+                                                        },
+                                                        {
+                                                            name: "Moscow2",
+                                                            population: this.state.impulse_surges_percent,
+                                                            color: "#004B84",
+                                                        }
+                                                        ]}
                                                     width={screenWidth}
                                                     height={260}
                                                     chartConfig={chartConfig}
@@ -589,6 +621,14 @@ export default class App extends Component {
 
 
                                 </View>
+
+
+                                {this.state.report_start_time.length > 0 &&
+
+                                  <ImpulseSurges id={this.props.id} device_id={this.props.device_id} impulse_surges={this.state.impulse_surges} test_report_start_time={this.state.report_start_time} navigation={this.props.navigation}/>
+
+                                }
+
                                 <View style={styles.report_chart_details_main_items_wrapper}>
                                     <View style={styles.report_chart_details_item}>
                                         <View style={styles.report_chart_details_item_icon_title_box}>
@@ -730,7 +770,7 @@ export default class App extends Component {
                                                 }
                                             }}
                                         >
-                                            <Text style={[styles.report_chart_details_item_button_text, this.state.consumption > 0 ? {} : {opacity: 0.4}  ]}>{this.state.consumption ? this.state.consumption : 0} kWh</Text>
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.consumption > 0 ? {} : {opacity: 0.4}  ]}>{this.state.consumption ? this.state.consumption : 0} {this.state.language.consumption_n}</Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -758,7 +798,7 @@ export default class App extends Component {
                                         >
                                             <Text style={[styles.report_chart_details_item_button_text, this.state.voltage_min == 0 && this.state.voltage_max == 0 ? {opacity: 0.4} : {}]}>
                                                 {/*{this.state.voltage ? this.state.voltage : 0}*/}
-                                                {this.state.voltage_min} - {this.state.voltage_max} V
+                                                {this.state.voltage_min} - {this.state.voltage_max} {this.state.language.voltage_n}
                                             </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -786,7 +826,7 @@ export default class App extends Component {
                                         >
                                             <Text style={[styles.report_chart_details_item_button_text, this.state.amperage_min == 0 && this.state.amperage_max == 0 ? {opacity: 0.4} : {}]}>
                                                 {/*{this.state.amperage ? this.state.amperage : 0}*/}
-                                                {this.state.amperage_min} - {this.state.amperage_max} A
+                                                {this.state.amperage_min} - {this.state.amperage_max} {this.state.language.v}
 
                                             </Text>
                                             <View style={styles.report_chart_details_item_button_icon}>
@@ -815,7 +855,11 @@ export default class App extends Component {
                                                   }
                                               }}
                                         >
-                                            <Text style={[styles.report_chart_details_item_button_text, this.state.power_min == 0 && this.state.power_max == 0 ? {opacity: 0.4} : {}]}> { this.state.power_min} - { this.state.power_max} {this.state.language.vt}</Text>
+
+                                            <Text style={[styles.report_chart_details_item_button_text, this.state.power_min == 0 && this.state.power_max == 0 ? {opacity: 0.4} : {}]}>
+                                                { this.state.power_min} - { this.state.power_max} {this.state.language.vt}
+                                            </Text>
+
                                             <View style={styles.report_chart_details_item_button_icon}>
                                                 <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
@@ -1019,7 +1063,7 @@ const styles = StyleSheet.create({
     report_chart_main_info_item_box: {
         borderBottomWidth: 1,
         borderBottomColor: '#E0E0E0',
-        marginBottom: 22,
+        marginBottom: 15,
     },
     test_report_status_start_end_time_info_item: {
         width: '100%',

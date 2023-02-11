@@ -307,7 +307,16 @@ export default class App extends Component {
 
     convertDateFormat = (date) =>
     {
-        return moment(date).format('YYYY-MM-DD HH:mm:ss');
+        return moment(date).format('YYYY-MM-DD HH:mm');
+    }
+
+
+    redirectToOsciloscope = () => {
+        this.props.navigation.navigate("Osciloscope", {
+            params: this.props.id,
+            params2: null,
+            prev_page: 'test_mode'
+        });
     }
 
     render() {
@@ -416,7 +425,6 @@ export default class App extends Component {
                                                 <Text style={styles.report_item_details_second_info}>{report.consumption  ? parseFloat(report.consumption).toFixed(2) : 0 }W</Text>
                                                 <Text style={styles.report_item_details_second_info}>{report.voltage_min  ? parseFloat(report.voltage_min).toFixed(2) : 0 } - {report.voltage_max  ? parseFloat(report.voltage_max).toFixed(2) : 0 }V</Text>
                                                 <Text style={styles.report_item_details_second_info}>{report.amperage_min  ? parseFloat(report.amperage_min).toFixed(2) : 0 } - {report.amperage_max  ? parseFloat(report.amperage_max).toFixed(2) : 0 }A</Text>
-
                                             </View>
 
                                         </View>
@@ -426,11 +434,19 @@ export default class App extends Component {
                                         <TouchableOpacity style={styles.report_btn} onPress={() => this.redirectToTestReport(report.id)}>
                                             <Text style={styles.report_btn_text}>{this.state.language.report}</Text>
                                         </TouchableOpacity>
-                                        {report.report_status_info_box &&
-                                        <TouchableOpacity style={styles.report_status_info_box}>
-                                            <Text style={styles.report_status_info}>{this.state.language.oscilloscope}</Text>
-                                        </TouchableOpacity>
+
+                                        {this.checkTestReportStatus(report) == 'in_progress'  &&
+
+                                            <TouchableOpacity  style={styles.report_status_info_box} onPress={() => {this.redirectToOsciloscope()}}>
+                                                <Text style={styles.report_status_info}>{this.state.language.oscilloscope}</Text>
+                                            </TouchableOpacity>
                                         }
+
+                                        {/*{report.report_status_info_box &&*/}
+                                        {/*    <TouchableOpacity style={styles.report_status_info_box}>*/}
+                                        {/*        <Text style={styles.report_status_info}>{this.state.language.oscilloscope}</Text>*/}
+                                        {/*    </TouchableOpacity>*/}
+                                        {/*}*/}
 
                                     </View>
 

@@ -72,7 +72,8 @@ export default class App extends Component {
             language_name: 'en',
             edit_name: '',
             name: '',
-
+            switch_loader:false,
+            protection_triggered_popup: false
         };
 
     }
@@ -85,6 +86,7 @@ export default class App extends Component {
     }
 
     componentDidMount() {
+
         const { navigation } = this.props;
         this.setLanguageFromStorage();
         this.getDeviceData();
@@ -92,6 +94,7 @@ export default class App extends Component {
             this.setLanguageFromStorage();
             this.getDeviceData();
         });
+
     }
 
     componentWillUnmount() {
@@ -150,7 +153,8 @@ export default class App extends Component {
 
     toggleSwitch = async (value) => {
         this.setState({
-            status_switch: value
+            status_switch: value,
+            switch_loader: true
         })
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
@@ -170,7 +174,9 @@ export default class App extends Component {
 
                 console.log(response, 'switch')
 
-
+                this.setState({
+                    switch_loader: false
+                })
                 // this.getDeviceData();
 
             })
@@ -202,6 +208,7 @@ export default class App extends Component {
 
                 console.log(response, ' DEVICE Data')
 
+                console.log(response.power_on, 'НАГРУЗКА')
                 this.setState({
                     device_data: response,
                     status_switch: response.power_on,
@@ -215,7 +222,6 @@ export default class App extends Component {
         }
 
     }
-
 
     editName = async () => {
 
@@ -298,8 +304,17 @@ export default class App extends Component {
         return moment(date).format('YYYY-MM-DD HH:mm');
     }
 
+
     render() {
 
+        if(this.state.switch_loader)
+        {
+            return (
+                <View style={{width: '100%', height: '100%', justifyContent:'center', alignItems:'center'}}>
+                    <ActivityIndicator size="large" color="#004B84"/>
+                </View>
+            )
+        }
 
 
         return (
@@ -395,41 +410,49 @@ export default class App extends Component {
 
 
                             </View>
-                            <View style={styles.details_general_page_item}>
-                                <Text style={styles.details_general_page_item_title}>{this.state.language.consumption}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.consumption}</Text>
-                            </View>
+                            {/*<View style={styles.details_general_page_item}>*/}
+                            {/*    <Text style={styles.details_general_page_item_title}>{this.state.language.consumption}</Text>*/}
+                            {/*    <Text style={styles.details_general_page_item_info}>{this.state.device_data.consumption}</Text>*/}
+                            {/*</View>*/}
                             <View style={styles.details_general_page_item}>
                                 <Text style={styles.details_general_page_item_title}>{this.state.language.power}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.active_power}</Text>
+                                <Text style={styles.details_general_page_item_info}>{parseFloat(this.state.device_data.active_power).toFixed(1)} {this.state.language.vt}</Text>
                             </View>
                             <View style={styles.details_general_page_item}>
                                 <Text style={styles.details_general_page_item_title}>{this.state.language.voltage}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.voltage}</Text>
+                                <Text style={styles.details_general_page_item_info}>{ parseFloat(this.state.device_data.voltage).toFixed(1)}  {this.state.language.voltage_n}</Text>
                             </View>
                             <View style={styles.details_general_page_item}>
                                 <Text style={styles.details_general_page_item_title}>{this.state.language.amperage}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.amperage}</Text>
+                                <Text style={styles.details_general_page_item_info}>{parseFloat(this.state.device_data.amperage).toFixed(1)} {this.state.language.v}</Text>
                             </View>
                             <View style={styles.details_general_page_item}>
-                                <Text style={styles.details_general_page_item_title}>{this.state.language.number_of_protection}</Text>
-                                <Text style={styles.details_general_page_item_info}>{this.state.device_data.protection_triggered}</Text>
 
-                            </View>
-                            <View style={[styles.details_general_page_item, {flexDirection: 'row', alignItems: 'flex-start'}]}>
-                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5}]}>{this.state.language.last_data}</Text>
-                                <Text style={styles.details_general_page_item_info}>
-
-                                    {this.convertDateFormat(this.state.device_data.last_data)}
-
+                                <Text style={styles.details_general_page_item_title}>
+                                    {this.state.language.number_of_protection}
                                 </Text>
+
+                                <View style={{ flexDirection:'row', alignItems:'center' }}>
+                                    <TouchableOpacity
+                                        style={{ flexDirection:'row', alignItems:'center' }}
+                                        onPress={() => {
+                                            this.setState({
+                                                protection_triggered_popup: true
+                                            })
+                                        }}
+                                    >
+                                        <Text style={[styles.details_general_page_item_info, {marginRight: 3}]}>{this.state.device_data.protection_triggered}</Text>
+                                        <Svg width={12} height={17} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill= {this.state.protection_preset != 'manual' ? "silver" : "#004B84"}/>
+                                        </Svg>
+                                    </TouchableOpacity>
+                                </View>
+
                             </View>
-                            <View style={[styles.details_general_page_item, {flexDirection: 'row', alignItems: 'flex-start'}]}>
-                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5}]}>{this.state.language.started_time}</Text>
-                                <Text style={styles.details_general_page_item_info}>
-
-                                    {this.convertDateFormat(this.state.device_data.start_time)}
-
+                            <View style={[styles.details_general_page_item, { flexDirection:'column' }]}>
+                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5, width: '100%'}]}>{this.state.language.last_data}</Text>
+                                <Text style={[styles.details_general_page_item_info, {width:'100%', textAlign:'right'}]}>
+                                    {this.convertDateFormat(this.state.device_data.last_data)}
                                 </Text>
                             </View>
                         </View>
@@ -437,12 +460,7 @@ export default class App extends Component {
                     </ScrollView>
 
                     <View style={styles.details_general_page_preferences_test_buttons_wrapper}>
-                        <TouchableOpacity style={styles.details_general_page_preferences_button} onPress={() => {this.redirectToPreferences()}}>
-                            <Text  style={styles.details_general_page_preferences_button_text}>
-                                {this.state.language.preferences}
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity  style={styles.details_general_page_test_button} onPress={() => {this.redirectToTestMode()}}>
+                        <TouchableOpacity  style={[styles.details_general_page_test_button, { marginBottom: 14,}]} onPress={() => {this.redirectToTestMode()}}>
                             <View  style={styles.details_general_page_test_button_icon}>
                                 <Svg width={40} height={14} viewBox="0 0 40 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <Path fillRule="evenodd" clipRule="evenodd" d="M38.577 12.609l-.794-.522c-.21.478-.586.783-1.087.696-.502-.087-.418-.392-.376-.913l1.588-5.696h1.755l.293-1.044H38.2l1.045-3.87-3.51 1.218-.753 2.652h-1.295l-.293 1.044h1.296l-1.463 5.522c-.293 1-.084 2.304 1.964 2.304 1.505 0 2.591-.26 3.386-1.391zM15.38 3.174c.126.696 1.087 1.087 2.048.826.962-.304 1.547-1.087 1.38-1.74-.21-.695-1.087-1.086-2.048-.825-.962.26-1.63 1.043-1.38 1.739zm11.285 9.913c-1.38 0-1.839-2-1.17-3.957.585-1.913 2.173-3.347 3.343-3.347 1.547-.087 1.589 2.347 1.003 3.956-.501 1.522-1.462 3.348-3.176 3.348zm6.604-4.348c.125-2.435-1.463-3.87-4.43-3.739-2.132.087-4.222 1.087-5.392 2.609-.794 1.087-1.254 2.521-.962 3.826.377 1.521 1.756 2.521 4.389 2.521 2.967-.043 6.102-2.043 6.395-5.217zM13.834 6.174h.752l-1.755 6.478h-1.588l-.293 1.044h11.16l.292-1.044h-1.588l3.218-11.478h-4.598l-.292 1.043h1.38l-2.76 10.392H16.05l2.006-7.522h-3.803l-.418 1.087z" fill="#fff"/>
@@ -454,6 +472,13 @@ export default class App extends Component {
                                 {this.state.language.test}
                             </Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.details_general_page_preferences_button} onPress={() => {this.redirectToPreferences()}}>
+                            <Text  style={styles.details_general_page_preferences_button_text}>
+                                {this.state.language.preferences}
+                            </Text>
+                        </TouchableOpacity>
+
                     </View>
 
                     {this.state.edit_name_popup &&
@@ -482,6 +507,72 @@ export default class App extends Component {
                                         {/*{this.state.language.save}*/}
                                     </Text>
                                 </TouchableOpacity>
+                            </View>
+                        </View>
+                    }
+
+
+                    {this.state.protection_triggered_popup  &&
+                        <View style={styles.protection_trigered_popup}>
+                            <View style={[styles.protection_trigered_popup_wrapper, {height: 300}]}>
+
+                                <View style={{width: '100%', position: 'absolute', left: 20, top: 20}}>
+                                    <Text style={{color: '#004B84', fontSize: 20}}>
+                                        {/*Срабатывание защиты*/}
+                                        {this.state.language.protections_title}
+                                    </Text>
+                                </View>
+
+
+                                <View style={{width:'100%', backgroundColor:'white', flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
+                                    <Text style={{fontSize: 16}}>
+                                        {/*Откл. по пониженному*/}
+                                        {this.state.language.protection_undervoltage}
+                                    </Text>
+
+                                    <Text style={{color:'#10BCCE' }}>
+                                        {this.state.device_data.protection_undervoltage ? this.state.device_data.protection_undervoltage : 0} {this.state.language.times}
+                                    </Text>
+                                </View>
+                                <View style={{width:'100%', backgroundColor:'white', flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
+                                    <Text style={{fontSize: 16}}>
+                                        {/*Откл. по повышенному*/}
+                                        {this.state.language.protection_overvoltage}
+                                    </Text>
+                                    <Text style={{color:'#10BCCE' }}>
+                                        {this.state.device_data.protection_overvoltage ? this.state.device_data.protection_overvoltage : 0} {this.state.language.times}
+                                    </Text>
+                                </View>
+                                <View style={{width:'100%', backgroundColor:'white', flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
+                                    <Text style={{fontSize: 16}}>
+                                        {/*Откл. по прев. тока*/}
+                                        {this.state.language.protection_overcurrent}
+                                    </Text>
+                                    <Text style={{color:'#10BCCE' }}>
+                                        {this.state.device_data.protection_overcurrent ? this.state.device_data.protection_overcurrent : 0} {this.state.language.times}
+                                    </Text>
+                                </View>
+
+
+                                <TouchableOpacity
+                                    style={[{
+                                        width: '100%',
+                                        maxWidth: 216,
+                                        height: 40,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        alignSelf: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: '#004B84',
+                                        position: 'absolute',
+                                        bottom: 20,
+                                    }]}
+                                    onPress={() => {this.setState({protection_triggered_popup: false})}}
+                                >
+                                    <Text style={{color: 'white'}}>Ok</Text>
+                                </TouchableOpacity>
+                                {/*this.state.device_data*/}
+
                             </View>
                         </View>
                     }
@@ -688,7 +779,7 @@ const styles = StyleSheet.create({
     details_general_page_preferences_button: {
         width: '100%',
         height: 40,
-        marginBottom: 14,
+
         alignItems: 'center',
         alignSelf: 'center',
         justifyContent: 'center',
@@ -801,5 +892,105 @@ const styles = StyleSheet.create({
     },
     details_general_page_items_main_wrapper: {
         marginBottom: 20
-    }
+    },
+
+    protection_trigered_popup: {
+        backgroundColor:  'rgba(0, 0, 0, 0.6)',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 999,
+        zIndex: 999999,
+        width: '100%',
+        height: windowHeight + 40,
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        // top: 0,
+        alignSelf: 'center',
+        flex:1,
+        // alignItems: 'flex-start',
+        // justifyContent: 'flex-start',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 100,
+    },
+
+    protection_trigered_popup2: {
+        backgroundColor:  'rgba(0, 0, 0, 0.6)',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 999,
+        zIndex: 999999,
+        height: windowHeight + 40,
+        width: '100%',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 100,
+    },
+
+
+
+
+    protection_trigered_popup_wrapper: {
+        width: '90%',
+        backgroundColor: '#ffffff',
+        alignSelf: 'center',
+        // alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 25,
+        paddingTop: 25,
+        paddingBottom: 18,
+        position: 'relative'
+    },
+    protection_trigered_popup_title: {
+        marginBottom: 23,
+        textAlign: 'center',
+        fontWeight: '400',
+        fontSize: 24,
+        color: '#004B84',
+    },
+    protection_trigered_popup_info: {
+        marginBottom: 35,
+        textAlign: 'center',
+        fontWeight: '400',
+        fontSize: 16,
+        color: '#4A4A4A',
+        lineHeight: 20,
+    },
+    protection_trigered_popup_cancel_btn: {
+        width: '100%',
+        height: 40,
+        marginBottom: 17,
+        backgroundColor: '#004B84',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    protection_trigered_popup_cancel_btn_text: {
+        color: '#ffffff',
+        fontWeight: '400',
+        fontSize: 16,
+    },
+    protection_trigered_popup_confirm_btn: {
+        width: '100%',
+        height: 40,
+        marginBottom: 17,
+        backgroundColor: '#004B84',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    protection_trigered_popup_confirm_btn_text: {
+        color: '#ffffff',
+        fontWeight: '400',
+        fontSize: 16,
+    },
 });

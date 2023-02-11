@@ -75,13 +75,13 @@ export default class App extends Component {
             // upper_voltage_delay_popup: false,
             // upper_voltage_delay: '',
             selectedUpperVoltageDelay: '',
-            protection_upper_voltage_input: '250',
+            protection_upper_voltage_input: '255',
 
             protection_lower_voltage_input_error: false,
-            protection_lower_voltage_input: '0',
+            protection_lower_voltage_input: '180',
 
             impulse_surges_limit_error: false,
-            impulse_surges_limit_input: '0',
+            impulse_surges_limit_input: '600',
 
             // lower_voltage_delay_popup: false,
             selectedLowerVoltageDelay: null,
@@ -299,8 +299,8 @@ export default class App extends Component {
             || protection_lower_voltage_input < 150
             || protection_lower_voltage_input > 220
 
-            || impulse_surges_limit_input < 2
-            || impulse_surges_limit_input > 20
+            // || impulse_surges_limit_input < 2
+            // || impulse_surges_limit_input > 20
             // || selectedLowerVoltageDelay == ''
             // ||  power_restore_delay_input > 300
             // || startup_delay_input > 300
@@ -543,19 +543,21 @@ export default class App extends Component {
         val = val.replace(/\D/g, '');
 
         this.setState({impulse_surges_limit_input: val});
-
-        let impulse_surges_limit_input = val;
-        if (impulse_surges_limit_input < 2 || impulse_surges_limit_input > 20 ) {
-            this.setState({
-                impulse_surges_limit_error: true
-            })
-            return false;
-        } else  {
-            this.setState({
-                impulse_surges_limit_error: false
-            })
-
-        }
+        this.setState({
+            impulse_surges_limit_error: false
+        })
+        // let impulse_surges_limit_input = val;
+        // if (impulse_surges_limit_input < 2 || impulse_surges_limit_input > 20 ) {
+        //     this.setState({
+        //         impulse_surges_limit_error: true
+        //     })
+        //     return false;
+        // } else  {
+        //     this.setState({
+        //         impulse_surges_limit_error: false
+        //     })
+        //
+        // }
 
     }
 
@@ -660,7 +662,8 @@ export default class App extends Component {
 
     onChangeStartDatePicker = async (event, timeOriginValue) => {
 
-        console.log( moment(timeOriginValue).format("YYYY-MM-DD"))
+        console.log( moment(timeOriginValue).format("YYYY-MM-DD hh:mm:ss"))
+        // console.log( moment().format("YYYY-MM-DD hh:mm:ss"))
         // console.log( moment().format("HH:mm:ss"), 'Cureent time');
         // console.log( moment(timeOriginValue).format("HH:mm:ss"), ' moment(timeOriginValue).format("hh:mm:ss"),')
 
@@ -727,6 +730,12 @@ export default class App extends Component {
 
     }
 
+    printDateWithoutSecond = (date) =>
+    {
+        return moment(date).format("YYYY-MM-DD HH:mm")
+    }
+
+
     render() {
 
         return (
@@ -788,7 +797,9 @@ export default class App extends Component {
                                             {this.state.startCompletedDate  == '' ?
                                                 <Text>{this.state.language.start_date}</Text>
                                                 :
-                                                this.state.startCompletedDate
+                                                // this.state.startCompletedDate
+                                                this.printDateWithoutSecond(this.state.startCompletedDate)
+
                                             }
                                         </Text>
                                     </TouchableOpacity>
@@ -813,7 +824,8 @@ export default class App extends Component {
                                             {this.state.endCompletedDate  == '' ?
                                                 <Text>{this.state.language.to_date}</Text>
                                                 :
-                                                this.state.endCompletedDate
+
+                                                this.printDateWithoutSecond(this.state.endCompletedDate)
                                             }
                                         </Text>
 

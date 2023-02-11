@@ -166,7 +166,6 @@ export default class App extends Component {
                 },
                 body: JSON.stringify({
                     notification_enabled: value,
-
                 })
 
             }).then((response) => {
@@ -502,6 +501,13 @@ export default class App extends Component {
         } else {
              timezones = require('../timezones/timezones_ru.json');
         }
+
+        timezones.sort(function(a, b) {
+            let textA = a.label.toUpperCase();
+            let textB = b.label.toUpperCase();
+            return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+        });
+
         console.log(timezones, "timezone");
 
         this.setState({
@@ -573,6 +579,7 @@ export default class App extends Component {
                      <TopMenu navigation={this.props.navigation} closeMenu={this.closeMenu} />
                 }
                 <StatusBar style="dark" />
+
                 <View style={[styles.container, { paddingTop: 25, paddingBottom: 29}]} >
                     <View style={styles.all_devices_general_page_header}>
                         <View style={styles.all_devices_general_page_header_child}>
@@ -592,6 +599,8 @@ export default class App extends Component {
 
 
                     </View>
+
+
                     <ScrollView  nestedScrollEnabled={true} style={styles.all_devices_general_page_main_wrapper}>
 
 
@@ -602,7 +611,6 @@ export default class App extends Component {
                             <View style={[styles.settings_item, {marginBottom: 10}]}>
                                 <Text style={styles.settings_item_title}>{this.state.language.push_notifications}</Text>
                                 <Switch
-
                                     trackColor={{ false: 'silver', true: '#004B84' }}
                                     thumbColor={'white'}
                                     onValueChange={this.toggleSwitch}
@@ -998,14 +1006,24 @@ export default class App extends Component {
                     {this.state.deleteAccountPopup &&
                         <View style={styles.timezone_popup}>
                         <View style={styles.timezone_popup_wrapper}>
-                            <TouchableOpacity style={[styles.timezone_popup_close_btn, {flexDirection:'row'}]} onPress={() => {this.setState({deleteAccountPopup:false})}}>
+                            <TouchableOpacity
+                                style={[styles.timezone_popup_close_btn, {flexDirection:'row'}]}
+                                onPress={() => {
+                                    this.setState({deleteAccountPopup:false})
+                                }}
+                            >
+
                                 <Text style={{textAlign:'center', width:'100%', fontSize:16, marginTop:5, color: '#004B84'}}>
+
                                     {/*Delete account?*/}
                                     {this.state.language.delete_account_title}
+
                                 </Text>
+
                                 <Svg style={{position:'absolute', right: 0, top:0}} width={35} height={35} viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <Path d="M17.499 17.78L9.141 9.36m-.063 16.779l8.421-8.358-8.421 8.358zm8.421-8.358l8.421-8.359L17.5 17.78zm0 0l8.358 8.42-8.358-8.42z" stroke="#004B84" strokeWidth={2} strokeLinecap="round"/>
                                 </Svg>
+
                             </TouchableOpacity>
 
 
@@ -1329,8 +1347,8 @@ const styles = StyleSheet.create({
     },
     timezone_popup_close_btn: {
         position: 'absolute',
-        right: 15,
-        top: 20,
+        right: 10,
+        top: 10,
     },
     languages_dropDown_wrapper: {
         marginBottom: 17,
