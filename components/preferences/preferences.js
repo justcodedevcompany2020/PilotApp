@@ -309,8 +309,34 @@ export default class App extends Component {
 
     }
 
-    powerProtectionToggleSwitch = (value) => {
+    powerProtectionToggleSwitch = async (value) => {
         this.setState({ powerProtectionSwitchValue: value });
+
+        let userToken = await AsyncStorage.getItem('userToken');
+        let AuthStr = 'Bearer ' + userToken;
+        let id = this.props.id;
+        let bool = value;
+
+        try {
+            fetch(`https://apiv1.zis.ru/devices/`+ id, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': AuthStr,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    protection_is_on: bool ? true : false,
+                })
+            }).then((response) => {
+                return response.json()
+            }).then((response) => {
+                console.log(response, ' DEVICE Data')
+                // this.getDeviceData();
+            })
+        } catch (e) {
+            console.log(e)
+        }
     };
 
     useScheduleToggleSwitch = async (value) => {
@@ -492,7 +518,7 @@ export default class App extends Component {
             }).then((response) => {
 
                 console.log(response, 'pushNotificationsToggleSwitch')
-                this.getDeviceData();
+                // this.getDeviceData();
             })
         } catch (e) {
             console.log(e)
@@ -1757,6 +1783,28 @@ export default class App extends Component {
 
     }
 
+
+    declOfNum = (n, text_forms) => {
+        n = Math.abs(n) % 100;
+        let n1 = n % 10;
+        if (n > 10 && n < 20) { return text_forms[2]; }
+        if (n1 > 1 && n1 < 5) { return text_forms[1]; }
+        if (n1 == 1) { return text_forms[0]; }
+        return text_forms[2];
+    }
+
+
+    printAccounts = () => {
+
+        let {shared_accounts} = this.state;
+        let result_string = this.declOfNum(shared_accounts.length, ['аккаунт', 'аккаунта', 'аккаунтов']); // вернёт — минута;
+
+        return `${shared_accounts.length} ${result_string}`;
+
+        {/*{this.state.shared_accounts.length} {this.state.language.account}*/}
+
+    }
+
     render() {
         // SharedAccessPopup
         if (this.state.SharedAccessPopup) {
@@ -1848,16 +1896,19 @@ export default class App extends Component {
 
                         <View style={styles.new_test_items_wrapper}>
                             <View style={styles.new_test_item}>
+
                                 <Text  style={styles.new_test_item_title}>
                                     {/* Power Protection */}
                                     {this.state.language.power_protection}
                                 </Text>
+
                                 <Switch
                                     trackColor={{ false: 'silver', true: '#004B84' }}
                                     thumbColor={'white'}
                                     onValueChange={this.powerProtectionToggleSwitch}
                                     value={this.state.powerProtectionSwitchValue}
                                 />
+
                             </View>
 
                             <View style={styles.new_test_item}>
@@ -1867,9 +1918,9 @@ export default class App extends Component {
                                     {this.state.language.pre_configuration}
                                 </Text>
 
-                                <TouchableOpacity style={[styles.preferences_item_btn, {width:'35%'}]} onPress={() => {this.setState({pre_configuration_popup: true})}}>
+                                <TouchableOpacity style={[styles.preferences_item_btn, {flex:1}]} onPress={() => {this.setState({pre_configuration_popup: true})}}>
 
-                                    <Text style={[styles.preferences_item_btn_text, {width: '100%'}]}>
+                                    <Text style={[styles.preferences_item_btn_text, {flex:1, textAlign:'right' }]}>
                                         {this.printConfTranslate()}
                                     </Text>
 
@@ -2133,12 +2184,18 @@ export default class App extends Component {
                             <View style={[styles.new_test_item, {marginBottom: 25}]}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.shared_access}</Text>
                                 <TouchableOpacity style={styles.preferences_item_btn} onPress={() => {this.setState({shared_access_popup: true})}}>
-                                    <Text style={styles.preferences_item_btn_text}>{this.state.shared_accounts.length} {this.state.language.account}</Text>
+
+                                    <Text style={styles.preferences_item_btn_text}>
+                                        {this.printAccounts()}
+                                        {/*{this.state.shared_accounts.length} {this.state.language.account}*/}
+                                    </Text>
+
                                     <View style={styles.preferences_item_btn_icon}>
                                         <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z" fill="#004B84"/>
                                         </Svg>
                                     </View>
+
                                 </TouchableOpacity>
                             </View>
 
@@ -2852,11 +2909,10 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         fontSize: 14,
         color: '#4A4A4A',
-        // marginBottom: 10,
+        marginRight: 20,
         width: '65%',
+        flex:1,
         lineHeight: 22
-
-
     },
 
     new_test_item_input_field: {

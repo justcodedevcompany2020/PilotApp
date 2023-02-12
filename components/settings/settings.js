@@ -377,8 +377,6 @@ export default class App extends Component {
         let  {selectedLanguage} = this.state;
         console.log(selectedLanguage, 'selectedLanguage');
 
-
-
         await AsyncStorage.setItem('language', JSON.stringify({language: selectedLanguage}))
 
         try {
@@ -398,7 +396,9 @@ export default class App extends Component {
                 return response.json()
             }).then((response) => {
 
-                this.setLanguageFromStorage();
+                this.loadFunction()
+
+                // this.setLanguageFromStorage();
 
                 console.log(response, 'switchValue')
 
@@ -664,17 +664,8 @@ export default class App extends Component {
                                         {/*Read*/}
                                     </Text>
                                     <View style={styles.settings_item_btn_icon}>
-                                        <Svg
-                                            width={12}
-                                            height={20}
-                                            viewBox="0 0 12 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <Path
-                                                d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"
-                                                fill="#004B84"
-                                            />
+                                        <Svg width={12} height={20} viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M1.406 19.266L0 17.859l8.297-8.226L0 1.406 1.406 0l9.633 9.633-9.633 9.633z"  fill="#004B84"/>
                                         </Svg>
                                     </View>
                                 </TouchableOpacity>

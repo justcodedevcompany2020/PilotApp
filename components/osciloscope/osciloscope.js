@@ -67,7 +67,9 @@ export default class App extends Component {
             osciloscope_data: [],
             show_loader: false,
             show_error: false,
-            request_status: ''
+            request_status: '',
+            request_date: moment().format("YYYY-MM-DD hh:mm:ss")
+
         };
 
         this.webviewRef = React.createRef()
@@ -197,7 +199,8 @@ export default class App extends Component {
             osciloscope_data: [],
             show_loader: true,
             show_error: false,
-            request_status: 'pending'
+            request_status: 'pending',
+            request_date: moment().format("YYYY-MM-DD hh:mm:ss")
         });
 
         let userToken = await AsyncStorage.getItem('userToken');
@@ -391,7 +394,8 @@ export default class App extends Component {
                                 {this.state.language.request_date}
                             </Text>
                             <Text style={styles.impulse_surges_item_info}>
-                                date
+                                {this.state.request_date}
+
                                 {/*{parseInt(this.state.peak_value).toFixed(1)} {this.state.language.voltage_n}*/}
                             </Text>
                         </View>
@@ -613,7 +617,10 @@ export default class App extends Component {
 
                                   }}
                                 >
-                                    <Text style={[styles.osciloscope_refresh_button_text, this.state.show_loader && {color:'white' }]}>Refresh</Text>
+                                    <Text style={[styles.osciloscope_refresh_button_text, this.state.show_loader && {color:'white' }]}>
+                                        {this.state.language.refresh_text}
+                                        {/*Refresh*/}
+                                    </Text>
                                 </TouchableOpacity>
 
                             </View>

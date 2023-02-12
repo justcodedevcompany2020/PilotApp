@@ -191,7 +191,7 @@ export default class App extends Component {
                 return response.json()
             }).then(async (response)  => {
 
-                console.log(response, 'response')
+                console.log(response, 'response 555555555555555555555555')
 
                 if (response.hasOwnProperty('statusCode') && response.statusCode == 400 || response.hasOwnProperty('statusCode') && response.statusCode == 403) {
                     await this.setState({
@@ -201,7 +201,7 @@ export default class App extends Component {
                     await this.setState({
                         chartData: response.data.length > 0 ? response.data : [],
                         consumption_item_info: response.max,
-                        avg: response.avg
+                        avg: response.avg ? response.avg : 0
                     })
                 }
 
@@ -306,7 +306,7 @@ export default class App extends Component {
 
     setDayData = async () => {
 
-        let {chartData, chart_type, language_name} = this.state;
+        let {chartData, chart_type, language_name, consumption_item_info} = this.state;
 
         for (const item in chartData) {
             let timestamp = chartData[item].timestamp.split('.')[0];
@@ -321,8 +321,11 @@ export default class App extends Component {
             chartData: chartData,
         })
 
-        console.log(jsonChartData1, 'jsonChartData1 DAAAY')
-        this.webviewRef.current.postMessage(jsonChartData1);
+        if (consumption_item_info > 0) {
+            console.log(jsonChartData1, 'jsonChartData1 DAAAY')
+            this.webviewRef.current.postMessage(jsonChartData1);
+        }
+
 
         // let {chartData} = this.state;
         //
@@ -408,7 +411,7 @@ export default class App extends Component {
     }
     setWeekData = async () => {
 
-        let {chartData,chart_type, language_name} = this.state;
+        let {chartData,chart_type, language_name, consumption_item_info} = this.state;
 
         console.log(chartData, 'chartDatachartDatachartDatachartDatachartDatachartData');
 
@@ -429,8 +432,10 @@ export default class App extends Component {
             chartData: chartData,
         })
 
-        console.log(jsonChartData1, 'jsonChartData1 WEEEEKKK')
-        this.webviewRef.current.postMessage(jsonChartData1);
+        if (consumption_item_info > 0) {
+            console.log(jsonChartData1, 'jsonChartData1 DAAAY')
+            this.webviewRef.current.postMessage(jsonChartData1);
+        }
 
 
 
@@ -706,48 +711,48 @@ export default class App extends Component {
         })
         this.pressToDayAfterPressToArrow();
     }
-    // goToNextDay = async () => {
-    //     // let {date_begin, chart_type} = this.state;
-    //     // const date = new Date(date_begin);
-    //     // const dateCopy = new Date(date.getTime());
-    //     // dateCopy.setDate(dateCopy.getDate() + 1);
-    //     //
-    //     // let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
-    //     // let month = dateCopy.getMonth() + 1;
-    //     // month = month <= 9 ? `0${month}` : month;
-    //     // let year = dateCopy.getFullYear();
-    //     // let todayDate =  year + '-' + month + '-' + day;
-    //     //
-    //     // console.log( todayDate)
-    //     // await this.setState({
-    //     //     date_begin:todayDate,
-    //     //     date_end:todayDate
-    //     // })
-    //     // this.pressToDayAfterPressToArrow();
-    //
-    //     let {date_begin, chart_type, chart_show} = this.state;
-    //
-    //     if (!chart_show) {
-    //         return false
-    //     }
-    //
-    //     const date = new Date(date_begin);
-    //     const dateCopy = new Date(date.getTime());
-    //     dateCopy.setDate(dateCopy.getDate() + 1);
-    //
-    //     let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
-    //     let month = dateCopy.getMonth() + 1;
-    //     month = month <= 9 ? `0${month}` : month;
-    //     let year = dateCopy.getFullYear();
-    //     let todayDate =  year + '-' + month + '-' + day;
-    //
-    //     console.log( todayDate)
-    //     await this.setState({
-    //         date_begin:todayDate,
-    //         date_end:todayDate
-    //     })
-    //     this.pressToDayAfterPressToArrow();
-    // }
+    goToNextDay = async () => {
+        // let {date_begin, chart_type} = this.state;
+        // const date = new Date(date_begin);
+        // const dateCopy = new Date(date.getTime());
+        // dateCopy.setDate(dateCopy.getDate() + 1);
+        //
+        // let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
+        // let month = dateCopy.getMonth() + 1;
+        // month = month <= 9 ? `0${month}` : month;
+        // let year = dateCopy.getFullYear();
+        // let todayDate =  year + '-' + month + '-' + day;
+        //
+        // console.log( todayDate)
+        // await this.setState({
+        //     date_begin:todayDate,
+        //     date_end:todayDate
+        // })
+        // this.pressToDayAfterPressToArrow();
+
+        let {date_begin, chart_type, chart_show} = this.state;
+
+        if (!chart_show) {
+            return false
+        }
+
+        const date = new Date(date_begin);
+        const dateCopy = new Date(date.getTime());
+        dateCopy.setDate(dateCopy.getDate() + 1);
+
+        let day = dateCopy.getDate() <= 9 ? `0${dateCopy.getDate()}` : dateCopy.getDate();
+        let month = dateCopy.getMonth() + 1;
+        month = month <= 9 ? `0${month}` : month;
+        let year = dateCopy.getFullYear();
+        let todayDate =  year + '-' + month + '-' + day;
+
+        console.log( todayDate)
+        await this.setState({
+            date_begin:todayDate,
+            date_end:todayDate
+        })
+        this.pressToDayAfterPressToArrow();
+    }
 
     // goToPrevWeek = async () => {
     //
@@ -933,7 +938,8 @@ export default class App extends Component {
 
                                     {/*chartData*/}
 
-                                    {this.state.chart_show && this.state.consumption_item_info == 0 &&
+
+                                    { this.state.consumption_item_info == 0 &&
 
                                         <View style={{paddingHorizontal: 25,zIndex: 99999, width: '100%', height: '100%', justifyContent:'center', alignItems:'center', position:'absolute', bottom:0, left:0, backgroundColor: 'white'}}>
                                             <Text style={{textAlign:'center'}}>

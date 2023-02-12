@@ -256,7 +256,7 @@ export default class App extends Component {
     }
     setDayData = async () => {
 
-        let {chartData, chart_type, language_name} = this.state;
+        let {chartData, chart_type, language_name, voltage_item_info} = this.state;
 
         for (const item in chartData) {
             let timestamp = chartData[item].timestamp.split('.')[0];
@@ -266,13 +266,18 @@ export default class App extends Component {
 
         let jsonChartData1 = JSON.stringify({data: chartData, chart_type: chart_type,  language_name:language_name});
 
+        console.log(voltage_item_info, 'voltage_item_infovoltage_item_infovoltage_item_infovoltage_item_info')
+
         this.setState({
-            chart_show:true,
+            chart_show:true ,
             chartData: chartData,
         })
 
-        console.log(jsonChartData1, 'jsonChartData1 DAAAY')
-        this.webviewRef.current.postMessage(jsonChartData1);
+        if (voltage_item_info > 0) {
+            console.log(jsonChartData1, 'jsonChartData1 DAAAY')
+            this.webviewRef.current.postMessage(jsonChartData1);
+        }
+
 
         // let {chartData} = this.state;
         // console.log(chartData, 'chartData')
@@ -407,7 +412,7 @@ export default class App extends Component {
     {
 
 
-        let {chartData,chart_type, language_name} = this.state;
+        let {chartData,chart_type, language_name,voltage_item_info} = this.state;
 
         console.log(chartData, 'chartDatachartDatachartDatachartDatachartDatachartData');
 
@@ -428,10 +433,11 @@ export default class App extends Component {
             chartData: chartData,
         })
 
-        console.log(jsonChartData1, 'jsonChartData1 WEEEEKKK')
-        this.webviewRef.current.postMessage(jsonChartData1);
 
-
+        if (voltage_item_info > 0) {
+            console.log(jsonChartData1, 'jsonChartData1 DAAAY')
+            this.webviewRef.current.postMessage(jsonChartData1);
+        }
 
 
         // let {chartData} = this.state;
@@ -1028,7 +1034,7 @@ export default class App extends Component {
 
                                 <View style={{height: 300, backgroundColor:'red', width: '100%'}}>
 
-                                    {this.state.chart_show && this.state.voltage_item_info == 0 &&
+                                    { this.state.voltage_item_info == 0 &&
 
                                         <View style={{paddingHorizontal: 25,zIndex: 99999, width: '100%', height: '100%', justifyContent:'center', alignItems:'center', position:'absolute', bottom:0, left:0, backgroundColor: 'white'}}>
                                             <Text style={{textAlign:'center'}}>

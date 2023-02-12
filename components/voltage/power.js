@@ -962,7 +962,7 @@ export default class App extends Component {
                                 <View style={{height: 300, backgroundColor:'red', width: '100%'}}>
 
 
-                                    {this.state.chart_show && this.state.voltage_item_info == 0 &&
+                                    {this.state.voltage_item_info == 0 &&
 
                                         <View style={{paddingHorizontal: 25,zIndex: 99999, width: '100%', height: '100%', justifyContent:'center', alignItems:'center', position:'absolute', bottom:0, left:0, backgroundColor: 'white'}}>
                                             <Text style={{textAlign:'center'}}>

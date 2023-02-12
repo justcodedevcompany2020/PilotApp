@@ -27,7 +27,7 @@ const en = {
     login_already_exists: 'Login already exists',
     verification_code_mismatch: 'Verification code mismatch',
     password_mismatch: 'Password mismatch',
-    push_notifications: 'PUSH Notifications',
+    push_notifications: 'Push Notifications',
     time_zone: 'Time Zone',
     legal_information: 'Legal Information',
     delete_account: 'Delete account',
@@ -191,9 +191,11 @@ const en = {
     avg_per_day : 'AVG per day',
     average: 'Average',
 
-    osciloscope: 'Osciloscope',
+    osciloscope: 'Oscilloscope',
     request_date: 'Request date',
-    request_in_progress: 'Request in progress...'
+    request_in_progress: 'Request in progress...',
+    refresh_text: 'Refresh'
+
 
 };
 
@@ -244,7 +246,7 @@ const ru = {
     voltage: 'Напряжение',
     amperage: 'Сила тока',
     number_of_protection: 'Количество сработавших защит',
-    last_data: 'Последний обмен данными',
+    last_data: 'Синхронизация',
     started_time: 'Время начала',
     preferences: 'Настройка защиты',
     power_protection: 'Использовать защиту',
@@ -386,15 +388,16 @@ const ru = {
     protection_overcurrent: 'Откл. по прев. тока',
     times: 'раз',
     protections_title: 'Срабатывание защиты',
-    no_grafik_data: 'Нет данных для отображение за выбранный период.',
+    no_grafik_data: 'Нет данных для отображения за выбранный период.',
 
 
     total: 'Суммарное потребление',
     avg_per_day : 'Среднее за день',
     average: 'Среднее',
     osciloscope: 'Осциллограмма',
-    request_date: 'Время запроса',
-    request_in_progress: 'Выполняется запрос...'
+    request_date: 'Дата запроса',
+    request_in_progress: 'Выполняется запрос...',
+    refresh_text: 'Обновить'
 
 };
 

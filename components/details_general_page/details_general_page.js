@@ -223,7 +223,14 @@ export default class App extends Component {
 
     }
 
-    editName = async () => {
+    editName = async () =>
+    {
+        let {edit_name} = this.state;
+
+        if (edit_name.length == 0)
+        {
+            return false;
+        }
 
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
@@ -449,9 +456,9 @@ export default class App extends Component {
                                 </View>
 
                             </View>
-                            <View style={[styles.details_general_page_item, { flexDirection:'column' }]}>
-                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5, width: '100%'}]}>{this.state.language.last_data}</Text>
-                                <Text style={[styles.details_general_page_item_info, {width:'100%', textAlign:'right'}]}>
+                            <View style={[styles.details_general_page_item, { flexDirection:'row' }]}>
+                                <Text style={[styles.details_general_page_item_title, {marginBottom: 5, }]}>{this.state.language.last_data}</Text>
+                                <Text style={[styles.details_general_page_item_info, { textAlign:'right'}]}>
                                     {this.convertDateFormat(this.state.device_data.last_data)}
                                 </Text>
                             </View>
@@ -499,6 +506,7 @@ export default class App extends Component {
                                         value={this.state.edit_name}
                                         // placeholder={this.state.device_data.name}
                                         placeholderTextColor='#4A4A4A'
+                                        maxLength={15}
                                     />
                                 </View>
                                 <TouchableOpacity style={styles.save_btn} onPress={() => {this.editName()}}>
@@ -519,7 +527,7 @@ export default class App extends Component {
                                 <View style={{width: '100%', position: 'absolute', left: 20, top: 20}}>
                                     <Text style={{color: '#004B84', fontSize: 20}}>
                                         {/*Срабатывание защиты*/}
-                                        {this.state.language.protections_title}
+                                        { this.state.language.protections_title}
                                     </Text>
                                 </View>
 
@@ -531,7 +539,7 @@ export default class App extends Component {
                                     </Text>
 
                                     <Text style={{color:'#10BCCE' }}>
-                                        {this.state.device_data.protection_undervoltage ? this.state.device_data.protection_undervoltage : 0} {this.state.language.times}
+                                        {this.state.device_data.protection_undervoltage ? this.state.device_data.protection_undervoltage : 0} {this.state.language.times}{this.state.language_name == "ru" && '(а)'}
                                     </Text>
                                 </View>
                                 <View style={{width:'100%', backgroundColor:'white', flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
@@ -540,7 +548,7 @@ export default class App extends Component {
                                         {this.state.language.protection_overvoltage}
                                     </Text>
                                     <Text style={{color:'#10BCCE' }}>
-                                        {this.state.device_data.protection_overvoltage ? this.state.device_data.protection_overvoltage : 0} {this.state.language.times}
+                                        {this.state.device_data.protection_overvoltage ? this.state.device_data.protection_overvoltage : 0} {this.state.language.times}{this.state.language_name == "ru" && '(а)'}
                                     </Text>
                                 </View>
                                 <View style={{width:'100%', backgroundColor:'white', flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
@@ -549,7 +557,7 @@ export default class App extends Component {
                                         {this.state.language.protection_overcurrent}
                                     </Text>
                                     <Text style={{color:'#10BCCE' }}>
-                                        {this.state.device_data.protection_overcurrent ? this.state.device_data.protection_overcurrent : 0} {this.state.language.times}
+                                        {this.state.device_data.protection_overcurrent ? this.state.device_data.protection_overcurrent : 0} {this.state.language.times}{this.state.language_name == "ru" && '(а)'}
                                     </Text>
                                 </View>
 
@@ -750,7 +758,7 @@ const styles = StyleSheet.create({
     },
     details_general_page_info_name_edit_btn: {
         position: 'absolute',
-        right: -20,
+        right: -25,
         top: -5,
         padding: 5
     },

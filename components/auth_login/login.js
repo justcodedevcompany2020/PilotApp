@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Svg, {Path, Rect, Circle, Defs, Stop, ClipPath, G, Mask, Pattern, Use} from "react-native-svg";
 import { StatusBar } from 'expo-status-bar';
 // import DropDownPicker from "react-native-custom-dropdown";
-import * as Notifications from 'expo-notifications';
 
 import DropDownPicker from 'react-native-dropdown-picker';
 import md5 from 'md5';
@@ -11,7 +10,8 @@ import {en, ru} from "../../i18n/supportedLanguages";
 
 import {AuthContext} from "../AuthContext/context";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 import {
     Text,
     Alert,
@@ -102,26 +102,26 @@ export default class App extends Component {
 
 
 
-    getPushToken = () => {
-
-        try {
-            return Notifications.getPermissionsAsync()
-                .then((statusResult) => {
-                    return statusResult.status !== 'granted'
-                        ? Notifications.requestPermissionsAsync()
-                        : statusResult;
-                })
-                .then((statusResult) => {
-                    if (statusResult.status !== 'granted') {
-                        throw 'Failed to get push token for push notification!';
-                    }
-                    return Notifications.getExpoPushTokenAsync();
-                })
-                .then((tokenData) => tokenData.data);
-        } catch (error) {
-            return Promise.reject("Couldn't check notifications permissions");
-        }
-    };
+    // getPushToken = () => {
+    //
+    //     try {
+    //         return Notifications.getPermissionsAsync()
+    //             .then((statusResult) => {
+    //                 return statusResult.status !== 'granted'
+    //                     ? Notifications.requestPermissionsAsync()
+    //                     : statusResult;
+    //             })
+    //             .then((statusResult) => {
+    //                 if (statusResult.status !== 'granted') {
+    //                     throw 'Failed to get push token for push notification!';
+    //                 }
+    //                 return Notifications.getExpoPushTokenAsync();
+    //             })
+    //             .then((tokenData) => tokenData.data);
+    //     } catch (error) {
+    //         return Promise.reject("Couldn't check notifications permissions");
+    //     }
+    // };
 
 
      registerForPushNotificationsAsync = async () => {
@@ -135,7 +135,8 @@ export default class App extends Component {
             if (finalStatus !== 'granted') {
                 throw new Error('Permission not granted!')
             }
-            const token = (await Notifications.getExpoPushTokenAsync()).data
+            const token = (await Notifications.getExpoPushTokenAsync({experienceId: "@a200796a/Pilot"})).data;
+
             return token
         } catch (error) {
             console.error(error)
@@ -143,8 +144,7 @@ export default class App extends Component {
     }
 
     loginHandler = async () => {
-
-    let {email, password, selectedLanguage} = this.state;
+        let {email, password, selectedLanguage} = this.state;
 
         if ( email.length == 0 || password.length < 6  ) {
 
@@ -188,6 +188,7 @@ export default class App extends Component {
 
 
         }  else {
+
             this.setState({
                 password_error: false,
                 password_error_text: '',
@@ -200,7 +201,7 @@ export default class App extends Component {
         //
         // let pushTokenRes = await this.registerForPushNotificationsAsync();
         // console.log(pushTokenRes, 'pushtoken dwwwwwwwwwwwwwwwwww')
-        let pushTokenRes = 'f65f1f1232f123e51f35ef1we35f1we351fw35';
+        // let pushTokenRes = 'f65f1f1232f123e51f35ef1we35f1we351fw35';
 
         // await this.getPushToken().then((pushToken) => {
         //
@@ -213,16 +214,20 @@ export default class App extends Component {
         //     }
         // });
 
-
-        // return false;
+        let push_ident = await this.registerForPushNotificationsAsync();
 
         let hash_password = email.toLowerCase() + password;
         let hash_password_result = md5(hash_password);
-
-         console.log(hash_password_result, 'hashpassword')
-
-
         let platform = Platform.OS != 'ios' ? 'android' : 'ios';
+
+        console.log('BODY LOGIN', {
+            login: email,
+            password: hash_password_result,
+            language: selectedLanguage,
+            platform: platform,
+            push_ident: push_ident,
+        })
+
 
         try {
             fetch(`https://apiv1.zis.ru/auth/login`, {
@@ -236,7 +241,7 @@ export default class App extends Component {
                     password: hash_password_result,
                     language: selectedLanguage,
                     platform: platform,
-                    push_ident: pushTokenRes,
+                    push_ident: push_ident,
                 })
             }).then((response) => {
 

@@ -11,10 +11,11 @@ import {AuthContext} from "./components/AuthContext/context";
 import {StackActions} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import registerNNPushToken from 'native-notify';
+// import registerNNPushToken from 'native-notify';
 
 
 import LoginComponent from './components/auth_login/login';
+import LoginWithPushComponent from './components/auth_login/loginwith_push.js';
 import PasswordRecoveryComponent from './components/password_recovery/password_recovery';
 import RegistrationComponent from './components/registration/registration';
 import AllDevicesComponent from './components/all_devices/all_devices';
@@ -51,6 +52,11 @@ function NointernetScreen({ navigation }) {
 function LoginScreen({ navigation }) {
   return (
       <LoginComponent navigation={navigation}  />
+  );
+}
+function LoginWithPushComponentScreen({ navigation }) {
+  return (
+      <LoginWithPushComponent navigation={navigation}  />
   );
 }
 function PasswordRecoveryScreen({ navigation }) {
@@ -212,7 +218,6 @@ function SetNewPasswordScreen({route, navigation }) {
 
 export default function App() {
 
-    registerNNPushToken(6321, 'T9mACaeYwZfGDhSdvhaAL2');
 
     const popAction = StackActions.pop(1);
 
@@ -350,6 +355,8 @@ export default function App() {
     //         </View>
     //     )
     // }
+
+    // registerNNPushToken(6321, 'T9mACaeYwZfGDhSdvhaAL2');
 
 
     if (isLoading) {
@@ -577,7 +584,12 @@ export default function App() {
                             headerShown: false
                         }}
                     >
-
+                        {/*<Stack.Screen name="LoginWithPush" component={LoginWithPushComponentScreen}*/}
+                        {/*              options={({route}) => ({*/}
+                        {/*                  tabBarButton: () => null,*/}
+                        {/*                  tabBarStyle: {display: 'none'},*/}
+                        {/*              })}*/}
+                        {/*/>*/}
 
                         <Stack.Screen name="Login" component={LoginScreen}
                               options={({route}) => ({
@@ -585,6 +597,8 @@ export default function App() {
                                   tabBarStyle: {display: 'none'},
                               })}
                         />
+
+
 
                         <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen}
                               options={({route}) => ({

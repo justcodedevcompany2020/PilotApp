@@ -4,7 +4,7 @@
     "slug": "Pilot",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/android_logo2.png",
+    "icon": "./assets/android_logo3.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splashscreen.png",
@@ -35,7 +35,6 @@
       ],
       "package": "com.JustCode.Pilot",
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

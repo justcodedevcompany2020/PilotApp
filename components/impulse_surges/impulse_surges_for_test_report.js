@@ -838,7 +838,10 @@ export default class App extends Component {
         return (
                 <View style={styles.impulse_surges_items_main_wrapper}>
 
-                    <Text style={{paddingHorizontal:35,marginTop:10, color:'#004B84', fontSize:16}}>Impulse surges</Text>
+                    <Text style={{paddingHorizontal:35,marginTop:10, color:'#004B84', fontSize:16}}>
+                        {/*Impulse surges*/}
+                        {this.state.language.impulse_surges}
+                    </Text>
                     <View style={styles.impulse_surges_item_img_dates_info_wrapper} >
                         <View style={{height: 300, width: '100%', marginBottom: 35}}>
 

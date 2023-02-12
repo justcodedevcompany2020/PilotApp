@@ -83,6 +83,7 @@ export default class App extends Component {
 
             upper_voltage_trigger: 0,
             lower_voltage_trigger: 0,
+            uppervoltage: 0
         };
 
     }
@@ -396,8 +397,37 @@ export default class App extends Component {
                 upper_voltage_trigger: response.upper_voltage_trigger, // Передаем границу повышенного напряжения
                 lower_voltage_trigger: response.lower_voltage_trigger, // Передаем димит пониженного напряжения
 
-
             })
+
+            console.log(   [
+                {
+                    name: "Undervoltage",
+                    population: this.state.undervoltage ,
+                    color: "#F2994A",
+                },
+                {
+                    name: "Overvoltage",
+                    population: this.state.uppervoltage ,
+                    color: "#EB5757",
+                },
+                {
+                    name: "Power outages",
+                    population: this.state.power_outages ,
+                    color: "#BDBDBD",
+                },
+                {
+                    name: "Moscow",
+                    population: this.state.blue_chart_data,
+                    color: "#10BCCE",
+                },
+                {
+                    name: "Moscow2",
+                    population: this.state.impulse_surges_percent,
+                    color: "#004B84",
+                }
+            ], 'eeeeeeeeeeeeeeeeeeeeeeeeeeee')
+
+
 
         })
     }
@@ -552,7 +582,10 @@ export default class App extends Component {
                                 {this.state.test_report_status == 'in_progress' &&
 
                                     <TouchableOpacity style={styles.report_status_button} onPress={() => {this.redirectToOsciloscope()}}>
-                                        <Text style={styles.report_status_button_text}>Osciloscope</Text>
+                                        <Text style={styles.report_status_button_text}>
+                                            {this.state.language.osciloscope}
+                                            {/*Osciloscope*/}
+                                        </Text>
                                     </TouchableOpacity>
 
                                 }
@@ -575,12 +608,12 @@ export default class App extends Component {
                                                         {
                                                             name: "Undervoltage",
                                                             population: this.state.undervoltage ,
-                                                            color: "#EB5757",
+                                                            color: "#F2994A",
                                                         },
                                                         {
                                                             name: "Overvoltage",
-                                                            population: this.state.overvoltage ,
-                                                            color: "#F2994A",
+                                                            population: this.state.uppervoltage ,
+                                                            color: "#EB5757",
                                                         },
                                                         {
                                                             name: "Power outages",
