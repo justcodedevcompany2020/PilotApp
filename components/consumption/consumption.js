@@ -1236,7 +1236,7 @@ export default class App extends Component {
                                             {/*AVG per day*/}
                                             {this.state.language.avg_per_day}
                                         </Text>
-                                        <Text style={styles.impulse_surges_item_info}>{this.state.avg}  {this.state.language.consumption_n}</Text>
+                                        <Text style={styles.impulse_surges_item_info}>{this.state.avg} {this.state.language.consumption_n}</Text>
                                     </View>
 
                                 </View>

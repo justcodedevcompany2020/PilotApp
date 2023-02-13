@@ -605,10 +605,10 @@ export default class App extends Component {
         const { navigation } = this.props;
         this.setLanguageFromStorage();
         // this.pressToDay()
-        // this.focusListener = navigation.addListener("focus", () => {
-        //     this.setLanguageFromStorage();
-        //     // this.pressToMonth()
-        // });
+        this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
+            // this.pressToMonth()
+        });
 
     }
     //

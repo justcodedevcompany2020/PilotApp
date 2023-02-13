@@ -658,7 +658,10 @@ export default class App extends Component {
 
                             <View style={[styles.settings_item, {marginBottom: 25}]}>
                                 <Text style={styles.settings_item_title}>{this.state.language.legal_information}</Text>
-                                <TouchableOpacity style={styles.settings_item_btn}>
+                                <TouchableOpacity style={styles.settings_item_btn}
+                                  onPress={() => {
+                                      Linking.openURL('https://zis.ru/policy/');
+                                  }}>
                                     <Text style={styles.settings_item_btn_text}>
                                         {this.state.language.read}
                                         {/*Read*/}

@@ -417,6 +417,8 @@ export default class App extends Component {
             week_days_switch_values_quantity += '7';
         }
 
+        console.log(week_days_switch_values_quantity, typeof week_days_switch_values_quantity,  'week_days_switch_values_quantity')
+
         if(week_days_switch_values_quantity == '') {
             this.setState({
                 week_days_popup: false,
@@ -424,13 +426,11 @@ export default class App extends Component {
             return false
         }
 
-        console.log(week_days_switch_values_quantity, 'week_days_switch_values_quantity')
-
-
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr = 'Bearer ' + userToken;
         let id = this.props.id;
 
+        console.log(`https://apiv1.zis.ru/devices/`+ id, 'API URL')
         try {
             fetch(`https://apiv1.zis.ru/devices/`+ id, {
                 method: 'PATCH',
@@ -440,21 +440,20 @@ export default class App extends Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                        schedule_days: week_days_switch_values_quantity.toString(),
+                    schedule_days: week_days_switch_values_quantity,
+                    // use_schedule: true
                 })
 
             }).then((response) => {
                 return response.json()
-            }).then((response) => {
+            }).then( async (response) => {
 
-                console.log(response, ' DEVICE Data')
+                console.log(response, ' DEVICE Data');
 
-
-
-                this.getDeviceData();
-                this.setState({
+                await this.getDeviceData();
+                await this.setState({
                     week_days_popup: false,
-                })
+                });
 
             })
         } catch (e) {
@@ -463,32 +462,28 @@ export default class App extends Component {
     }
 
     useWeekDayMondayToggleSwitch = async (value) => {
-        this.setState({ useWeekDayMondaySwitchValue: value });
-
-
+       await this.setState({ useWeekDayMondaySwitchValue: value });
     };
-    useWeekDayTuesdayToggleSwitch =  (value) => {
-        this.setState({ useWeekDayTuesdaySwitchValue: value });
-
-
+    useWeekDayTuesdayToggleSwitch = async (value) => {
+       await this.setState({ useWeekDayTuesdaySwitchValue: value });
     };
-    useWeekDayWednesdayToggleSwitch =  (value) => {
+    useWeekDayWednesdayToggleSwitch = async (value) => {
         this.setState({ useWeekDayWednesdaySwitchValue: value });
 
     };
-    useWeekDayThursdayToggleSwitch =  (value) => {
+    useWeekDayThursdayToggleSwitch = async (value) => {
         this.setState({ useWeekDayThursdaySwitchValue: value });
 
     };
-    useWeekDayFridayToggleSwitch =  (value) => {
+    useWeekDayFridayToggleSwitch = async (value) => {
         this.setState({ useWeekDayFridaySwitchValue: value });
 
     };
-    useWeekDaySaturdayToggleSwitch =  (value) => {
+    useWeekDaySaturdayToggleSwitch = async (value) => {
         this.setState({ useWeekDaySaturdaySwitchValue: value });
 
     };
-    useWeekDaySundayToggleSwitch =  (value) => {
+    useWeekDaySundayToggleSwitch = async (value) => {
         this.setState({ useWeekDaySundaySwitchValue: value });
     };
 
@@ -1939,7 +1934,7 @@ export default class App extends Component {
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE',  }]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE', color: this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE'  }]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionUpperVoltage(val)
                                         }}
@@ -1947,7 +1942,7 @@ export default class App extends Component {
                                         // placeholder='3.43'
                                         placeholderTextColor={this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE'}
                                         editable={this.state.protection_preset != 'manual' ? false : true}
-                                        // keyboardType = 'numeric'
+                                        keyboardType = 'numeric'
                                         // keyboardType="numeric"
 
                                     />
@@ -1991,7 +1986,7 @@ export default class App extends Component {
 
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE', color: this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE' }]}
                                         onChangeText={(val) => {
                                             this.chooseProtectionLowerVoltage(val);
                                         }}
@@ -2041,7 +2036,7 @@ export default class App extends Component {
                                 </Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1, borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE', color: this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE' }]}
                                         onChangeText={(val) => {
                                             this.choosePowerRestoreDelay(val);
                                         }}
@@ -2057,7 +2052,7 @@ export default class App extends Component {
                                 <Text style={[styles.new_test_item_title, {color: this.state.startup_delay_input_error === true ? 'red' : '#4A4A4A'}, this.state.protection_preset != 'manual' && {color: 'silver'}]}>{this.state.language.startup_delay_sec}</Text>
                                 <View style={styles.new_test_item_input_field_box}>
                                     <TextInput
-                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE'}]}
+                                        style={[styles.new_test_item_input_field, {marginRight: 18, flex: 1,  borderColor: this.state.protection_preset != 'manual' ?  'silver' : '#10BCCE', color: this.state.protection_preset != 'manual' ? 'silver' : '#10BCCE' }]}
                                         onChangeText={(val) => {
                                             this.chooseStartupDelay(val);
                                         }}
@@ -2124,11 +2119,15 @@ export default class App extends Component {
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
                                 <Text style={[styles.new_test_item_title, {flex:1}]}>{this.state.language.week_days}</Text>
                                 <TouchableOpacity style={[styles.preferences_item_btn, { flex:1, justifyContent: 'flex-end' }]}
-                                    onPress={() => {
-                                        this.openWeekDaysPopUp()
+                                    onPress={() =>
+                                    {
+                                        if(this.state.useScheduleSwitchValue)
+                                        {
+                                            this.openWeekDaysPopUp()
+                                        }
                                     }}
                                 >
-                                    <Text style={styles.preferences_item_btn_text}>
+                                    <Text style={[styles.preferences_item_btn_text, !this.state.useScheduleSwitchValue && {color:'silver'}]}>
                                         {this.printWeekDays()}
                                     </Text>
                                     <View style={styles.preferences_item_btn_icon}>
@@ -2141,8 +2140,15 @@ export default class App extends Component {
 
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.turn_on_time}</Text>
-                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOn()}>
-                                    <Text style={styles.preferences_item_btn_text}>
+                                <TouchableOpacity style={styles.preferences_item_btn}
+                                    onPress={() => {
+                                        if(this.state.useScheduleSwitchValue)
+                                        {
+                                            this.timeOn()
+                                        }
+                                    }}
+                                >
+                                    <Text style={[styles.preferences_item_btn_text, !this.state.useScheduleSwitchValue && {color:'silver'}]}>
                                         {this.turnOnnTimeWithTimeZone()}
 
                                         {/*{this.state.schedule_time_on}*/}
@@ -2157,8 +2163,15 @@ export default class App extends Component {
 
                             <View style={[styles.new_test_item, {marginBottom: 23}]}>
                                 <Text style={styles.new_test_item_title}>{this.state.language.turn_of_time}</Text>
-                                <TouchableOpacity style={styles.preferences_item_btn} onPress={() => this.timeOff()}>
-                                    <Text style={styles.preferences_item_btn_text}>
+                                <TouchableOpacity style={styles.preferences_item_btn}
+                                      onPress={() => {
+                                          if(this.state.useScheduleSwitchValue)
+                                          {
+                                              this.timeOff()
+                                          }
+                                      }}
+                                >
+                                    <Text style={[styles.preferences_item_btn_text, !this.state.useScheduleSwitchValue && {color:'silver'}]}>
                                         {this.turnOffTimeWithTimeZone()}
 
                                         {/* Turn-off   */}

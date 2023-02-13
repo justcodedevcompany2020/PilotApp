@@ -1050,7 +1050,8 @@ export default class App extends Component {
                                                     
                                                     
                                                     //Рассчитываем границу графика для подрезки      
-                                                    var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
+                                                    // var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
+                                                    var minimalValue = 220;
                                                     
                                                     //Настройки графиков
                                                             var options = {

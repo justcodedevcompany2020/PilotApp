@@ -449,7 +449,7 @@ export default class App extends Component {
                         <TouchableOpacity
                             style={styles.rules_btn}
                             onPress={() => {
-                                Linking.openURL('https://zis.ru/rules');
+                                Linking.openURL('https://zis.ru/policy');
                             }}
                         >
                             <Text style={styles.rules_btn_text}>{this.state.language.rules}</Text>

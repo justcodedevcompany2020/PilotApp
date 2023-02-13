@@ -172,6 +172,7 @@ export default class App extends Component {
         const { navigation } = this.props;
         // this.requestToOsciloscopeAndGetId()
         this.focusListener = navigation.addListener("focus", () => {
+            this.setLanguageFromStorage();
             this.requestToOsciloscopeAndGetId()
         });
 
@@ -574,7 +575,7 @@ export default class App extends Component {
                                                           width: 400,
                                                             height: 400,
                                                           vAxis: {
-                                                            ticks: [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1],
+                                                            // ticks: [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1],
                                                           },
                                                           hAxis: {
                                                              ticks: [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]
