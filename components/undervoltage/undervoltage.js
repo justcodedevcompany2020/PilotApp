@@ -29,6 +29,7 @@ import {
     FlatList,
     Linking,
     Pressable,
+    Platform
 } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
@@ -1038,7 +1039,8 @@ export default class App extends Component {
                                         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
                                         
                                           <script type="text/javascript">
-                                                document.addEventListener("message", message => {
+                                          
+                                                window.addEventListener("message", message => {
 
                                                        google.charts.load('current', {'packages':['corechart']});
                                                       google.charts.setOnLoadCallback(drawVisualization);

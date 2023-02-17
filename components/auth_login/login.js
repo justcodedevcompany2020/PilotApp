@@ -135,7 +135,7 @@ export default class App extends Component {
             if (finalStatus !== 'granted') {
                 throw new Error('Permission not granted!')
             }
-            const token = (await Notifications.getExpoPushTokenAsync({experienceId: "@a200796a/Pilot"})).data;
+            const token = (await Notifications.getExpoPushTokenAsync({experienceId: "@quweren/PilotTestZis"})).data;
 
             return token
         } catch (error) {
@@ -214,8 +214,9 @@ export default class App extends Component {
         //     }
         // });
 
-        let push_ident = await this.registerForPushNotificationsAsync();
+        let push_ident = Device.isDevice ?  await this.registerForPushNotificationsAsync() : 'f65f1f1232f123e51f35ef1we35f1we351fw35';
 
+        console.log(push_ident, 'push_ident')
         let hash_password = email.toLowerCase() + password;
         let hash_password_result = md5(hash_password);
         let platform = Platform.OS != 'ios' ? 'android' : 'ios';
@@ -320,8 +321,6 @@ export default class App extends Component {
             console.log(e)
         }
 
-
-
         console.log('2')
 
     }
@@ -350,6 +349,42 @@ export default class App extends Component {
         })
 
     }
+
+
+
+    // setLanguageFromStorage = async () =>
+    // {
+    //     await AsyncStorage.getItem('language',(err,item) =>
+    //     {
+    //         let language = item ? JSON.parse(item) : {};
+    //         if (language.hasOwnProperty('language'))
+    //         {
+    //             let selected_language = en;
+    //
+    //             switch (language.language) {
+    //                 case 'ru':
+    //                     selected_language = ru;
+    //                 break;
+    //                 case 'en':
+    //                     selected_language = en;
+    //                     break;
+    //             }
+    //
+    //             this.setState({
+    //                 language: selected_language ,
+    //                 page_ready:true
+    //             })
+    //         } else {
+    //
+    //             this.setState({
+    //                 language: en,
+    //                 page_ready:true
+    //             })
+    //         }
+    //
+    //     })
+    //
+    // }
 
 
     componentDidMount() {

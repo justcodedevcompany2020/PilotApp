@@ -65,7 +65,7 @@ async function registerForPushNotificationsAsync() {
         // token = (await Notifications.getExpoPushTokenAsync()).data;
         // console.log(token);
 
-        const token = (await Notifications.getExpoPushTokenAsync({experienceId: "@a200796a/Pilot"})).data;
+        const token = (await Notifications.getExpoPushTokenAsync({experienceId: "@quweren/PilotTestZis"})).data;
         console.log(token);
 
     } else {

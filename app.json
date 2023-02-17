@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Pilot",
-    "slug": "Pilot",
+    "name": "Pilot Test",
+    "slug": "PilotTestZis",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -33,8 +33,10 @@
       "permissions": [
         "NOTIFICATIONS"
       ],
-      "package": "com.JustCode.Pilot",
-      "googleServicesFile": "./google-services.json"
+      "package": "ru.zis.pilottest",
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,7 +44,7 @@
     "description": "",
     "extra": {
       "eas": {
-        "projectId": "7be4cc90-57aa-43c1-ad53-4f9c90dc80b8"
+        "projectId": "e955c510-ffd2-4331-a6eb-1a31ccd3025d"
       }
     }
   }
