@@ -600,7 +600,6 @@ export default class App extends Component {
 
                                         <View style={[{  width: '100%',  justifyContent:'center', alignItems:'center' }]}>
 
-
                                             {this.state.loaded ?
 
                                                 <PieChart

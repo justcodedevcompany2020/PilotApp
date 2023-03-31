@@ -5,6 +5,6 @@
   "minify": false,
   "urlRandomness": "3e-cih",
   "https": false,
-  "devClient": true,
-  "scheme": "exp+pilottestzis"
+  "scheme": "exp+pilottestzis",
+  "devClient": false
 }

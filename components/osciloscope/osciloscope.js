@@ -207,8 +207,8 @@ export default class App extends Component {
         let userToken = await AsyncStorage.getItem('userToken');
         let AuthStr   = 'Bearer ' + userToken;
         let {date_begin, date_end, chart_type, language_name} = this.state;
-        // let device_id = this.props.id; // 10
-        let device_id = 26; // 10
+        let device_id = this.props.id; // 10
+        // let device_id = 26; // 10
 
         console.log(AuthStr)
         console.log(`https://apiv1.zis.ru/tests/create_osci/${device_id}`);
@@ -229,13 +229,20 @@ export default class App extends Component {
 
                 if(response.hasOwnProperty('error'))
                 {
-                    let error = language_name == 'ru' ? response.error.ru : response.language == 'en' ? response.error.en : response.error.en ;
+                    // let error = language_name == 'ru' ? response.error.ru : response.language == 'en' ? response.error.en : response.error.en ;
+                    let error = language_name == 'ru' ? response.description.ru : response.language == 'en' ? response.description.en : response.description.en ;
 
+                    this.setState({
+                        show_loader: false,
+                        show_error: true,
+                        error_text: error
+                    })
                     console.log( error );
 
                     return false
 
-                } else if(response.hasOwnProperty('id')) {
+                }
+                else if(response.hasOwnProperty('id')) {
 
                     let request_id = response.id;
                     let interval_max_count = 30;

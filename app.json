@@ -2,7 +2,7 @@
   "expo": {
     "name": "Pilot Test",
     "slug": "PilotTestZis",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -23,7 +23,9 @@
         "UIBackgroundModes": [
           "remote-notification"
         ]
-      }
+      },
+      "bundleIdentifier": "ru.zis.pilottest",
+      "buildNumber": "2.0.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,7 +38,7 @@
       "package": "ru.zis.pilottest",
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi": true,
-      "versionCode": 1
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"

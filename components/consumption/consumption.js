@@ -22,7 +22,7 @@ import {
     Switch,
     FlatList,
     Linking,
-    Pressable,
+    Pressable, Platform,
 } from 'react-native';
 
 import {
@@ -868,7 +868,150 @@ export default class App extends Component {
 
     }
 
-    render() {
+    WebViewContent = () => {
+        let type = Platform.OS == 'android' ? 'document' : 'window';
+
+        return `
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        
+          <script type="text/javascript">
+          
+                ${type}.addEventListener("message", message => {
+
+                  
+              google.charts.load('current', {'packages':['corechart']});
+              google.charts.setOnLoadCallback(drawVisualization);
+                      
+                //Перевод
+                const translateMonth = {en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                      ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] };
+                      const translateWeek = {en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+                      ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"] };
+                      const translateChart = {
+                      chartDate: { en: 'Date', ru: 'Дата' },
+                      chartValue: { en: 'Consuption', ru: 'Потребление' },      
+                       };
+                      
+                     
+                      function drawVisualization() {
+                        var chartData1 =  JSON.parse(message.data)     
+                        var language = chartData1.language_name; //Локалмзация en | ru
+                        //var showAs = 'days'; //показывать как hourly | week | days
+                 
+                        if(chartData1.chart_type == 'day') {
+                            showAs = 'hours';
+                        }
+
+                        if(chartData1.chart_type == 'week') {
+                            showAs = 'week';
+                        }
+
+                        if(chartData1.chart_type == 'month') {
+                            showAs = 'days';
+                        }
+                        
+                        var apiDataArray = chartData1.data;
+                        
+                        // alert(JSON.stringify(apiDataArray));
+                      //    var apiDataArray = [
+                      //    { timestamp: '2023-01-05',  consumption: 0.2 },
+                      //    { timestamp: '2023-01-07',  consumption: 1.3 },
+                      //    { timestamp: '2023-01-08',  consumption: 1.3 },
+                      //    { timestamp: '2023-01-09',  consumption: 2.2 },
+                      //    { timestamp: '2023-01-10',  consumption: 3.1 },
+                      //    { timestamp: '2023-01-11',  consumption: 4.3 },
+                      //    { timestamp: '2023-01-12',  consumption: 4.3 },
+                      //    { timestamp: '2023-01-13',  consumption: 4.6 },
+                      //    { timestamp: '2023-01-14',  consumption: 4.7 },
+                      //    { timestamp: '2023-01-15',  consumption: 7.4 },
+                      //    { timestamp: '2023-01-16',  consumption: 9.4 },
+                      //    { timestamp: '2023-01-17',  consumption: 9.8 },
+                      //    { timestamp: '2023-01-18',  consumption: 9.9 },
+                      //    { timestamp: '2023-01-19',  consumption: 11.2 },
+                      //    { timestamp: '2023-01-20',  consumption: 12.5 },
+                      //    { timestamp: '2023-01-21',  consumption: 14.3 },
+                      //    { timestamp: '2023-01-22',  consumption: 19.5 },
+                      //    { timestamp: '2023-01-23',  consumption: 20.2 },
+                      //    { timestamp: '2023-01-24',  consumption: 22.0 },
+                      //    { timestamp: '2023-01-25',  consumption: 23.6 },
+                      //    { timestamp: '2023-01-26',  consumption: 24.7 },
+                      //    { timestamp: '2023-01-27',  consumption: 25.8 },
+                      //    { timestamp: '2023-01-28',  consumption: 26.0 },
+                      //    { timestamp: '2023-01-29',  consumption: 26.0 },
+                      //    { timestamp: '2023-01-30',  consumption: 26.0 },
+                      //    { timestamp: '2023-01-31',  consumption: 26.1 },
+                      //    { timestamp: '2023-02-01',  consumption: 26.1 },
+                      //    { timestamp: '2023-02-02',  consumption: 26.1 },
+                      //    { timestamp: '2023-02-03',  consumption: 26.1 },
+                      // ];
+                      //
+                  
+                
+                //Готовим массив под наполнение
+                        var dataArray = []; 
+                        dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
+                        translateChart.chartDate[language], 
+                          translateChart.chartValue[language]
+                         ]), 
+                        apiDataArray.forEach((element) => {
+                         
+                        //Заголовки подписей
+                        var caption = ''
+                        var mydate = new Date(element.timestamp);
+                        if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
+                        if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
+                        if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
+                           
+                  dataArray.push([
+                          caption,  //Заголовок
+                            element.consumption//Целевое значение
+                            ]);
+                });
+                        
+                        
+                //Отправляем данные в диаграму        
+                        var data = google.visualization.arrayToDataTable(dataArray);
+                
+                
+                //Рассчитываем границу графика для подрезки      
+                //var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
+                
+                //Настройки графиков
+                        var options = {
+                          /*title : 'Monthly12',*/
+                          legend: 'none',
+                          vAxis: {
+                          /*title: 'V',*/
+                            /*scaleType: 'log',*/
+                           // viewWindow: {min: minimalValue}, //подрезка графика
+                          },
+                          hAxis: {
+                         /*title: 'Date',*/
+                          },
+                    
+                         
+                          series: {
+                
+                          0: {type: 'area', color: '10BCCE'}, // красная линия
+                            }
+                        };
+                
+                        var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+                        chart.draw(data, options);
+                        
+                      }
+
+                });
+
+          </script>
+          
+        <div id="chart_div" style="width: 400px; height: 300px;"></div>`
+
+    }
+
+
+        render() {
 
         return (
             <SafeAreaView style={styles.container} >
@@ -957,141 +1100,7 @@ export default class App extends Component {
                                         mixedContentMode="compatibility"
                                         showsHorizontalScrollIndicator={false}
                                         ref={this.webviewRef}
-                                        source={{ html: `
-                                        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-                                        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-                                        
-                                          <script type="text/javascript">
-                                                document.addEventListener("message", message => {
-
-                                                  
-                                              google.charts.load('current', {'packages':['corechart']});
-                                              google.charts.setOnLoadCallback(drawVisualization);
-                                                      
-                                                //Перевод
-                                                const translateMonth = {en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-                                                      ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] };
-                                                      const translateWeek = {en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-                                                      ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"] };
-                                                      const translateChart = {
-                                                      chartDate: { en: 'Date', ru: 'Дата' },
-                                                      chartValue: { en: 'Consuption', ru: 'Потребление' },      
-                                                       };
-                                                      
-                                                     
-                                                      function drawVisualization() {
-                                                        var chartData1 =  JSON.parse(message.data)     
-                                                        var language = chartData1.language_name; //Локалмзация en | ru
-                                                        //var showAs = 'days'; //показывать как hourly | week | days
-                                                 
-                                                        if(chartData1.chart_type == 'day') {
-                                                            showAs = 'hours';
-                                                        }
-
-                                                        if(chartData1.chart_type == 'week') {
-                                                            showAs = 'week';
-                                                        }
-
-                                                        if(chartData1.chart_type == 'month') {
-                                                            showAs = 'days';
-                                                        }
-                                                        
-                                                        var apiDataArray = chartData1.data;
-                                                        
-                                                        // alert(JSON.stringify(apiDataArray));
-                                                      //    var apiDataArray = [
-                                                      //    { timestamp: '2023-01-05',  consumption: 0.2 },
-                                                      //    { timestamp: '2023-01-07',  consumption: 1.3 },
-                                                      //    { timestamp: '2023-01-08',  consumption: 1.3 },
-                                                      //    { timestamp: '2023-01-09',  consumption: 2.2 },
-                                                      //    { timestamp: '2023-01-10',  consumption: 3.1 },
-                                                      //    { timestamp: '2023-01-11',  consumption: 4.3 },
-                                                      //    { timestamp: '2023-01-12',  consumption: 4.3 },
-                                                      //    { timestamp: '2023-01-13',  consumption: 4.6 },
-                                                      //    { timestamp: '2023-01-14',  consumption: 4.7 },
-                                                      //    { timestamp: '2023-01-15',  consumption: 7.4 },
-                                                      //    { timestamp: '2023-01-16',  consumption: 9.4 },
-                                                      //    { timestamp: '2023-01-17',  consumption: 9.8 },
-                                                      //    { timestamp: '2023-01-18',  consumption: 9.9 },
-                                                      //    { timestamp: '2023-01-19',  consumption: 11.2 },
-                                                      //    { timestamp: '2023-01-20',  consumption: 12.5 },
-                                                      //    { timestamp: '2023-01-21',  consumption: 14.3 },
-                                                      //    { timestamp: '2023-01-22',  consumption: 19.5 },
-                                                      //    { timestamp: '2023-01-23',  consumption: 20.2 },
-                                                      //    { timestamp: '2023-01-24',  consumption: 22.0 },
-                                                      //    { timestamp: '2023-01-25',  consumption: 23.6 },
-                                                      //    { timestamp: '2023-01-26',  consumption: 24.7 },
-                                                      //    { timestamp: '2023-01-27',  consumption: 25.8 },
-                                                      //    { timestamp: '2023-01-28',  consumption: 26.0 },
-                                                      //    { timestamp: '2023-01-29',  consumption: 26.0 },
-                                                      //    { timestamp: '2023-01-30',  consumption: 26.0 },
-                                                      //    { timestamp: '2023-01-31',  consumption: 26.1 },
-                                                      //    { timestamp: '2023-02-01',  consumption: 26.1 },
-                                                      //    { timestamp: '2023-02-02',  consumption: 26.1 },
-                                                      //    { timestamp: '2023-02-03',  consumption: 26.1 },
-                                                      // ];
-                                                      //
-                                                  
-                                                
-                                                //Готовим массив под наполнение
-                                                        var dataArray = []; 
-                                                        dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
-                                                        translateChart.chartDate[language], 
-                                                          translateChart.chartValue[language]
-                                                         ]), 
-                                                        apiDataArray.forEach((element) => {
-                                                         
-                                                        //Заголовки подписей
-                                                        var caption = ''
-                                                        var mydate = new Date(element.timestamp);
-                                                        if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
-                                                        if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
-                                                        if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
-                                                           
-                                                  dataArray.push([
-                                                          caption,  //Заголовок
-                                                            element.consumption//Целевое значение
-                                                            ]);
-                                                });
-                                                        
-                                                        
-                                                //Отправляем данные в диаграму        
-                                                        var data = google.visualization.arrayToDataTable(dataArray);
-                                                
-                                                
-                                                //Рассчитываем границу графика для подрезки      
-                                                //var minimalValue = ( recommended > userLimit ) ? userLimit - 20 : recommended - 20;
-                                                
-                                                //Настройки графиков
-                                                        var options = {
-                                                          /*title : 'Monthly12',*/
-                                                          legend: 'none',
-                                                          vAxis: {
-                                                          /*title: 'V',*/
-                                                            /*scaleType: 'log',*/
-                                                           // viewWindow: {min: minimalValue}, //подрезка графика
-                                                          },
-                                                          hAxis: {
-                                                         /*title: 'Date',*/
-                                                          },
-                                                    
-                                                         
-                                                          series: {
-                                                
-                                                          0: {type: 'area', color: '10BCCE'}, // красная линия
-                                                            }
-                                                        };
-                                                
-                                                        var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
-                                                        chart.draw(data, options);
-                                                        
-                                                      }
-
-                                                });
-
-                                          </script>
-                                          
-                                        <div id="chart_div" style="width: 400px; height: 300px;"></div>` }}
+                                        source={{ html: this.WebViewContent() }}
                                     />
 
 

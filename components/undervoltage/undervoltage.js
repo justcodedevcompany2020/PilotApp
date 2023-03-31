@@ -949,6 +949,125 @@ export default class App extends Component {
         return formatted;
     }
 
+
+    WebViewContent = () =>
+    {
+        let type = Platform.OS == 'android' ? 'document' : 'window';
+        return `
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        
+          <script type="text/javascript">
+          
+                 ${type}.addEventListener("message", message => {
+
+                    google.charts.load('current', {'packages':['corechart']});
+                      google.charts.setOnLoadCallback(drawVisualization);
+                      
+                //Перевод
+                const translateMonth = {en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                      ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] };
+                      const translateWeek = {en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+                      ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"] };
+                      const translateChart = {
+                      chartDate: { en: 'Date', ru: 'Дата' },
+                      chartRecomended: { en: 'Recomended', ru: 'Рекомендованое PILOT(R)' },
+                      chartLimit: { en: 'Limit', ru: 'Предельное значение' },
+                      chartValue: { en: 'Value', ru: 'Пиковое значение' },      
+                       };
+                      
+                     
+                      function drawVisualization() {
+                        var chartData1 =  JSON.parse(message.data)     
+                        // var language = 'ru'; //Локалмзация en | ru
+                        var language = chartData1.language_name; //Локалмзация en | ru
+                        var showAs = 'days'; //показывать как hourly | week | days
+                        var recommended = 180; //Граница рекомендуемого для оценки повышеного напряжения (всегда 180)
+                        var userLimit = chartData1.lower_voltage_trigger; // Граница которую указал пользователь для тестирования
+                            
+                            if(chartData1.chart_type == 'day') {
+                                showAs = 'hours';
+                            }
+                            
+                            if(chartData1.chart_type == 'week') {
+                                showAs = 'week';
+                            }
+                            
+                            if(chartData1.chart_type == 'month') {
+                                showAs = 'days';
+                            }
+                            
+                            console.log(chartData1, 'dddddddddddddddddd')
+                            var apiDataArray = chartData1.data;
+                            
+                
+                //Готовим массив под наполнение
+                        var dataArray = []; 
+                        dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
+                        translateChart.chartDate[language], 
+                          translateChart.chartRecomended[language], 
+                          translateChart.chartLimit[language],  
+                          translateChart.chartValue[language]
+                         ]), 
+                        apiDataArray.forEach((element) => {
+                         
+                        //Заголовки подписей
+                        var caption = ''
+                        var mydate = new Date(element.timestamp);
+                        if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
+                        if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
+                        if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
+                           
+                  dataArray.push([
+                          caption,  //Заголовок
+                            recommended,        //Рекомендованная граница
+                            userLimit,          // Пользовательская граница
+                            (element.voltage == 0) ?  minimalValue : element.voltage//Целевое значение
+                            ]);
+                });
+                        
+                        
+                //Отправляем данные в диаграму        
+                        var data = google.visualization.arrayToDataTable(dataArray);
+                
+                
+                //Рассчитываем границу графика для подрезки      
+                // var minimalValue = ( recommended < userLimit ) ? userLimit + 20 : recommended + 20;
+                var minimalValue = 220;
+                //var minimalValue = 220;
+                
+                //Настройки графиков
+                        var options = {
+                          /*title : 'Monthly12',*/
+                          legend: 'none',
+                          vAxis: {
+                          /*title: 'V',*/
+                            /*scaleType: 'mirrorLog',*/
+                            //viewWindow: {min: minimalValue}, //подрезка графика
+                            direction: 1,
+                            baseline: minimalValue,
+                          },
+                          hAxis: {
+                         /*title: 'Date',*/
+                          },
+                   
+                          series: {
+                            0: {type: 'area', color: '10BCCE', areaOpacity: 0.2,  lineWidth: 0}, //график рекомендуемых
+                          1: {type: 'line', color: 'ff0000'}, // красная линия
+                            2: {type: 'bars', color: 'f2994a', } // данные
+                            }
+                        };
+                
+                        var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+                        chart.draw(data, options);
+                      }
+
+                });
+          
+          </script>
+        <div id="chart_div" style="width: 100%; height: 300px;"></div>`
+    }
+
     render() {
 
 
@@ -1034,120 +1153,7 @@ export default class App extends Component {
                                         onLoad={() => this.pressToDay()}
                                         mixedContentMode="compatibility"
                                         ref={this.webviewRef}
-                                        source={{ html: `
-                                        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-                                        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-                                        
-                                          <script type="text/javascript">
-                                          
-                                                window.addEventListener("message", message => {
-
-                                                       google.charts.load('current', {'packages':['corechart']});
-                                                      google.charts.setOnLoadCallback(drawVisualization);
-                                                      
-                                                //Перевод
-                                                const translateMonth = {en: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-                                                      ru: ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"] };
-                                                      const translateWeek = {en: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-                                                      ru: ["ВС","ПН","ВТ","СР","ЧТ","ПТ","СБ"] };
-                                                      const translateChart = {
-                                                      chartDate: { en: 'Date', ru: 'Дата' },
-                                                      chartRecomended: { en: 'Recomended', ru: 'Рекомендованое PILOT(R)' },
-                                                      chartLimit: { en: 'Limit', ru: 'Предельное значение' },
-                                                      chartValue: { en: 'Value', ru: 'Пиковое значение' },      
-                                                       };
-                                                      
-                                                     
-                                                      function drawVisualization() {
-                                                        var chartData1 =  JSON.parse(message.data)     
-                                                        // var language = 'ru'; //Локалмзация en | ru
-                                                        var language = chartData1.language_name; //Локалмзация en | ru
-                                                        var showAs = 'days'; //показывать как hourly | week | days
-                                                        var recommended = 180; //Граница рекомендуемого для оценки повышеного напряжения (всегда 180)
-                                                        var userLimit = chartData1.lower_voltage_trigger; // Граница которую указал пользователь для тестирования
-                                                            
-                                                            if(chartData1.chart_type == 'day') {
-                                                                showAs = 'hours';
-                                                            }
-                                                            
-                                                            if(chartData1.chart_type == 'week') {
-                                                                showAs = 'week';
-                                                            }
-                                                            
-                                                            if(chartData1.chart_type == 'month') {
-                                                                showAs = 'days';
-                                                            }
-                                                            
-                                                            console.log(chartData1, 'dddddddddddddddddd')
-                                                            var apiDataArray = chartData1.data;
-                                                            
-                                                
-                                                //Готовим массив под наполнение
-                                                        var dataArray = []; 
-                                                        dataArray.push([// Заголовок графика ['Дата', 'Ркомендованное PILOT(R)', 'Граница',  'Пикоое значение']
-                                                        translateChart.chartDate[language], 
-                                                          translateChart.chartRecomended[language], 
-                                                          translateChart.chartLimit[language],  
-                                                          translateChart.chartValue[language]
-                                                         ]), 
-                                                        apiDataArray.forEach((element) => {
-                                                         
-                                                        //Заголовки подписей
-                                                        var caption = ''
-                                                        var mydate = new Date(element.timestamp);
-                                                        if ( showAs == 'days' ) { caption = mydate.getDate() + ' ' + translateMonth[language][mydate.getMonth()] };
-                                                        if ( showAs == 'week' ) { caption = translateWeek[language][mydate.getDay()] };
-                                                        if ( showAs == 'hours' ) { caption = mydate.getHours() + ':00'};   
-                                                           
-                                                  dataArray.push([
-                                                          caption,  //Заголовок
-                                                            recommended,        //Рекомендованная граница
-                                                            userLimit,          // Пользовательская граница
-                                                            (element.voltage == 0) ?  minimalValue : element.voltage//Целевое значение
-                                                            ]);
-                                                });
-                                                        
-                                                        
-                                                //Отправляем данные в диаграму        
-                                                        var data = google.visualization.arrayToDataTable(dataArray);
-                                                
-                                                
-                                                //Рассчитываем границу графика для подрезки      
-                                                // var minimalValue = ( recommended < userLimit ) ? userLimit + 20 : recommended + 20;
-                                                var minimalValue = 220;
-                                                //var minimalValue = 220;
-                                                
-                                                //Настройки графиков
-                                                        var options = {
-                                                          /*title : 'Monthly12',*/
-                                                          legend: 'none',
-                                                          vAxis: {
-                                                          /*title: 'V',*/
-                                                            /*scaleType: 'mirrorLog',*/
-                                                            //viewWindow: {min: minimalValue}, //подрезка графика
-                                                            direction: 1,
-                                                            baseline: minimalValue,
-                                                          },
-                                                          hAxis: {
-                                                         /*title: 'Date',*/
-                                                          },
-                                                    
-                                                         
-                                                          series: {
-                                                            0: {type: 'area', color: '10BCCE', areaOpacity: 0.2,  lineWidth: 0}, //график рекомендуемых
-                                                          1: {type: 'line', color: 'ff0000'}, // красная линия
-                                                            2: {type: 'bars', color: 'f2994a', } // данные
-                                                            }
-                                                        };
-                                                
-                                                        var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
-                                                        chart.draw(data, options);
-                                                      }
-
-                                                });
-                                          
-                                          </script>
-                                        <div id="chart_div" style="width: 100%; height: 300px;"></div>` }}
+                                        source={{ html: this.WebViewContent() }}
                                     />
                                 </View>
 
